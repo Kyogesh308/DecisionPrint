@@ -11,10 +11,10 @@ import streamlit as st
 # =========================================================================
 
 
-def _pill(label: str, bg: str, text_color: str, border: str = "#111111") -> str:
+def _pill(label: str, bg: str, text_color: str, border: str = "var(--edge)") -> str:
     """Return a soft neo-brutalist pill badge."""
     esc_label = html.escape(str(label))
-    border_css = f"border: 1.5px solid {border};" if border else "border: 1.5px solid #111111;"
+    border_css = f"border: 1.5px solid {border};" if border else "border: 1.5px solid var(--edge);"
     return (
         f'<span class="dp-badge" style="background:{bg}; color:{text_color}; '
         f"{border_css} border-radius:999px; padding:3px 10px; font-size:0.75rem; "
@@ -22,20 +22,22 @@ def _pill(label: str, bg: str, text_color: str, border: str = "#111111") -> str:
     )
 
 
-def _tile(title: str, value: str | int, subtitle: str = "", bg: str = "#EAF2FF") -> str:
+def _tile(title: str, value: str | int, subtitle: str = "", bg: str = "var(--surface2)") -> str:
     """Return a soft neo-brutalist stat tile with pastel background."""
     esc_title = html.escape(str(title))
     esc_val = html.escape(str(value))
     esc_sub = html.escape(str(subtitle))
-    sub_html = f"<div style='font-size:0.75rem; color:#666666; margin-top:2px;'>{esc_sub}</div>" if subtitle else ""
+    sub_html = (
+        f"<div style='font-size:0.75rem; color:var(--muted); margin-top:2px;'>{esc_sub}</div>" if subtitle else ""
+    )
     return f"""
-    <div style='background:{bg}; border: 1.5px solid #111111; border-bottom: 4px solid #111111;
+    <div style='background:{bg}; border: 1.5px solid var(--edge); border-bottom: 4px solid var(--edge);
                 border-radius:16px; padding:1rem 1.15rem; display:flex; flex-direction:column;
                 gap:2px;'>
-        <div style='font-size:0.8rem; font-weight:600; color:#444444; text-transform:uppercase; letter-spacing:0.04em;'>
+        <div style='font-size:0.8rem; font-weight:600; color:var(--text); text-transform:uppercase; letter-spacing:0.04em;'>
             {esc_title}
         </div>
-        <div style='font-size:1.75rem; font-weight:800; color:#111111; line-height:1.2; font-family:"JetBrains Mono", monospace;'>
+        <div style='font-size:1.75rem; font-weight:800; color:var(--text); line-height:1.2; font-family:"JetBrains Mono", monospace;'>
             {esc_val}
         </div>
         {sub_html}
@@ -46,16 +48,16 @@ def _tile(title: str, value: str | int, subtitle: str = "", bg: str = "#EAF2FF")
 def _chip(text: str, active: bool = False, on_click_key: str | None = None) -> str:
     """Return a soft neo-brutalist chip."""
     esc_text = html.escape(str(text))
-    bg = "var(--coral, #F26F55)" if active else "var(--card, #FFFFFF)"
-    color = "#FFFFFF" if active else "var(--ink, #111111)"
+    bg = "var(--coral)" if active else "var(--surface)"
+    color = "var(--on-coral)" if active else "var(--text)"
     return (
-        f'<span style="background:{bg}; color:{color}; border:1.5px solid var(--ink, #111111); '
-        f"border-bottom:3px solid var(--ink, #111111); border-radius:999px; padding:4px 12px; "
+        f'<span style="background:{bg}; color:{color}; border:1.5px solid var(--edge); '
+        f"border-bottom:3px solid var(--edge); border-radius:999px; padding:4px 12px; "
         f'font-size:0.78rem; font-weight:600; display:inline-block; margin:2px;">{esc_text}</span>'
     )
 
 
-def _svg_ring(value: float, color: str = "#5B8DEF", label: str = "", size: int = 48) -> str:
+def _svg_ring(value: float, color: str = "var(--blue)", label: str = "", size: int = 48) -> str:
     """Return an SVG progress ring for confidence and score indicators."""
     clamped = max(0.0, min(1.0, float(value)))
     pct = int(clamped * 100)
@@ -66,7 +68,7 @@ def _svg_ring(value: float, color: str = "#5B8DEF", label: str = "", size: int =
     return f"""
     <svg width="{size}" height="{size}" viewBox="0 0 {size} {size}" style="display:inline-block; vertical-align:middle;">
         <title>{esc_label}: {pct}%</title>
-        <circle cx="{size / 2}" cy="{size / 2}" r="{radius}" fill="none" stroke="#E6E6E6" stroke-width="4"/>
+        <circle cx="{size / 2}" cy="{size / 2}" r="{radius}" fill="none" stroke="var(--line)" stroke-width="4"/>
         <circle cx="{size / 2}" cy="{size / 2}" r="{radius}" fill="none" stroke="{color}" stroke-width="4"
                 stroke-dasharray="{circ}" stroke-dashoffset="{dashoffset}" stroke-linecap="round"
                 transform="rotate(-90 {size / 2} {size / 2})" style="transition: stroke-dashoffset 0.4s ease;"/>
@@ -86,7 +88,6 @@ def _svg_gauge(
     """Return an SVG semi-circular drift gauge with indicator needle."""
     clamped = max(0.0, min(1.0, float(value)))
     pct = int(clamped * 100)
-    # Default bands: Low (<0.4: teal), Medium (0.4-0.75: yellow), High (>0.75: coral)
     cx, cy, r = width / 2, height - 15, 65
     needle_angle = 180 * clamped
     import math
@@ -96,21 +97,21 @@ def _svg_gauge(
     ny = cy - (r - 10) * math.sin(rad)
 
     color_map = {
-        "none": "#52C4C0",
-        "low": "#FFC43D",
-        "medium": "#F26F55",
-        "high": "#F26F55",
+        "none": "var(--teal)",
+        "low": "var(--yellow)",
+        "medium": "var(--coral)",
+        "high": "var(--coral)",
     }
-    gauge_col = color_map.get(level.lower(), "#F26F55")
+    gauge_col = color_map.get(level.lower(), "var(--coral)")
     esc_lvl = html.escape(level.upper() if level else f"{pct}%")
 
     return f"""
     <svg width="{width}" height="{height}" viewBox="0 0 {width} {height}" style="overflow:visible;">
         <title>Drift Score: {pct}% ({esc_lvl})</title>
-        <path d="M {cx - r} {cy} A {r} {r} 0 0 1 {cx + r} {cy}" fill="none" stroke="#E6E6E6" stroke-width="12" stroke-linecap="round"/>
+        <path d="M {cx - r} {cy} A {r} {r} 0 0 1 {cx + r} {cy}" fill="none" stroke="var(--line)" stroke-width="12" stroke-linecap="round"/>
         <path d="M {cx - r} {cy} A {r} {r} 0 0 1 {nx} {ny}" fill="none" stroke="{gauge_col}" stroke-width="12" stroke-linecap="round"/>
-        <line x1="{cx}" y1="{cy}" x2="{nx}" y2="{ny}" stroke="#111111" stroke-width="3" stroke-linecap="round"/>
-        <circle cx="{cx}" cy="{cy}" r="6" fill="#111111"/>
+        <line x1="{cx}" y1="{cy}" x2="{nx}" y2="{ny}" stroke="var(--edge)" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="{cx}" cy="{cy}" r="6" fill="var(--edge)"/>
         <text x="{cx}" y="{cy + 14}" text-anchor="middle" font-size="12px" font-weight="700"
               font-family="'Poppins', sans-serif" fill="currentColor">{pct}% — {esc_lvl}</text>
     </svg>
@@ -131,14 +132,14 @@ def _svg_bar_pair(
     w_old = max(4.0, (v_old / m) * (width * 0.4))
     w_new = max(4.0, (v_new / m) * (width * 0.4))
     is_diff = v_old != v_new
-    new_col = "#F26F55" if is_diff else "#8A8A8A"
+    new_col = "var(--coral)" if is_diff else "var(--muted)"
 
     return f"""
     <svg width="{width}" height="{height}" viewBox="0 0 {width} {height}">
         <title>Old: {old_val} -> New: {new_val}</title>
-        <rect x="0" y="4" width="{w_old}" height="14" rx="4" fill="#8A8A8A"/>
-        <text x="{w_old + 6}" y="15" font-size="11px" font-weight="600" font-family="'JetBrains Mono', monospace" fill="#666666">{old_val}</text>
-        <text x="{width * 0.5}" y="15" text-anchor="middle" font-size="12px" font-weight="800" fill="#111111">→</text>
+        <rect x="0" y="4" width="{w_old}" height="14" rx="4" fill="var(--muted)"/>
+        <text x="{w_old + 6}" y="15" font-size="11px" font-weight="600" font-family="'JetBrains Mono', monospace" fill="var(--muted)">{old_val}</text>
+        <text x="{width * 0.5}" y="15" text-anchor="middle" font-size="12px" font-weight="800" fill="var(--text)">→</text>
         <rect x="{width * 0.55}" y="4" width="{w_new}" height="14" rx="4" fill="{new_col}"/>
         <text x="{width * 0.55 + w_new + 6}" y="15" font-size="11px" font-weight="700" font-family="'JetBrains Mono', monospace" fill="{new_col}">{new_val}</text>
     </svg>
@@ -159,18 +160,18 @@ def _svg_step_track(values: list[str], old_val: str, new_val: str, width: int = 
         x = i * spacing if n > 1 else width / 2
         is_old = i == old_idx
         is_new = i == new_idx
-        fill = "#F26F55" if is_new else ("#8A8A8A" if is_old else "#E6E6E6")
+        fill = "var(--coral)" if is_new else ("var(--muted)" if is_old else "var(--line)")
         r = 6 if (is_old or is_new) else 4
-        steps_svg.append(f'<circle cx="{x}" cy="12" r="{r}" fill="{fill}" stroke="#111111" stroke-width="1.5"/>')
+        steps_svg.append(f'<circle cx="{x}" cy="12" r="{r}" fill="{fill}" stroke="var(--edge)" stroke-width="1.5"/>')
         steps_svg.append(
             f'<text x="{x}" y="28" text-anchor="middle" font-size="9px" font-weight="600" '
-            f'font-family="sans-serif" fill="#666666">{html.escape(val)}</text>'
+            f'font-family="sans-serif" fill="var(--muted)">{html.escape(val)}</text>'
         )
 
     return f"""
     <svg width="{width}" height="{height}" viewBox="0 0 {width} {height}">
         <title>Track: {old_val} -> {new_val}</title>
-        <line x1="0" y1="12" x2="{width}" y2="12" stroke="#111111" stroke-width="1.5"/>
+        <line x1="0" y1="12" x2="{width}" y2="12" stroke="var(--edge)" stroke-width="1.5"/>
         {"".join(steps_svg)}
     </svg>
     """
@@ -180,7 +181,7 @@ def _svg_stacked_bar(segments: list[tuple[str, float, str]], width: int = 280, h
     """Return an SVG stacked horizontal segment bar."""
     total = sum(val for _, val, _ in segments)
     if total <= 0:
-        return f'<svg width="{width}" height="{height}"><rect width="{width}" height="{height}" rx="6" fill="#E6E6E6"/></svg>'
+        return f'<svg width="{width}" height="{height}"><rect width="{width}" height="{height}" rx="6" fill="var(--line)"/></svg>'
 
     curr_x = 0.0
     rects = []
@@ -205,7 +206,7 @@ def _svg_donut(segments: list[tuple[str, float, str]], size: int = 80) -> str:
     """Return an SVG donut chart showing breakdown proportions."""
     total = sum(val for _, val, _ in segments)
     if total <= 0:
-        return f'<svg width="{size}" height="{size}"><circle cx="{size / 2}" cy="{size / 2}" r="{size / 3}" fill="none" stroke="#E6E6E6" stroke-width="8"/></svg>'
+        return f'<svg width="{size}" height="{size}"><circle cx="{size / 2}" cy="{size / 2}" r="{size / 3}" fill="none" stroke="var(--line)" stroke-width="8"/></svg>'
 
     radius = size * 0.35
     circ = 2 * 3.14159 * radius
@@ -228,13 +229,13 @@ def _svg_donut(segments: list[tuple[str, float, str]], size: int = 80) -> str:
     return f"""
     <svg width="{size}" height="{size}" viewBox="0 0 {size} {size}">
         <title>{title_str}</title>
-        <circle cx="{size / 2}" cy="{size / 2}" r="{radius}" fill="none" stroke="#E6E6E6" stroke-width="8"/>
+        <circle cx="{size / 2}" cy="{size / 2}" r="{radius}" fill="none" stroke="var(--line)" stroke-width="8"/>
         {"".join(arcs)}
     </svg>
     """
 
 
-def _svg_sparkline(points: list[float | int], color: str = "#5B8DEF", width: int = 100, height: int = 26) -> str:
+def _svg_sparkline(points: list[float | int], color: str = "var(--blue)", width: int = 100, height: int = 26) -> str:
     """Return an SVG sparkline showing progressive metric evolution."""
     if not points or len(points) < 2:
         return f'<svg width="{width}" height="{height}"><line x1="0" y1="{height / 2}" x2="{width}" y2="{height / 2}" stroke="{color}" stroke-width="2"/></svg>'
@@ -250,7 +251,7 @@ def _svg_sparkline(points: list[float | int], color: str = "#5B8DEF", width: int
         x = i * step_x
         y = height - 4 - ((float(p) - min_v) / spread) * (height - 8)
         pts_coords.append(f"{x:.1f},{y:.1f}")
-        dots.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="2.5" fill="{color}" stroke="#111111" stroke-width="1"/>')
+        dots.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="2.5" fill="{color}" stroke="var(--edge)" stroke-width="1"/>')
 
     polyline_pts = " ".join(pts_coords)
     title_str = html.escape("Evolution: " + " -> ".join(str(p) for p in points))
@@ -276,15 +277,15 @@ def _svg_funnel(stages: list[tuple[str, int, str]], width: int = 260, height: in
         x = i * stage_w
         rects.append(
             f'<rect x="{x + 2}" y="8" width="{stage_w - 4}" height="28" rx="6" fill="{color}" '
-            f'border="1.5px solid #111111" stroke="#111111" stroke-width="1.5"/>'
+            f'border="1.5px solid var(--edge)" stroke="var(--edge)" stroke-width="1.5"/>'
         )
         rects.append(
             f'<text x="{x + stage_w / 2}" y="24" text-anchor="middle" font-size="11px" font-weight="700" '
-            f'font-family="monospace" fill="#FFFFFF">{count}</text>'
+            f'font-family="monospace" fill="var(--on-coral)">{count}</text>'
         )
         rects.append(
             f'<text x="{x + stage_w / 2}" y="44" text-anchor="middle" font-size="9px" font-weight="600" '
-            f'font-family="sans-serif" fill="#666666">{html.escape(label)}</text>'
+            f'font-family="sans-serif" fill="var(--muted)">{html.escape(label)}</text>'
         )
         titles.append(f"{label}: {count}")
 
@@ -306,30 +307,30 @@ def _svg_timeline_axis(events: list[dict[str, str]], width: int = 500, height: i
     items = []
 
     kind_colors = {
-        "original_decision": "#5B8DEF",
-        "exception": "#FFC43D",
-        "outcome": "#52C4C0",
-        "reconsideration": "#F26F55",
-        "supersession": "#C23E25",
+        "original_decision": "var(--blue)",
+        "exception": "var(--yellow)",
+        "outcome": "var(--teal)",
+        "reconsideration": "var(--coral)",
+        "supersession": "var(--coral)",
     }
 
     for i, ev in enumerate(events):
         x = i * step if n > 1 else width / 2
         k = ev.get("kind", "original_decision").lower()
-        col = kind_colors.get(k, "#5B8DEF")
+        col = kind_colors.get(k, "var(--blue)")
         title = html.escape(ev.get("title", ""))
         date = html.escape(ev.get("date", ""))
         items.append(
-            f'<circle cx="{x}" cy="16" r="6" fill="{col}" stroke="#111111" stroke-width="1.5"><title>{title}</title></circle>'
+            f'<circle cx="{x}" cy="16" r="6" fill="{col}" stroke="var(--edge)" stroke-width="1.5"><title>{title}</title></circle>'
         )
         items.append(
-            f'<text x="{x}" y="32" text-anchor="middle" font-size="8.5px" font-family="monospace" fill="#666666">{date}</text>'
+            f'<text x="{x}" y="32" text-anchor="middle" font-size="8.5px" font-family="monospace" fill="var(--muted)">{date}</text>'
         )
 
     return f"""
     <svg width="{width}" height="{height}" viewBox="0 0 {width} {height}">
         <title>Timeline Axis</title>
-        <line x1="0" y1="16" x2="{width}" y2="16" stroke="#111111" stroke-width="2"/>
+        <line x1="0" y1="16" x2="{width}" y2="16" stroke="var(--edge)" stroke-width="2"/>
         {"".join(items)}
     </svg>
     """
@@ -340,7 +341,7 @@ def _svg_timeline_axis(events: list[dict[str, str]], width: int = 500, height: i
 # =========================================================================
 
 
-def render_stat_tile(title: str, value: str | int, subtitle: str = "", bg: str = "#EAF2FF") -> None:
+def render_stat_tile(title: str, value: str | int, subtitle: str = "", bg: str = "var(--surface2)") -> None:
     """Render a soft neo-brutalist stat tile component."""
     st.markdown(_tile(title, value, subtitle, bg), unsafe_allow_html=True)
 
@@ -355,15 +356,15 @@ def render_traceability_meter(claims_count: int, sourced_claims_count: int) -> N
     pct = int((sourced_claims_count / max(1, claims_count)) * 100)
     st.markdown(
         f"""
-        <div style='display:flex; align-items:center; gap:0.75rem; background:var(--card, #FFFFFF);
-                    border:1.5px solid var(--ink, #111111); border-bottom:3px solid var(--ink, #111111);
+        <div style='display:flex; align-items:center; gap:0.75rem; background:var(--surface);
+                    border:1.5px solid var(--edge); border-bottom:3px solid var(--edge);
                     border-radius:12px; padding:0.6rem 0.85rem;'>
-            <div>{_svg_ring(sourced_claims_count / max(1, claims_count), color="#52C4C0", size=36)}</div>
+            <div>{_svg_ring(sourced_claims_count / max(1, claims_count), color="var(--teal)", size=36)}</div>
             <div>
-                <div style='font-size:0.85rem; font-weight:700; color:var(--ink, #111111);'>
+                <div style='font-size:0.85rem; font-weight:700; color:var(--text);'>
                     Traceability: {sourced_claims_count} of {claims_count} claims grounded ({pct}%)
                 </div>
-                <div style='font-size:0.72rem; color:var(--muted, #8A8A8A);'>
+                <div style='font-size:0.72rem; color:var(--muted);'>
                     Every claim traces to primary historical architecture sources
                 </div>
             </div>

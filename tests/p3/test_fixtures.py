@@ -86,4 +86,3 @@ def test_brief_new_fixtures_structure() -> None:
     c_brief = builders.build_fixture_brief_cedar_outcome()
     assert isinstance(c_brief, DecisionBrief)
     assert len(c_brief.claims) >= 3
-

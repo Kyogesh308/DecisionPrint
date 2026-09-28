@@ -156,4 +156,3 @@ def test_ask_question_suggestion_chips_routing() -> None:
         brief = fb.ask_question(q, proj, role)
         assert brief is not None
         assert brief.project_id == proj
-
