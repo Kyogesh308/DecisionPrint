@@ -12,25 +12,7 @@ Here is how I built the UI layer for DecisionPrint, why traditional chat UIs fai
 
 DecisionPrint's frontend is completely decoupled from the underlying memory backend. The UI never interacts directly with vector indices or LLM prompts. Instead, it speaks exclusively to a typed `FacadeProtocol` contract, allowing the app to run seamlessly against either a deterministic local backend or a live [open-source Hindsight project on GitHub](https://github.com/vectorize-io/hindsight) memory engine.
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                          STREAMLIT UI LAYER (P3)                            │
-│  app.py · 0_Overview · 1_Ask · 2_Current_Projects · 3_Timeline             │
-│  4_Decision_Explorer · 5_Memory_Evolution · 6_Outcome_Chain                 │
-└──────────────────────────────────────┬──────────────────────────────────────┘
-                                       │ calls typed methods
-                                       ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                       COMPONENTS & VIZ SYSTEM (ui/components)               │
-│  shell.py (Context Bar) · _viz.py (SVG Gauges) · dialogs.py (Evidence Modals)│
-└──────────────────────────────────────┬──────────────────────────────────────┘
-                                       │ returns Pydantic models
-                                       ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                       FACADE ADAPTERS (ui/adapters)                         │
-│  FixtureBackend (Mock/Demo)  │  LiveBackend (Hindsight Facade Pass-through) │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
+![Figure 1: DecisionPrint System Architecture & Hindsight Layer Integration](images/architecture_diagram.png)
 
 The application is structured into seven distinct subpages managed by Streamlit's `st.navigation`:
 - `0_Overview`: Organizational memory metrics (facts, observations, mental models) and precedent search.
@@ -51,11 +33,17 @@ Instead of rendering a generic markdown response, I designed an above-the-fold s
 2. **Right Column — Constraint Delta Table:** Displays a side-by-side comparison of past constraints vs. current project constraints (`consumer_count: 2 ➔ 15`, `replay_required: false ➔ true`), highlighted with red status badges.
 3. **Drift Alert Banner:** A top-level alert driven by a custom SVG drift meter. If the weighted drift score exceeds 0.75, the UI displays `⚠️ RECONSIDERATION WARRANTED (92.0% Drift)`.
 
+![Figure 2: Executive Dashboard — Above-the-Fold Premise Drift & Reconsideration Banner](images/project_overview_ui.png)
+
 To ensure the UI remains fast and lightweight without adding heavy JavaScript npm dependencies to Streamlit, I built a zero-dependency SVG visualization engine in `ui/components/_viz.py`.
 
 ---
 
 ## Code-Backed Implementation Details
+
+To verify and inspect backend memory behavior directly from the command line, developers can run our CLI logger to observe real retain/recall calls in action:
+
+![Figure 3: Terminal Recall Trace & Epistemic Claim Logger](images/terminal_recall_trace.png)
 
 ### 1. Custom Zero-Dependency SVG Visualization Primitives
 
@@ -109,7 +97,7 @@ When an engineer clicks a source reference on any screen, this dialog opens over
 
 ### 3. Graceful UI Handling of Role-Based Scope Errors
 
-In enterprise systems, access control boundaries must be respected. In `ui/adapters/fixture_backend.py` and the live facade layer, querying confidential projects (such as Project Delta's infrastructure cost cuts) as an `engineer` role raises a typed `ScopeError`.
+In enterprise environments, access control boundaries must be respected. In `ui/adapters/fixture_backend.py` and the live facade layer, querying confidential projects (such as Project Delta's infrastructure cost cuts) as an `engineer` role raises a typed `ScopeError`.
 
 As the UI engineer, I ensured that backend permission errors never crash the Streamlit runtime. Instead, the UI intercepts `ScopeError` and renders a soft neo-brutalist notification tile with actionable resolution steps:
 
