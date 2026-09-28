@@ -20,6 +20,15 @@ Engineering organizations suffer from **architectural amnesia**:
 
 ---
 
+## 📖 Technical Deep Dive Article (P3 UI Perspective)
+
+We have authored an in-depth technical story from the perspective of the P3 UI Engineer, detailing how DecisionPrint translates Hindsight's temporal memory into a visual decision engine featuring constraint deltas, zero-dependency SVG primitives, modal evidence drawers, and role-scoped memory boundaries:
+
+- **Markdown Format:** [`article.md`](article.md) — *How I Designed a Decision Memory UI to Expose Premise Drift with Hindsight*
+- **PDF Document:** [`article.pdf`](article.pdf) — *Publication-ready PDF Edition*
+
+---
+
 ## 🏗️ Architecture
 
 DecisionPrint is cleanly decoupled across three distinct layers, bound strictly by typed contracts:
