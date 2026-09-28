@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from ui.components._theme import badge_html, inject_custom_css
 from ui.components.renders import (
     render_brief,
     render_confidence_breakdown,
@@ -20,6 +21,8 @@ from ui.components.renders import (
 )
 
 __all__ = [
+    "badge_html",
+    "inject_custom_css",
     "render_brief",
     "render_confidence_breakdown",
     "render_constraint_delta_table",
