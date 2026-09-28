@@ -151,9 +151,29 @@ Document the exact colour scheme from _theme.py:
 - Status: active=#4ade80 (green), superseded=#fb923c (orange), reconsidered=#60a5fa (blue)
 - Always pair colour with text label (accessibility + projector washout)
 
-## Streamlit Version
+## Streamlit Version & APIs (Stage 3A Verified)
 - Pinned: `streamlit>=1.37` (required for stable `st.dialog`)
 - Installed: `streamlit==1.64.0` (verified 2026-09-28)
+- APIs verified: `st.navigation(position="top")` (True), `st.dialog` (True), `st.segmented_control` (True), `st.chat_input` (True).
+
+## P3-Internal Components & Visual Primitives (Stage 3A)
+- `render_nav_context_bar`: Persistent under-nav context bar (Project selector, Role selector, Backend indicator, Memory freshness chip, Deep-link return chip).
+- `get_nav_badges`: Real-time safe badge counters for navigation items (`explorer_queue`, `high_drift_count`, `ingest_updated`).
+- `ui.components._viz`:
+  - `_svg_ring`: Accessible circular SVG progress gauge with `<title>`
+  - `_svg_gauge`: Semicircular drift meter with indicator needle
+  - `_svg_bar_pair`: Proportional Then vs. Now constraint change visualization
+  - `_svg_step_track`: Ordinal track for categorical transitions
+  - `_svg_stacked_bar`: Multi-segment horizontal breakdown bar
+  - `_svg_donut`: Status and distribution breakdown ring
+  - `_svg_sparkline`: Progressive metric evolution curve
+  - `_svg_funnel`: Multi-stage ingestion / filtering funnel
+  - `_svg_timeline_axis`: Chronological marker axis
+  - `_pill`, `_tile`, `_chip`: Soft neo-brutalist badge and stat generators
+  - `render_stat_tile`: Public Streamlit wrapper for stat tiles
+  - `render_drift_gauge`: Public Streamlit wrapper for drift gauge
+  - `render_traceability_meter`: PRD 100% grounding indicator
+- `inject_theme`: Alias for `inject_custom_css` exporting soft neo-brutalist tokens (`--bg`, `--card`, `--ink`, `--muted`, `--line`, `--coral`, `--blue`, `--yellow`, `--teal`, `--radius-card`, `--radius-tile`, `--outline`, `--edge`).
 
 ## Deferred Features (Roadmap)
 - Project Impact Graph (PRD)
@@ -178,9 +198,10 @@ Document the exact colour scheme from _theme.py:
 ---
 
 ## Verification & Test Status
-- **Pytest:** 29 passed in 2.53s (`tests/p3/`)
-- **Ruff:** All checks passed, formatting clean (54 files checked)
+- **Pytest:** 51 passed in 4.28s (`tests/p3/`)
+- **Ruff:** All checks passed, formatting clean (`ui/`, `contracts/`, `tests/p3/`)
 - **Manifest:** 18 documents validated, 0 errors (`scripts/p3/manifest.py`)
-- **Frontend:** Streamlit 1.64.0 responsive on `http://localhost:8501`, HTTP 200 health check verified.
+- **Frontend:** Streamlit 1.64.0 responsive on `http://localhost:8501`, HTTP 200 health check verified with dynamic top navigation.
 - **Backend:** All 16 `FacadeProtocol` methods verified with real execution.
+
 

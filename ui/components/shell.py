@@ -21,6 +21,9 @@ def render_top_bar(
     active_stage: str = "DECIDE", search_placeholder: str = "Search decisions, projects, or keywords..."
 ) -> None:
     """Render the enterprise top bar with workflow breadcrumbs, interactive search, and working theme toggle."""
+    if st.session_state.get("_top_nav_active", False):
+        return
+
     stages = ["CAPTURE", "ANALYZE", "LEARN", "DECIDE"]
     breadcrumb_parts = []
     for s in stages:
@@ -99,6 +102,8 @@ def render_top_bar(
 
 def render_sidebar_chrome() -> None:
     """Render the unified sidebar shell with brand, role switcher, and theme selector."""
+    if st.session_state.get("_top_nav_active", False):
+        return
     logo_icon = get_icon_svg("logo_bubble", size=26, color="var(--dp-primary, #2563EB)")
 
     st.sidebar.markdown(
@@ -188,3 +193,154 @@ def render_sidebar_chrome() -> None:
     """,
         unsafe_allow_html=True,
     )
+
+
+def get_nav_badges(backend: object = None, role: str = "admin", project_id: str = "nova") -> dict[str, object]:
+    """Calculate dynamic badge counters for navigation items safely."""
+    badges: dict[str, object] = {
+        "explorer_queue": 0,
+        "high_drift_count": 0,
+        "ingest_updated": False,
+    }
+    if not backend:
+        return badges
+    try:
+        queue = getattr(backend, "list_review_queue", list)()
+        badges["explorer_queue"] = len(queue)
+    except Exception:  # noqa: BLE001
+        badges["explorer_queue"] = 0
+
+    try:
+        drift_cards = getattr(backend, "list_drift_cards", lambda _p: [])(project_id)
+        badges["high_drift_count"] = sum(
+            1 for d in drift_cards if getattr(d, "level", None) and d.level.value.lower() == "high"
+        )
+    except Exception:  # noqa: BLE001
+        badges["high_drift_count"] = 0
+
+    badges["ingest_updated"] = bool(st.session_state.get("ingest_flag", False))
+    return badges
+
+
+def render_nav_context_bar(backend: object = None) -> None:
+    """Render the persistent under-nav context bar matching v3 spec."""
+    if backend is None:
+        try:
+            from ui.adapters import get_backend
+
+            backend = get_backend()
+        except Exception:  # noqa: BLE001
+            backend = None
+
+    # Retrieve projects safely
+    projects = []
+    if backend:
+        try:
+            projects = getattr(backend, "list_projects", list)()
+        except Exception:  # noqa: BLE001
+            projects = []
+    if not projects:
+        project_ids = ["nova", "alpha", "beta", "gamma", "delta"]
+    else:
+        project_ids = [getattr(p, "project_id", str(p)) for p in projects]
+
+    cur_project = st.session_state.get("project_id") or "nova"
+    if cur_project not in project_ids and project_ids:
+        cur_project = project_ids[0]
+    p_idx = project_ids.index(cur_project) if cur_project in project_ids else 0
+
+    roles = ["engineer", "project_lead", "executive", "admin"]
+    cur_role = st.session_state.get("role") or "admin"
+    r_idx = roles.index(cur_role) if cur_role in roles else 3
+
+    current_backend = os.getenv("DP_BACKEND", "fixture").upper()
+
+    # Calculate last updated relative time
+    last_updated_str = "just now"
+    if backend:
+        try:
+            overview = getattr(backend, "get_memory_overview", lambda r: None)(cur_role)
+            if overview and getattr(overview, "last_updated", None):
+                dt = overview.last_updated
+                last_updated_str = dt.strftime("%b %d, %H:%M")
+        except Exception:  # noqa: BLE001, S110
+            pass
+
+    # Return chip if returning from deep link
+    return_to = st.session_state.get("return_to")
+
+    with st.container():
+        cols = st.columns([2.0, 1.8, 1.4, 2.0, 1.6], vertical_alignment="center")
+
+        with cols[0]:
+            sel_proj = st.selectbox(
+                "Project",
+                project_ids,
+                index=p_idx,
+                format_func=lambda x: f"📁 Project {x.capitalize()}",
+                key="_ctx_project_selector",
+                label_visibility="collapsed",
+            )
+            if sel_proj != st.session_state.get("project_id"):
+                st.session_state["project_id"] = sel_proj
+                st.rerun()
+
+        with cols[1]:
+            sel_role = st.selectbox(
+                "Role",
+                roles,
+                index=r_idx,
+                format_func=lambda x: f"👤 {x.replace('_', ' ').capitalize()}",
+                key="_ctx_role_selector",
+                label_visibility="collapsed",
+            )
+            if sel_role != st.session_state.get("role"):
+                st.session_state["role"] = sel_role
+                st.rerun()
+
+        with cols[2]:
+            st.markdown(
+                f"""
+                <span class='dp-badge' style='background:var(--card, #FFFFFF); color:var(--ink, #111111);
+                      border:1.5px solid var(--ink, #111111); border-bottom:3px solid var(--ink, #111111);
+                      border-radius:999px; padding:4px 10px; font-weight:700; font-size:0.75rem; letter-spacing:0.04em;'>
+                    ⚡ {current_backend}
+                </span>
+                """,
+                unsafe_allow_html=True,
+            )
+
+        with cols[3]:
+            st.markdown(
+                f"""
+                <span style='font-size:0.78rem; font-weight:600; color:var(--muted, #8A8A8A);
+                      font-family:"JetBrains Mono", monospace;'>
+                    🕒 Memory updated: {last_updated_str}
+                </span>
+                """,
+                unsafe_allow_html=True,
+            )
+
+        with cols[4]:
+            if return_to:
+                if st.button(f"← Back to {return_to}", key="_btn_return_deep_link", type="secondary"):
+                    st.session_state["return_to"] = None
+                    target_page = f"pages/{return_to}.py" if not return_to.endswith(".py") else return_to
+                    try:
+                        st.switch_page(target_page)
+                    except Exception:  # noqa: BLE001
+                        st.rerun()
+            else:
+                theme = st.session_state.get("theme", "light")
+                is_dark = theme == "dark"
+                next_t = "light" if is_dark else "dark"
+                t_icon = "☀️ Light" if is_dark else "🌙 Dark"
+                if st.button(
+                    t_icon,
+                    key="_btn_theme_toggle_ctx",
+                    help=f"Switch to {next_t.capitalize()} Mode",
+                ):
+                    set_theme(next_t)
+                    st.rerun()
+
+    st.markdown("<div style='height: 0.5rem;'></div>", unsafe_allow_html=True)

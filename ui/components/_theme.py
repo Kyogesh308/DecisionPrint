@@ -13,186 +13,189 @@ __all__ = [
     "badge_html",
     "get_current_theme",
     "inject_custom_css",
+    "inject_theme",
     "set_current_theme",
 ]
 
-# Epistemic types (Fact, Observation, Inference, Recommendation)
+# Epistemic types (Fact=blue, Observation=teal, Inference=yellow, Recommendation=ink pill)
 EPISTEMIC_COLORS = {
     "fact": {
-        "light_bg": "#EAF2FF",
-        "light_text": "#245AC7",
-        "light_border": "#C3D7FA",
-        "dark_bg": "rgba(59, 130, 246, 0.15)",
-        "dark_text": "#60A5FA",
-        "dark_border": "rgba(96, 165, 250, 0.35)",
+        "light_bg": "#EBF2FE",
+        "light_text": "#1A4BA8",
+        "light_border": "#5B8DEF",
+        "dark_bg": "rgba(91, 141, 239, 0.2)",
+        "dark_text": "#5B8DEF",
+        "dark_border": "#5B8DEF",
         "label": "FACT",
     },
     "observation": {
-        "light_bg": "#E6F7F5",
-        "light_text": "#087F8C",
-        "light_border": "#B0EBE4",
-        "dark_bg": "rgba(20, 184, 166, 0.15)",
-        "dark_text": "#5EEAD4",
-        "dark_border": "rgba(94, 234, 212, 0.35)",
+        "light_bg": "#EAF8F8",
+        "light_text": "#0B6A68",
+        "light_border": "#52C4C0",
+        "dark_bg": "rgba(82, 196, 192, 0.2)",
+        "dark_text": "#52C4C0",
+        "dark_border": "#52C4C0",
         "label": "OBSERVATION",
     },
     "inference": {
-        "light_bg": "#FFF4DE",
-        "light_text": "#A85B08",
-        "light_border": "#FDE3B2",
-        "dark_bg": "rgba(245, 158, 11, 0.15)",
-        "dark_text": "#FBBF24",
-        "dark_border": "rgba(251, 191, 36, 0.35)",
+        "light_bg": "#FFF9E6",
+        "light_text": "#111111",
+        "light_border": "#FFC43D",
+        "dark_bg": "rgba(255, 196, 61, 0.2)",
+        "dark_text": "#FFC43D",
+        "dark_border": "#FFC43D",
         "label": "INFERENCE",
     },
     "recommendation": {
-        "light_bg": "#F3EFFF",
-        "light_text": "#7958D8",
-        "light_border": "#DFD5FA",
-        "dark_bg": "rgba(168, 85, 247, 0.15)",
-        "dark_text": "#C084FC",
-        "dark_border": "rgba(192, 132, 252, 0.35)",
+        "light_bg": "#111111",
+        "light_text": "#FFFFFF",
+        "light_border": "#111111",
+        "dark_bg": "#EEEEEE",
+        "dark_text": "#111111",
+        "dark_border": "#EEEEEE",
         "label": "RECOMMENDATION",
     },
 }
 
-# Drift levels
+# Drift levels (none=teal, low=yellow, medium=coral-tint, high=solid coral)
 DRIFT_COLORS = {
     "none": {
-        "light_bg": "#E8F6EE",
-        "light_text": "#18794E",
-        "light_border": "#C2EBD4",
-        "dark_bg": "rgba(34, 197, 94, 0.15)",
-        "dark_text": "#4ADE80",
-        "dark_border": "rgba(74, 222, 128, 0.4)",
-        "bg": "#E8F6EE",
-        "text": "#18794E",
-        "border": "#C2EBD4",
+        "light_bg": "#EAF8F8",
+        "light_text": "#0B6A68",
+        "light_border": "#52C4C0",
+        "dark_bg": "rgba(82, 196, 192, 0.2)",
+        "dark_text": "#52C4C0",
+        "dark_border": "#52C4C0",
+        "bg": "#EAF8F8",
+        "text": "#0B6A68",
+        "border": "#52C4C0",
         "label": "NO DRIFT",
     },
     "low": {
-        "light_bg": "#E8F6EE",
-        "light_text": "#18794E",
-        "light_border": "#C2EBD4",
-        "dark_bg": "rgba(34, 197, 94, 0.15)",
-        "dark_text": "#4ADE80",
-        "dark_border": "rgba(74, 222, 128, 0.4)",
-        "bg": "#E8F6EE",
-        "text": "#18794E",
-        "border": "#C2EBD4",
+        "light_bg": "#FFF9E6",
+        "light_text": "#111111",
+        "light_border": "#FFC43D",
+        "dark_bg": "rgba(255, 196, 61, 0.2)",
+        "dark_text": "#FFC43D",
+        "dark_border": "#FFC43D",
+        "bg": "#FFF9E6",
+        "text": "#111111",
+        "border": "#FFC43D",
         "label": "LOW DRIFT",
     },
     "medium": {
-        "light_bg": "#FFF4DE",
-        "light_text": "#A85B08",
-        "light_border": "#FDE3B2",
-        "dark_bg": "rgba(249, 115, 22, 0.15)",
-        "dark_text": "#FB923C",
-        "dark_border": "rgba(251, 146, 60, 0.4)",
-        "bg": "#FFF4DE",
-        "text": "#A85B08",
-        "border": "#FDE3B2",
+        "light_bg": "#FDDCD6",
+        "light_text": "#111111",
+        "light_border": "#F26F55",
+        "dark_bg": "rgba(242, 111, 85, 0.2)",
+        "dark_text": "#F26F55",
+        "dark_border": "#F26F55",
+        "bg": "#FDDCD6",
+        "text": "#111111",
+        "border": "#F26F55",
         "label": "MEDIUM DRIFT",
     },
     "high": {
-        "light_bg": "#FDECEE",
-        "light_text": "#B42332",
-        "light_border": "#F9CCD1",
-        "dark_bg": "rgba(239, 68, 68, 0.18)",
-        "dark_text": "#F87171",
-        "dark_border": "rgba(248, 113, 113, 0.5)",
-        "bg": "#FDECEE",
-        "text": "#B42332",
-        "border": "#F9CCD1",
+        "light_bg": "#F26F55",
+        "light_text": "#FFFFFF",
+        "light_border": "#111111",
+        "dark_bg": "#F26F55",
+        "dark_text": "#FFFFFF",
+        "dark_border": "#EEEEEE",
+        "bg": "#F26F55",
+        "text": "#FFFFFF",
+        "border": "#111111",
         "label": "HIGH DRIFT",
     },
 }
 
-# Comparison badges
+# Comparison badges (same=grey, changed=coral, newly_present=yellow, unknown=dashed grey, incomparable=struck grey)
 COMPARISON_COLORS = {
     "same": {
-        "light_bg": "#EEF2F8",
-        "light_text": "#52627A",
-        "light_border": "#DCE3ED",
-        "dark_bg": "rgba(148, 163, 184, 0.12)",
-        "dark_text": "#94A3B8",
-        "dark_border": "rgba(148, 163, 184, 0.25)",
+        "light_bg": "#F0F0F0",
+        "light_text": "#8A8A8A",
+        "light_border": "#8A8A8A",
+        "dark_bg": "rgba(138, 138, 138, 0.15)",
+        "dark_text": "#8A8A8A",
+        "dark_border": "#8A8A8A",
         "label": "UNCHANGED",
     },
     "changed": {
-        "light_bg": "#FDECEE",
-        "light_text": "#B42332",
-        "light_border": "#F9CCD1",
-        "dark_bg": "rgba(239, 68, 68, 0.15)",
-        "dark_text": "#F87171",
-        "dark_border": "rgba(248, 113, 113, 0.35)",
+        "light_bg": "#FDDCD6",
+        "light_text": "#C23E25",
+        "light_border": "#F26F55",
+        "dark_bg": "rgba(242, 111, 85, 0.25)",
+        "dark_text": "#F26F55",
+        "dark_border": "#F26F55",
         "label": "CHANGED",
     },
     "newly_present": {
-        "light_bg": "#FFF4DE",
-        "light_text": "#A85B08",
-        "light_border": "#FDE3B2",
-        "dark_bg": "rgba(249, 115, 22, 0.15)",
-        "dark_text": "#FB923C",
-        "dark_border": "rgba(251, 146, 60, 0.35)",
+        "light_bg": "#FFF9E6",
+        "light_text": "#111111",
+        "light_border": "#FFC43D",
+        "dark_bg": "rgba(255, 196, 61, 0.2)",
+        "dark_text": "#FFC43D",
+        "dark_border": "#FFC43D",
         "label": "NEW",
     },
     "unknown": {
-        "light_bg": "#EEF2F8",
-        "light_text": "#68778D",
-        "light_border": "#DCE3ED",
-        "dark_bg": "rgba(100, 116, 139, 0.12)",
-        "dark_text": "#64748B",
-        "dark_border": "rgba(100, 116, 139, 0.2)",
+        "light_bg": "#F0F0F0",
+        "light_text": "#8A8A8A",
+        "light_border": "#8A8A8A",
+        "border_style": "dashed",
+        "dark_bg": "rgba(138, 138, 138, 0.15)",
+        "dark_text": "#8A8A8A",
+        "dark_border": "#8A8A8A",
         "label": "UNKNOWN",
     },
     "incomparable": {
-        "light_bg": "#EEF2F8",
-        "light_text": "#68778D",
-        "light_border": "#DCE3ED",
-        "dark_bg": "rgba(100, 116, 139, 0.12)",
-        "dark_text": "#64748B",
-        "dark_border": "rgba(100, 116, 139, 0.2)",
-        "label": "N/A",
+        "light_bg": "#F0F0F0",
+        "light_text": "#8A8A8A",
+        "light_border": "#8A8A8A",
+        "text_decoration": "line-through",
+        "dark_bg": "rgba(138, 138, 138, 0.15)",
+        "dark_text": "#8A8A8A",
+        "dark_border": "#8A8A8A",
+        "label": "INCOMPARABLE",
     },
 }
 
-# Causal link labels
+# Causal link labels (explicit_causal_link=blue fill + ink outline, strong=teal, possible=yellow, fact=blue, none=never render)
 CAUSAL_COLORS = {
     "explicit_causal_link": {
-        "light_bg": "#EAF0FF",
-        "light_text": "#315EDE",
-        "light_border": "#315EDE",
-        "dark_bg": "rgba(99, 102, 241, 0.22)",
-        "dark_text": "#818CF8",
-        "dark_border": "#6366F1",
+        "light_bg": "#5B8DEF",
+        "light_text": "#FFFFFF",
+        "light_border": "#111111",
+        "dark_bg": "#5B8DEF",
+        "dark_text": "#FFFFFF",
+        "dark_border": "#EEEEEE",
         "label": "EXPLICIT CAUSAL LINK",
     },
     "strong_evidence": {
-        "light_bg": "#E6F7F5",
-        "light_text": "#087F8C",
-        "light_border": "#B0EBE4",
-        "dark_bg": "rgba(20, 184, 166, 0.18)",
-        "dark_text": "#5EEAD4",
-        "dark_border": "rgba(94, 234, 212, 0.4)",
+        "light_bg": "#52C4C0",
+        "light_text": "#111111",
+        "light_border": "#111111",
+        "dark_bg": "#52C4C0",
+        "dark_text": "#111111",
+        "dark_border": "#EEEEEE",
         "label": "STRONG EVIDENCE",
     },
     "possible_causal_link": {
-        "light_bg": "#FFF4DE",
-        "light_text": "#A85B08",
-        "light_border": "#FDE3B2",
-        "dark_bg": "rgba(245, 158, 11, 0.18)",
-        "dark_text": "#FBBF24",
-        "dark_border": "rgba(251, 191, 36, 0.4)",
+        "light_bg": "#FFC43D",
+        "light_text": "#111111",
+        "light_border": "#111111",
+        "dark_bg": "#FFC43D",
+        "dark_text": "#111111",
+        "dark_border": "#EEEEEE",
         "label": "POSSIBLE LINK",
     },
     "fact": {
-        "light_bg": "#EAF2FF",
-        "light_text": "#245AC7",
-        "light_border": "#C3D7FA",
-        "dark_bg": "rgba(59, 130, 246, 0.18)",
-        "dark_text": "#60A5FA",
-        "dark_border": "rgba(96, 165, 250, 0.4)",
+        "light_bg": "#5B8DEF",
+        "light_text": "#FFFFFF",
+        "light_border": "#111111",
+        "dark_bg": "#5B8DEF",
+        "dark_text": "#FFFFFF",
+        "dark_border": "#EEEEEE",
         "label": "DOCUMENTED FACT",
     },
     "none": {
@@ -316,7 +319,10 @@ def set_current_theme(theme_name: str) -> None:
 
 
 def badge_html(category: str, value: str) -> str:
-    """Return sleek styled HTML badge with theme-aware borders and typography."""
+    """Return sleek soft neo-brutalist styled HTML badge with theme-aware borders and typography."""
+    if category == "causal" and (not value or str(value).lower() in ("none", "")):
+        return ""
+
     lookup = {
         "epistemic": EPISTEMIC_COLORS,
         "drift": DRIFT_COLORS,
@@ -326,15 +332,18 @@ def badge_html(category: str, value: str) -> str:
     }
     c_map = lookup.get(category, {})
     val_key = value.lower().replace(" ", "_") if value else ""
+    if category == "causal" and val_key == "none":
+        return ""
+
     colors = c_map.get(
         val_key,
         {
-            "light_bg": "#EEF2F8",
-            "light_text": "#52627A",
-            "light_border": "#DCE3ED",
-            "dark_bg": "rgba(100, 116, 139, 0.2)",
-            "dark_text": "#94A3B8",
-            "dark_border": "rgba(148, 163, 184, 0.3)",
+            "light_bg": "#F0F0F0",
+            "light_text": "#111111",
+            "light_border": "#111111",
+            "dark_bg": "rgba(255, 255, 255, 0.1)",
+            "dark_text": "#EEEEEE",
+            "dark_border": "#EEEEEE",
             "label": value.upper() if value else "",
         },
     )
@@ -350,183 +359,147 @@ def badge_html(category: str, value: str) -> str:
     text_c = colors["dark_text"] if is_dark else colors["light_text"]
     border_c = colors["dark_border"] if is_dark else colors["light_border"]
 
-    glow = f"box-shadow: 0 0 10px {border_c}40;" if "explicit" in val_key or "high" in val_key else ""
+    border_style = colors.get("border_style", "solid")
+    text_dec = f"text-decoration: {colors['text_decoration']};" if "text_decoration" in colors else ""
+    thick_edge = (
+        "border-bottom: 2.5px solid var(--ink, #111111);" if ("explicit" in val_key or "high" in val_key) else ""
+    )
+
     return (
         f'<span class="dp-badge" style="background:{bg}; color:{text_c}; '
-        f'border: 1px solid {border_c}; {glow}">{label}</span>'
+        f'border: 1.5px {border_style} {border_c}; {thick_edge} {text_dec}">{label}</span>'
     )
 
 
 def inject_custom_css() -> None:
-    """Inject light-first enterprise SaaS CSS with full dark and system mode support."""
+    """Inject soft neo-brutalist theme CSS with light and dark mode support."""
     theme = get_current_theme()
 
-    # CSS Token Variables
+    # Soft Neo-Brutalist CSS Token Variables
     if theme == "dark":
         theme_vars = """
-        --dp-bg-app: #0B0F19;
-        --dp-bg-main: #0B0F19;
-        --dp-surface-card: #111827;
-        --dp-surface-secondary: #1E293B;
-        --dp-sidebar-bg: #0C1220;
-        --dp-sidebar-surface: #111827;
-        --dp-sidebar-text: #F8FAFC;
-        --dp-sidebar-border: #1E293B;
-        --dp-text-primary: #F8FAFC;
-        --dp-text-secondary: #94A3B8;
-        --dp-text-muted: #64748B;
-        --dp-primary: #3B82F6;
-        --dp-primary-hover: #60A5FA;
-        --dp-primary-light: rgba(59, 130, 246, 0.15);
-        --dp-border: #1E293B;
-        --dp-border-strong: #334155;
-        --dp-card-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
-        --dp-table-hover: rgba(255, 255, 255, 0.03);
-        --dp-input-bg: #131C2E;
-        --dp-input-border: #334155;
-        --dp-input-text: #F8FAFC;
-        --dp-success: #34D399;
-        --dp-success-bg: rgba(16, 185, 129, 0.15);
-        --dp-error: #F87171;
-        --dp-error-bg: rgba(239, 68, 68, 0.18);
-        --dp-warning: #FBBF24;
-        --dp-warning-bg: rgba(245, 158, 11, 0.15);
-        --dp-info: #60A5FA;
-        --dp-info-bg: rgba(59, 130, 246, 0.15);
-        """
-    elif theme == "system":
-        theme_vars = """
-        --dp-bg-app: #F8FAFC;
-        --dp-bg-main: #F8FAFC;
-        --dp-surface-card: #FFFFFF;
-        --dp-surface-secondary: #F1F5F9;
-        --dp-sidebar-bg: #FFFFFF;
-        --dp-sidebar-surface: #F8FAFC;
-        --dp-sidebar-text: #0F172A;
-        --dp-sidebar-border: #E2E8F0;
-        --dp-text-primary: #0F172A;
-        --dp-text-secondary: #475569;
-        --dp-text-muted: #64748B;
-        --dp-primary: #2563EB;
-        --dp-primary-hover: #1D4ED8;
-        --dp-primary-light: #EFF6FF;
-        --dp-border: #E2E8F0;
-        --dp-border-strong: #CBD5E1;
-        --dp-card-shadow: 0 1px 3px rgba(15, 23, 42, 0.05), 0 4px 12px rgba(15, 23, 42, 0.03);
-        --dp-table-hover: #F8FAFD;
-        --dp-input-bg: #FFFFFF;
-        --dp-input-border: #CBD5E1;
-        --dp-input-text: #0F172A;
-        --dp-success: #16A34A;
-        --dp-success-bg: #F0FDF4;
-        --dp-error: #DC2626;
-        --dp-error-bg: #FEF2F2;
-        --dp-warning: #D97706;
-        --dp-warning-bg: #FFFBEB;
-        --dp-info: #2563EB;
-        --dp-info-bg: #EFF6FF;
-        @media (prefers-color-scheme: dark) {
-            --dp-bg-app: #0B0F19;
-            --dp-bg-main: #0B0F19;
-            --dp-surface-card: #111827;
-            --dp-surface-secondary: #1E293B;
-            --dp-sidebar-bg: #0C1220;
-            --dp-sidebar-surface: #111827;
-            --dp-sidebar-text: #F8FAFC;
-            --dp-sidebar-border: #1E293B;
-            --dp-text-primary: #F8FAFC;
-            --dp-text-secondary: #94A3B8;
-            --dp-text-muted: #64748B;
-            --dp-primary: #3B82F6;
-            --dp-primary-hover: #60A5FA;
-            --dp-primary-light: rgba(59, 130, 246, 0.15);
-            --dp-border: #1E293B;
-            --dp-border-strong: #334155;
-            --dp-card-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
-            --dp-table-hover: rgba(255, 255, 255, 0.03);
-            --dp-input-bg: #131C2E;
-            --dp-input-border: #334155;
-            --dp-input-text: #F8FAFC;
-            --dp-success: #34D399;
-            --dp-success-bg: rgba(16, 185, 129, 0.15);
-            --dp-error: #F87171;
-            --dp-error-bg: rgba(239, 68, 68, 0.18);
-            --dp-warning: #FBBF24;
-            --dp-warning-bg: rgba(245, 158, 11, 0.15);
-            --dp-info: #60A5FA;
-            --dp-info-bg: rgba(59, 130, 246, 0.15);
-        }
+        --bg: #121212;
+        --card: #1E1E1E;
+        --ink: #EEEEEE;
+        --muted: #A0A0A0;
+        --line: #333333;
+        --coral: #F26F55;
+        --coral-tint: rgba(242, 111, 85, 0.2);
+        --blue: #5B8DEF;
+        --yellow: #FFC43D;
+        --teal: #52C4C0;
+        --radius-card: 18px;
+        --radius-tile: 16px;
+        --radius-pill: 999px;
+        --outline: 1.5px;
+        --edge: 4px;
+
+        --dp-bg-app: var(--bg);
+        --dp-bg-main: var(--bg);
+        --dp-surface-page: var(--bg);
+        --dp-surface-card: var(--card);
+        --dp-surface-secondary: #282828;
+        --dp-sidebar-bg: var(--card);
+        --dp-sidebar-surface: #282828;
+        --dp-sidebar-text: var(--ink);
+        --dp-sidebar-border: var(--line);
+        --dp-text-primary: var(--ink);
+        --dp-text-secondary: #C0C0C0;
+        --dp-text-muted: var(--muted);
+        --dp-primary: var(--coral);
+        --dp-primary-hover: #FF7F66;
+        --dp-primary-light: var(--coral-tint);
+        --dp-border: var(--ink);
+        --dp-border-strong: var(--ink);
+        --dp-card-shadow: none;
+        --dp-input-bg: var(--card);
+        --dp-input-border: var(--ink);
+        --dp-input-text: var(--ink);
+        --dp-success: var(--teal);
+        --dp-error: var(--coral);
+        --dp-warning: var(--yellow);
+        --dp-info: var(--blue);
         """
     else:  # light (default)
         theme_vars = """
-        --dp-bg-app: #F8FAFC;
-        --dp-bg-main: #F8FAFC;
-        --dp-surface-card: #FFFFFF;
-        --dp-surface-secondary: #F1F5F9;
-        --dp-sidebar-bg: #FFFFFF;
-        --dp-sidebar-surface: #F8FAFC;
-        --dp-sidebar-text: #0F172A;
-        --dp-sidebar-border: #E2E8F0;
-        --dp-text-primary: #0F172A;
-        --dp-text-secondary: #475569;
-        --dp-text-muted: #64748B;
-        --dp-primary: #2563EB;
-        --dp-primary-hover: #1D4ED8;
-        --dp-primary-light: #EFF6FF;
-        --dp-border: #E2E8F0;
-        --dp-border-strong: #CBD5E1;
-        --dp-card-shadow: 0 1px 3px rgba(15, 23, 42, 0.05), 0 4px 12px rgba(15, 23, 42, 0.03);
-        --dp-table-hover: #F8FAFD;
-        --dp-input-bg: #FFFFFF;
-        --dp-input-border: #CBD5E1;
-        --dp-input-text: #0F172A;
-        --dp-success: #16A34A;
-        --dp-success-bg: #F0FDF4;
-        --dp-error: #DC2626;
-        --dp-error-bg: #FEF2F2;
-        --dp-warning: #D97706;
-        --dp-warning-bg: #FFFBEB;
-        --dp-info: #2563EB;
-        --dp-info-bg: #EFF6FF;
+        --bg: #F7F7F7;
+        --card: #FFFFFF;
+        --ink: #111111;
+        --muted: #8A8A8A;
+        --line: #E6E6E6;
+        --coral: #F26F55;
+        --coral-tint: #FDDCD6;
+        --blue: #5B8DEF;
+        --yellow: #FFC43D;
+        --teal: #52C4C0;
+        --radius-card: 18px;
+        --radius-tile: 16px;
+        --radius-pill: 999px;
+        --outline: 1.5px;
+        --edge: 4px;
+
+        --dp-bg-app: var(--bg);
+        --dp-bg-main: var(--bg);
+        --dp-surface-page: var(--bg);
+        --dp-surface-card: var(--card);
+        --dp-surface-secondary: #F0F0F0;
+        --dp-sidebar-bg: var(--card);
+        --dp-sidebar-surface: #F9F9F9;
+        --dp-sidebar-text: var(--ink);
+        --dp-sidebar-border: var(--line);
+        --dp-text-primary: var(--ink);
+        --dp-text-secondary: #4A4A4A;
+        --dp-text-muted: var(--muted);
+        --dp-primary: var(--coral);
+        --dp-primary-hover: #E0563C;
+        --dp-primary-light: var(--coral-tint);
+        --dp-border: var(--ink);
+        --dp-border-strong: var(--ink);
+        --dp-card-shadow: none;
+        --dp-input-bg: var(--card);
+        --dp-input-border: var(--ink);
+        --dp-input-text: var(--ink);
+        --dp-success: var(--teal);
+        --dp-error: var(--coral);
+        --dp-warning: var(--yellow);
+        --dp-info: var(--blue);
         """
 
     st.markdown(
         f"""
 <style>
 /* =========================================================================
-   DECISIONPRINT ENTERPRISE SAAS DESIGN SYSTEM
-   Exact Light-First Reference with Dark/System Options
+   DECISIONPRINT SOFT NEO-BRUTALIST DESIGN SYSTEM (v3)
+   Thick bottom edges, pastel tiles, coral primary, Poppins type
    ========================================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {{
     {theme_vars}
-    --dp-violet: #7958D8;
-    --dp-teal: #087F8C;
-    --dp-focus-ring: var(--dp-primary);
+    --dp-focus-ring: var(--coral);
 }}
 
 /* --- Root & App Canvas --- */
 .stApp {{
     background-color: var(--dp-bg-app) !important;
     color: var(--dp-text-primary) !important;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
     letter-spacing: -0.01em;
 }}
 
 /* --- Typography --- */
 h1, h2, h3, h4, h5, h6 {{
-    font-family: 'Inter', sans-serif !important;
+    font-family: 'Poppins', sans-serif !important;
     font-weight: 700 !important;
-    letter-spacing: -0.025em !important;
+    letter-spacing: -0.02em !important;
     color: var(--dp-text-primary) !important;
 }}
 
-h1 {{ font-size: 2rem !important; margin-bottom: 0.25rem !important; }}
-h2 {{ font-size: 1.55rem !important; }}
-h3 {{ font-size: 1.25rem !important; }}
-h4 {{ font-size: 1.05rem !important; }}
+h1 {{ font-size: 2.1rem !important; margin-bottom: 0.25rem !important; font-weight: 800 !important; }}
+h2 {{ font-size: 1.6rem !important; }}
+h3 {{ font-size: 1.3rem !important; }}
+h4 {{ font-size: 1.1rem !important; }}
 
 p, span, label, div {{
     color: var(--dp-text-primary);
@@ -1108,84 +1081,91 @@ hr, .dp-sidebar-divider {{
     margin: 1rem 0 !important;
 }}
 
-/* --- Container Wrappers --- */
+/* --- Soft Neo-Brutalist Container Wrappers --- */
 [data-testid="stVerticalBlockBorderWrapper"] {{
-    background-color: var(--dp-surface-card) !important;
-    border: 1px solid var(--dp-border) !important;
-    border-radius: 12px !important;
-    box-shadow: var(--dp-card-shadow) !important;
+    background-color: var(--card) !important;
+    border: var(--outline, 1.5px) solid var(--ink, #111111) !important;
+    border-bottom: var(--edge, 4px) solid var(--ink, #111111) !important;
+    border-radius: var(--radius-card, 18px) !important;
+    box-shadow: none !important;
 }}
 
-/* --- Primary & Secondary Action Buttons --- */
+/* --- Soft Neo-Brutalist Action Buttons --- */
 .stButton > button {{
-    border-radius: 8px !important;
-    padding: 0.45rem 1.15rem !important;
-    font-weight: 600 !important;
-    font-size: 0.88rem !important;
-    transition: all 0.15s ease !important;
+    border-radius: 12px !important;
+    padding: 0.5rem 1.25rem !important;
+    font-weight: 700 !important;
+    font-size: 0.9rem !important;
+    border: var(--outline, 1.5px) solid var(--ink, #111111) !important;
+    border-bottom: var(--edge, 4px) solid var(--ink, #111111) !important;
+    box-shadow: none !important;
+    transition: transform 0.1s ease, border-bottom-width 0.1s ease !important;
+}}
+
+.stButton > button:hover {{
+    transform: translateY(-2px) !important;
+}}
+
+.stButton > button:active {{
+    transform: translateY(2px) !important;
+    border-bottom-width: 2px !important;
 }}
 
 /* Primary Buttons */
 .stButton > button[kind="primary"],
 .stButton > button[data-testid="baseButton-primary"] {{
-    background: var(--dp-primary) !important;
+    background: var(--coral, #F26F55) !important;
     color: #FFFFFF !important;
-    border: 1px solid var(--dp-primary) !important;
-    box-shadow: 0 1px 3px rgba(37, 99, 235, 0.25) !important;
+    border-color: var(--ink, #111111) !important;
 }}
 
 .stButton > button[kind="primary"]:hover,
 .stButton > button[data-testid="baseButton-primary"]:hover {{
-    background: var(--dp-primary-hover) !important;
-    border-color: var(--dp-primary-hover) !important;
+    background: #E0563C !important;
     color: #FFFFFF !important;
-    transform: translateY(-1px) !important;
 }}
 
 /* Secondary / Standard Buttons (Chips & Cards) */
 .stButton > button[kind="secondary"],
 .stButton > button[data-testid="baseButton-secondary"],
 .stButton > button:not([kind="primary"]):not([data-testid="baseButton-primary"]) {{
-    background: var(--dp-surface-card) !important;
-    color: var(--dp-text-primary) !important;
-    border: 1px solid var(--dp-border-strong) !important;
-    box-shadow: var(--dp-card-shadow) !important;
+    background: var(--card, #FFFFFF) !important;
+    color: var(--ink, #111111) !important;
+    border-color: var(--ink, #111111) !important;
 }}
 
 .stButton > button[kind="secondary"]:hover,
 .stButton > button[data-testid="baseButton-secondary"]:hover,
 .stButton > button:not([kind="primary"]):not([data-testid="baseButton-primary"]):hover {{
-    background: var(--dp-surface-secondary) !important;
-    border-color: var(--dp-primary) !important;
-    color: var(--dp-primary) !important;
-    transform: translateY(-1px) !important;
+    background: var(--dp-surface-secondary, #F0F0F0) !important;
+    color: var(--ink, #111111) !important;
 }}
 
-/* --- Form Controls & Text Inputs --- */
+/* --- Form Controls & Text Inputs (Outline + Thick bottom edge) --- */
 [data-baseweb="input"],
 [data-baseweb="base-input"],
 [data-baseweb="select"],
 .stTextInput > div > div,
 .stTextArea > div > div {{
-    background-color: var(--dp-input-bg) !important;
-    border: 1px solid var(--dp-input-border) !important;
-    border-radius: 8px !important;
-    color: var(--dp-input-text) !important;
-    transition: all 0.2s ease !important;
+    background-color: var(--card) !important;
+    border: var(--outline, 1.5px) solid var(--ink, #111111) !important;
+    border-bottom: var(--edge, 4px) solid var(--ink, #111111) !important;
+    border-radius: 16px !important;
+    color: var(--ink) !important;
+    box-shadow: none !important;
+    transition: transform 0.15s ease, border-color 0.15s ease !important;
 }}
 
 [data-baseweb="select"] > div {{
-    background-color: var(--dp-input-bg) !important;
-    border: 1px solid var(--dp-input-border) !important;
-    border-radius: 8px !important;
-    color: var(--dp-input-text) !important;
+    background-color: var(--card) !important;
+    border: none !important;
+    color: var(--ink) !important;
 }}
 
 [data-baseweb="input"]:focus-within,
 [data-baseweb="select"] > div:focus-within,
 .stTextInput > div > div:focus-within {{
-    border-color: var(--dp-primary) !important;
-    box-shadow: 0 0 0 2px var(--dp-primary-light) !important;
+    border-color: var(--coral, #F26F55) !important;
 }}
 
 /* Real <input> and <textarea> text visibility & typing capability */
@@ -1197,11 +1177,12 @@ textarea,
 .stTextInput input,
 .stTextArea textarea {{
     background-color: transparent !important;
-    color: var(--dp-input-text) !important;
-    -webkit-text-fill-color: var(--dp-input-text) !important;
-    caret-color: var(--dp-primary) !important;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
-    font-size: 0.9rem !important;
+    color: var(--ink) !important;
+    -webkit-text-fill-color: var(--ink) !important;
+    caret-color: var(--coral, #F26F55) !important;
+    font-family: 'Poppins', system-ui, -apple-system, sans-serif !important;
+    font-size: 0.92rem !important;
+    font-weight: 500 !important;
     opacity: 1 !important;
     pointer-events: auto !important;
 }}
@@ -1325,7 +1306,22 @@ li[role="option"][aria-selected="true"] {{
     text-align: center;
     margin: 0.5rem 0;
 }}
+
+/* Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {{
+    *, ::before, ::after {{
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+        transform: none !important;
+    }}
+}}
 </style>
     """,
         unsafe_allow_html=True,
     )
+
+
+# Alias for compatibility with Master Prompt v3
+inject_theme = inject_custom_css
