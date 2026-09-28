@@ -15,8 +15,10 @@ from ui.components import (
     render_sidebar_chrome,
     render_top_bar,
 )
+from ui.components._state import init_session_state
 from ui.components.dialogs import check_and_render_evidence_dialog
 
+init_session_state()
 inject_custom_css()
 
 backend = get_backend()
@@ -33,7 +35,7 @@ with c_head:
         """
         <div style='margin-bottom: 1.25rem;'>
             <h1 style='margin-bottom: 0.25rem;'>Decision Timeline</h1>
-            <p style='color:#94A3B8; font-size:1.02rem; margin:0;'>
+            <p style='color:var(--dp-text-secondary); font-size:1.02rem; margin:0;'>
                 Chronological view of architectural decisions, lifecycle milestones, and key evolution events.
             </p>
         </div>
@@ -83,12 +85,12 @@ try:
         for ev in events:
             st.markdown(
                 f"""
-            <div class='dp-card' style='padding:0.9rem 1.2rem; margin-bottom:0.6rem; border-left: 3px solid #315EDE;'>
+            <div class='dp-card' style='padding:0.9rem 1.2rem; margin-bottom:0.6rem; border-left: 3px solid var(--dp-primary);'>
                 <div style='display:flex; justify-content:space-between; align-items:center;'>
                     <strong>{ev.title}</strong>
-                    <span style='font-size:0.75rem; color:var(--dp-primary, #315EDE); font-family:"JetBrains Mono", monospace;'>{ev.occurred_at.strftime("%b %d, %Y")}</span>
+                    <span style='font-size:0.75rem; color:var(--dp-primary); font-family:"JetBrains Mono", monospace;'>{ev.occurred_at.strftime("%b %d, %Y")}</span>
                 </div>
-                <div style='font-size:0.85rem; color:var(--dp-text-secondary, #52627A); margin-top:0.3rem;'>{ev.summary}</div>
+                <div style='font-size:0.85rem; color:var(--dp-text-secondary); margin-top:0.3rem;'>{ev.summary}</div>
             </div>
             """,
                 unsafe_allow_html=True,

@@ -9,10 +9,18 @@ import streamlit as st
 from ui.components.icons import get_icon_svg
 
 
+def set_theme(theme_name: str) -> None:
+    """Synchronize theme state across all widgets and preferences."""
+    st.session_state["theme"] = theme_name
+    st.session_state["app_theme_radio_sidebar"] = theme_name
+    if "settings_theme_radio" in st.session_state:
+        st.session_state["settings_theme_radio"] = theme_name
+
+
 def render_top_bar(
     active_stage: str = "DECIDE", search_placeholder: str = "Search decisions, projects, or keywords..."
 ) -> None:
-    """Render the enterprise top bar with workflow breadcrumbs, search, and user actions."""
+    """Render the enterprise top bar with workflow breadcrumbs, interactive search, and working theme toggle."""
     stages = ["CAPTURE", "ANALYZE", "LEARN", "DECIDE"]
     breadcrumb_parts = []
     for s in stages:
@@ -22,49 +30,76 @@ def render_top_bar(
             breadcrumb_parts.append(f"<span class='dp-breadcrumb-idle'>{s}</span>")
     breadcrumbs_html = " <span class='dp-breadcrumb-sep'>/</span> ".join(breadcrumb_parts)
 
-    search_icon = get_icon_svg("search", size=16, color="#94A3B8")
-    bell_icon = get_icon_svg("bell", size=17, color="#94A3B8")
     current_theme = st.session_state.get("theme", "light")
-    theme_icon_name = "sun" if current_theme == "dark" else "moon"
-    theme_title = f"Theme: {current_theme.capitalize()}"
-    theme_icon = get_icon_svg(theme_icon_name, size=17, color="#94A3B8")
-    logo_icon = get_icon_svg("logo_bubble", size=22, color="#315EDE")
+    is_dark = current_theme == "dark"
+    next_theme = "light" if is_dark else "dark"
+    theme_btn_label = "☀️ Light" if is_dark else "🌙 Dark"
+    logo_icon = get_icon_svg("logo_bubble", size=22, color="var(--dp-primary, #2563EB)")
 
-    st.markdown(
-        f"""
-    <div class='dp-topbar'>
-        <div class='dp-topbar-left'>
-            <div class='dp-topbar-brand'>
-                {logo_icon}
-                <span class='dp-topbar-title'>DecisionPrint</span>
-                <span class='dp-topbar-tagline'>Organizational Memory for Better Decisions</span>
-            </div>
-        </div>
-        <div class='dp-topbar-center'>
-            <div class='dp-topbar-search'>
-                {search_icon}
-                <span class='dp-search-placeholder'>{search_placeholder}</span>
-            </div>
-        </div>
-        <div class='dp-topbar-right'>
-            <div class='dp-breadcrumbs'>
-                {breadcrumbs_html}
-            </div>
-            <div class='dp-topbar-actions'>
-                <div class='dp-icon-btn' title='Notifications'>{bell_icon}</div>
-                <div class='dp-icon-btn' title='{theme_title}'>{theme_icon}</div>
-                <div class='dp-user-avatar' title='John Doe (Product Manager)'>JD</div>
-            </div>
-        </div>
-    </div>
-    """,
-        unsafe_allow_html=True,
-    )
+    # Render top bar in an elevated native bordered card
+    with st.container(border=True):
+        col_brand, col_search, col_bread, col_actions = st.columns([3.2, 3.4, 2.2, 1.2], vertical_alignment="center")
+
+        with col_brand:
+            st.markdown(
+                f"""
+                <div class='dp-topbar-brand'>
+                    {logo_icon}
+                    <div style='display:inline-block; margin-left:6px;'>
+                        <span class='dp-topbar-title'>DecisionPrint</span>
+                        <span class='dp-topbar-tagline'>Memory for Decisions</span>
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+        with col_search:
+            search_query = st.text_input(
+                "Global Search",
+                value=st.session_state.get("global_search", ""),
+                placeholder=search_placeholder,
+                key=f"topbar_search_input_{active_stage}",
+                label_visibility="collapsed",
+            )
+            if search_query != st.session_state.get("global_search", ""):
+                st.session_state.global_search = search_query
+
+        with col_bread:
+            st.markdown(
+                f"""
+                <div class='dp-breadcrumbs-wrapper'>
+                    {breadcrumbs_html}
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+        with col_actions:
+            act_col1, act_col2 = st.columns([1.3, 0.7], vertical_alignment="center")
+            with act_col1:
+                if st.button(
+                    theme_btn_label,
+                    key=f"topbar_theme_btn_{active_stage}",
+                    help=f"Switch to {next_theme.capitalize()} Theme",
+                    use_container_width=True,
+                ):
+                    set_theme(next_theme)
+                    st.rerun()
+            with act_col2:
+                st.markdown(
+                    """
+                    <div style='display:flex; justify-content:center; align-items:center; height:100%;'>
+                        <div class='dp-user-avatar' title='John Doe (Product Manager)'>JD</div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
 
 
 def render_sidebar_chrome() -> None:
-    """Render the unified sidebar shell with brand, role switcher, and user profile."""
-    logo_icon = get_icon_svg("logo_bubble", size=26, color="#818CF8")
+    """Render the unified sidebar shell with brand, role switcher, and theme selector."""
+    logo_icon = get_icon_svg("logo_bubble", size=26, color="var(--dp-primary, #2563EB)")
 
     st.sidebar.markdown(
         f"""
@@ -98,26 +133,31 @@ def render_sidebar_chrome() -> None:
         st.session_state.role = selected_role
         st.rerun()
 
-    # Theme selector
+    # Theme Mode Selector (Segmented Radio)
     current_theme = st.session_state.get("theme", "light")
+    if (
+        "app_theme_radio_sidebar" not in st.session_state
+        or st.session_state.get("app_theme_radio_sidebar") != current_theme
+    ):
+        st.session_state["app_theme_radio_sidebar"] = current_theme
+
     theme_options = ["light", "dark", "system"]
-    theme_labels = {"light": "☀️ Light Theme (Default)", "dark": "🌙 Dark Theme", "system": "💻 System Follow"}
-    default_theme_idx = theme_options.index(current_theme) if current_theme in theme_options else 0
-    selected_theme = st.sidebar.selectbox(
-        "Theme Preference",
+    theme_labels = {"light": "☀️ Light", "dark": "🌙 Dark", "system": "💻 System"}
+    selected_theme = st.sidebar.radio(
+        "Workspace Theme",
         theme_options,
-        index=default_theme_idx,
         format_func=lambda x: theme_labels.get(x, x),
-        key="app_theme_selector",
-        help="Switch between Light (Enterprise SaaS), Dark, or System mode.",
+        horizontal=True,
+        key="app_theme_radio_sidebar",
+        help="Switch between Full Light, Full Dark, or System mode.",
     )
     if selected_theme != st.session_state.get("theme"):
-        st.session_state.theme = selected_theme
+        set_theme(selected_theme)
         st.rerun()
 
     backend = os.getenv("DP_BACKEND", "fixture")
     backend_status = "Connected"
-    shield_icon = get_icon_svg("shield", size=13, color="#34D399")
+    shield_icon = get_icon_svg("shield", size=13, color="var(--dp-success, #16A34A)")
 
     st.sidebar.markdown(
         f"""

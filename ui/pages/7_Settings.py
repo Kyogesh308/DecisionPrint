@@ -12,8 +12,11 @@ from ui.components import (
     render_sidebar_chrome,
     render_top_bar,
 )
+from ui.components._state import init_session_state
 from ui.components.dialogs import check_and_render_evidence_dialog
+from ui.components.shell import set_theme
 
+init_session_state()
 inject_custom_css()
 
 backend = get_backend()
@@ -28,7 +31,7 @@ st.markdown(
     """
     <div style='margin-bottom: 1.25rem;'>
         <h1 style='margin-bottom: 0.25rem;'>Settings</h1>
-        <p style='color:#94A3B8; font-size:1.02rem; margin:0;'>
+        <p style='color:var(--dp-text-secondary); font-size:1.02rem; margin:0;'>
             Configure your enterprise workspace, role permissions, and backend integration preferences.
         </p>
     </div>
@@ -87,7 +90,7 @@ with tab_role:
         "engineer": "Access to standard engineering decisions. Confidential records (e.g. Project Delta) require elevated permissions.",
     }
     st.markdown(
-        f"<div style='color:#38BDF8; font-size:0.9rem; margin-top:0.4rem;'>{role_descriptions.get(role, '')}</div>",
+        f"<div style='color:var(--dp-primary); font-size:0.9rem; margin-top:0.4rem; font-weight:500;'>{role_descriptions.get(role, '')}</div>",
         unsafe_allow_html=True,
     )
 
@@ -108,31 +111,31 @@ with tab_role:
             <tbody>
                 <tr>
                     <td>Recall Memory (Ask)</td>
-                    <td><span style='color:#34D399;'>Yes</span></td>
-                    <td><span style='color:#34D399;'>Yes</span></td>
-                    <td><span style='color:#34D399;'>Yes</span></td>
-                    <td><span style='color:#34D399;'>Yes</span></td>
+                    <td><span style='color:var(--dp-success); font-weight:600;'>Yes</span></td>
+                    <td><span style='color:var(--dp-success); font-weight:600;'>Yes</span></td>
+                    <td><span style='color:var(--dp-success); font-weight:600;'>Yes</span></td>
+                    <td><span style='color:var(--dp-success); font-weight:600;'>Yes</span></td>
                 </tr>
                 <tr>
                     <td>View Public Decisions</td>
-                    <td><span style='color:#34D399;'>Yes</span></td>
-                    <td><span style='color:#34D399;'>Yes</span></td>
-                    <td><span style='color:#34D399;'>Yes</span></td>
-                    <td><span style='color:#34D399;'>Yes</span></td>
+                    <td><span style='color:var(--dp-success); font-weight:600;'>Yes</span></td>
+                    <td><span style='color:var(--dp-success); font-weight:600;'>Yes</span></td>
+                    <td><span style='color:var(--dp-success); font-weight:600;'>Yes</span></td>
+                    <td><span style='color:var(--dp-success); font-weight:600;'>Yes</span></td>
                 </tr>
                 <tr>
                     <td>Confidential Records (Project Delta)</td>
-                    <td><span style='color:#F87171;'>Blocked (ScopeError)</span></td>
-                    <td><span style='color:#F87171;'>Blocked</span></td>
-                    <td><span style='color:#34D399;'>Yes</span></td>
-                    <td><span style='color:#34D399;'>Yes</span></td>
+                    <td><span style='color:var(--dp-danger); font-weight:600;'>Blocked (ScopeError)</span></td>
+                    <td><span style='color:var(--dp-danger); font-weight:600;'>Blocked</span></td>
+                    <td><span style='color:var(--dp-success); font-weight:600;'>Yes</span></td>
+                    <td><span style='color:var(--dp-success); font-weight:600;'>Yes</span></td>
                 </tr>
                 <tr>
                     <td>Ingest Document Sources</td>
-                    <td><span style='color:#94A3B8;'>Review queue</span></td>
-                    <td><span style='color:#34D399;'>Yes</span></td>
-                    <td><span style='color:#34D399;'>Yes</span></td>
-                    <td><span style='color:#34D399;'>Yes</span></td>
+                    <td><span style='color:var(--dp-text-muted);'>Review queue</span></td>
+                    <td><span style='color:var(--dp-success); font-weight:600;'>Yes</span></td>
+                    <td><span style='color:var(--dp-success); font-weight:600;'>Yes</span></td>
+                    <td><span style='color:var(--dp-success); font-weight:600;'>Yes</span></td>
                 </tr>
             </tbody>
         </table>
@@ -153,10 +156,10 @@ with tab_backend:
         st.markdown(
             """
             <div style='padding:0.75rem 0;'>
-                <div style='font-size:0.85rem; color:#94A3B8;'>Database</div>
+                <div style='font-size:0.85rem; color:var(--dp-text-muted);'>Database</div>
                 <div style='display:flex; align-items:center; gap:0.6rem; margin-top:0.25rem;'>
                     <strong style='font-size:1.05rem;'>PostgreSQL 16</strong>
-                    <span class='dp-badge' style='background:rgba(34,197,94,0.15); color:#4ADE80; border:1px solid rgba(74,222,128,0.4);'>CONNECTED</span>
+                    <span class='dp-badge' style='background:rgba(34,197,94,0.15); color:var(--dp-success); border:1px solid rgba(74,222,128,0.4);'>CONNECTED</span>
                 </div>
             </div>
             """,
@@ -165,10 +168,10 @@ with tab_backend:
         st.markdown(
             """
             <div style='padding:0.75rem 0;'>
-                <div style='font-size:0.85rem; color:#94A3B8;'>LLM Reasoning & Synthesis</div>
+                <div style='font-size:0.85rem; color:var(--dp-text-muted);'>LLM Reasoning & Synthesis</div>
                 <div style='display:flex; align-items:center; gap:0.6rem; margin-top:0.25rem;'>
                     <strong style='font-size:1.05rem;'>Gemini 1.5 Pro / Claude 3.5</strong>
-                    <span class='dp-badge' style='background:rgba(34,197,94,0.15); color:#4ADE80; border:1px solid rgba(74,222,128,0.4);'>CONNECTED</span>
+                    <span class='dp-badge' style='background:rgba(34,197,94,0.15); color:var(--dp-success); border:1px solid rgba(74,222,128,0.4);'>CONNECTED</span>
                 </div>
             </div>
             """,
@@ -179,10 +182,10 @@ with tab_backend:
         st.markdown(
             f"""
             <div style='padding:0.75rem 0;'>
-                <div style='font-size:0.85rem; color:#94A3B8;'>Active Adapter Protocol</div>
+                <div style='font-size:0.85rem; color:var(--dp-text-muted);'>Active Adapter Protocol</div>
                 <div style='display:flex; align-items:center; gap:0.6rem; margin-top:0.25rem;'>
                     <strong style='font-size:1.05rem;'>{current_backend.upper()} BACKEND</strong>
-                    <span class='dp-badge' style='background:rgba(99,102,241,0.15); color:#818CF8; border:1px solid #6366F1;'>OPERATIONAL</span>
+                    <span class='dp-badge' style='background:rgba(99,102,241,0.15); color:var(--dp-primary); border:1px solid var(--dp-primary);'>OPERATIONAL</span>
                 </div>
             </div>
             """,
@@ -191,10 +194,10 @@ with tab_backend:
         st.markdown(
             """
             <div style='padding:0.75rem 0;'>
-                <div style='font-size:0.85rem; color:#94A3B8;'>Vector Memory Index</div>
+                <div style='font-size:0.85rem; color:var(--dp-text-muted);'>Vector Memory Index</div>
                 <div style='display:flex; align-items:center; gap:0.6rem; margin-top:0.25rem;'>
                     <strong style='font-size:1.05rem;'>Hindsight Multi-Tenant Vector Store</strong>
-                    <span class='dp-badge' style='background:rgba(34,197,94,0.15); color:#4ADE80; border:1px solid rgba(74,222,128,0.4);'>SYNCHRONIZED</span>
+                    <span class='dp-badge' style='background:rgba(34,197,94,0.15); color:var(--dp-success); border:1px solid rgba(74,222,128,0.4);'>SYNCHRONIZED</span>
                 </div>
             </div>
             """,
@@ -208,6 +211,9 @@ with tab_appearance:
     st.caption("Select your preferred visual appearance across all DecisionPrint dashboards:")
 
     current_theme = st.session_state.get("theme", "light")
+    if "settings_theme_radio" not in st.session_state or st.session_state.get("settings_theme_radio") != current_theme:
+        st.session_state["settings_theme_radio"] = current_theme
+
     theme_options = ["light", "dark", "system"]
     theme_choice = st.radio(
         "Theme Mode",
@@ -217,12 +223,11 @@ with tab_appearance:
             "dark": "🌙 Dark Theme (Midnight Slate)",
             "system": "💻 System Preference",
         }[x],
-        index=theme_options.index(current_theme) if current_theme in theme_options else 0,
         horizontal=True,
         key="settings_theme_radio",
     )
     if theme_choice != st.session_state.get("theme"):
-        st.session_state.theme = theme_choice
+        set_theme(theme_choice)
         st.rerun()
 
     st.markdown("<div style='height: 1rem;'></div>", unsafe_allow_html=True)
@@ -233,28 +238,24 @@ with tab_appearance:
         """
         <div style='display:flex; gap:1rem; flex-wrap:wrap; margin: 1rem 0;'>
             <div style='display:flex; align-items:center; gap:0.5rem;'>
-                <div style='width:24px; height:24px; border-radius:6px; background:#F5F7FB; border:1px solid #DCE3ED;'></div>
-                <span style='font-size:0.8rem; font-family:"JetBrains Mono", monospace;'>Canvas #F5F7FB</span>
+                <div style='width:24px; height:24px; border-radius:6px; background:var(--dp-surface-page); border:1px solid var(--dp-border);'></div>
+                <span style='font-size:0.8rem; font-family:"JetBrains Mono", monospace;'>Canvas (var(--dp-surface-page))</span>
             </div>
             <div style='display:flex; align-items:center; gap:0.5rem;'>
-                <div style='width:24px; height:24px; border-radius:6px; background:#FFFFFF; border:1px solid #DCE3ED;'></div>
-                <span style='font-size:0.8rem; font-family:"JetBrains Mono", monospace;'>Surface #FFFFFF</span>
+                <div style='width:24px; height:24px; border-radius:6px; background:var(--dp-surface-card); border:1px solid var(--dp-border);'></div>
+                <span style='font-size:0.8rem; font-family:"JetBrains Mono", monospace;'>Surface (var(--dp-surface-card))</span>
             </div>
             <div style='display:flex; align-items:center; gap:0.5rem;'>
-                <div style='width:24px; height:24px; border-radius:6px; background:#111D32;'></div>
-                <span style='font-size:0.8rem; font-family:"JetBrains Mono", monospace;'>Sidebar #111D32</span>
+                <div style='width:24px; height:24px; border-radius:6px; background:var(--dp-primary); border:1px solid var(--dp-primary);'></div>
+                <span style='font-size:0.8rem; font-family:"JetBrains Mono", monospace;'>Primary Accent (var(--dp-primary))</span>
             </div>
             <div style='display:flex; align-items:center; gap:0.5rem;'>
-                <div style='width:24px; height:24px; border-radius:6px; background:#315EDE;'></div>
-                <span style='font-size:0.8rem; font-family:"JetBrains Mono", monospace;'>Primary Blue #315EDE</span>
+                <div style='width:24px; height:24px; border-radius:6px; background:var(--dp-success);'></div>
+                <span style='font-size:0.8rem; font-family:"JetBrains Mono", monospace;'>Success (var(--dp-success))</span>
             </div>
             <div style='display:flex; align-items:center; gap:0.5rem;'>
-                <div style='width:24px; height:24px; border-radius:6px; background:#18794E;'></div>
-                <span style='font-size:0.8rem; font-family:"JetBrains Mono", monospace;'>Success #18794E</span>
-            </div>
-            <div style='display:flex; align-items:center; gap:0.5rem;'>
-                <div style='width:24px; height:24px; border-radius:6px; background:#B42332;'></div>
-                <span style='font-size:0.8rem; font-family:"JetBrains Mono", monospace;'>Critical #B42332</span>
+                <div style='width:24px; height:24px; border-radius:6px; background:var(--dp-danger);'></div>
+                <span style='font-size:0.8rem; font-family:"JetBrains Mono", monospace;'>Critical (var(--dp-danger))</span>
             </div>
         </div>
         """,

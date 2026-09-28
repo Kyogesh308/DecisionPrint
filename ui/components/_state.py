@@ -36,11 +36,17 @@ def init_session_state() -> None:
     defaults = {
         "role": "admin",
         "theme": "light",
+        "app_theme_radio_sidebar": "light",
+        "settings_theme_radio": "light",
         "project_id": None,
         "last_query_id": None,
         "last_brief": None,
+        "last_question": None,
         "selected_decision_id": None,
         "evidence_ref": None,
+        "global_search": "",
+        "ask_input": "Should Nova use Kafka for event streaming?",
+        "ov_search_input": "",
     }
     for key, val in defaults.items():
         if key not in st.session_state:

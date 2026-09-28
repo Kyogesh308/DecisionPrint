@@ -11,8 +11,10 @@ from ui.components import (
     render_sidebar_chrome,
     render_top_bar,
 )
+from ui.components._state import init_session_state
 from ui.components.dialogs import check_and_render_evidence_dialog, show_memory_trace_dialog
 
+init_session_state()
 inject_custom_css()
 
 backend = get_backend()
@@ -27,7 +29,7 @@ st.markdown(
     """
     <div style='margin-bottom: 1.5rem;'>
         <h1 style='margin-bottom: 0.25rem;'>Ask DecisionPrint</h1>
-        <p style='color:#94A3B8; font-size:1.02rem; margin:0;'>
+        <p style='color:var(--dp-text-secondary); font-size:1.02rem; margin:0;'>
             Query your organizational memory to detect architectural drift, validate constraints, and ground technical choices in historical outcomes.
         </p>
     </div>
@@ -38,7 +40,7 @@ st.markdown(
 # 2. Query Composer Card
 st.markdown("<div class='dp-card'>", unsafe_allow_html=True)
 st.markdown(
-    "<div style='font-size:0.9rem; font-weight:600; color:var(--dp-text-primary, #17243B); margin-bottom:0.5rem;'>Ask a question</div>",
+    "<div style='font-size:0.9rem; font-weight:600; color:var(--dp-text-primary); margin-bottom:0.5rem;'>Ask a question</div>",
     unsafe_allow_html=True,
 )
 
@@ -63,6 +65,7 @@ with col_input:
         "Ask a decision question",
         value=current_q,
         placeholder="Should Nova use Kafka for event streaming?",
+        key="ask_question_text_input",
         label_visibility="collapsed",
     )
 
@@ -71,29 +74,36 @@ with col_btn:
 
 # Suggested Questions Row
 st.markdown(
-    "<div style='font-size:0.78rem; color:var(--dp-text-muted, #68778D); font-weight:600; margin-top:0.8rem;'>Suggested questions:</div>",
+    "<div style='font-size:0.78rem; color:var(--dp-text-muted); font-weight:600; margin-top:0.8rem;'>Suggested questions:</div>",
     unsafe_allow_html=True,
 )
 sq_cols = st.columns(4)
 if sq_cols[0].button("Why reject GraphQL?", key="sq_graphql"):
     st.session_state.ask_input = "Why was GraphQL rejected for internal APIs?"
+    st.session_state.last_question = None
     st.rerun()
 if sq_cols[1].button("Should we use Kafka?", key="sq_kafka"):
     st.session_state.ask_input = "Should Nova use Kafka for event streaming?"
+    st.session_state.last_question = None
     st.rerun()
 if sq_cols[2].button("What were the outcomes?", key="sq_outcomes"):
     st.session_state.ask_input = "What downstream outcomes occurred from backup removal?"
+    st.session_state.last_question = None
     st.rerun()
 if sq_cols[3].button("Why scale Redis?", key="sq_redis"):
     st.session_state.ask_input = "Why did Project Gamma scale Redis to cluster?"
+    st.session_state.last_question = None
     st.rerun()
 
 st.markdown("</div>", unsafe_allow_html=True)
 
 # Execute query or retrieve cached brief
 brief = st.session_state.get("last_brief")
+question_changed = question != st.session_state.get("last_question")
 
-if do_ask or brief is None:
+if do_ask or brief is None or question_changed:
+    st.session_state.last_question = question
+    st.session_state.ask_input = question
     with st.spinner("Recalling historical decisions, checking premise deltas, and evaluating drift..."):
         try:
             brief = backend.ask_question(question, selected_project, role)
@@ -108,8 +118,8 @@ if brief:
     c_left, c_right = st.columns([3, 1])
     with c_left:
         st.markdown(
-            f"<div style='font-size:0.82rem; color:var(--dp-text-muted, #68778D); margin-bottom:0.5rem;'>"
-            f"Query ID: <code style='color:var(--dp-primary, #315EDE);'>{brief.query_id}</code> &middot; Evaluated under role: <strong>{role}</strong>"
+            f"<div style='font-size:0.82rem; color:var(--dp-text-muted); margin-bottom:0.5rem;'>"
+            f"Query ID: <code style='color:var(--dp-primary);'>{brief.query_id}</code> &middot; Evaluated under role: <strong>{role}</strong>"
             f"</div>",
             unsafe_allow_html=True,
         )

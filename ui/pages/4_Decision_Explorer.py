@@ -14,8 +14,10 @@ from ui.components import (
     render_sidebar_chrome,
     render_top_bar,
 )
+from ui.components._state import init_session_state
 from ui.components.dialogs import check_and_render_evidence_dialog
 
+init_session_state()
 inject_custom_css()
 
 backend = get_backend()
@@ -30,7 +32,7 @@ st.markdown(
     """
     <div style='margin-bottom: 1.25rem;'>
         <h1 style='margin-bottom: 0.25rem;'>Decision Explorer</h1>
-        <p style='color:#94A3B8; font-size:1.02rem; margin:0;'>
+        <p style='color:var(--dp-text-secondary); font-size:1.02rem; margin:0;'>
             Search and filter architectural decisions, historical context, and verification status.
         </p>
     </div>
@@ -59,9 +61,12 @@ with tab_decisions:
     # Search Bar
     s_col, b_col = st.columns([4, 1])
     with s_col:
+        initial_search = st.session_state.get("global_search", "")
         text_q = st.text_input(
             "Search Text",
+            value=initial_search,
             placeholder="Search decisions, keywords, or tags...",
+            key="explorer_search_text",
             label_visibility="collapsed",
         )
     with b_col:
@@ -90,8 +95,8 @@ with tab_decisions:
             rows_html.append(
                 f"""
                 <tr>
-                    <td><strong>{dec.title}</strong><div style='font-size:0.75rem; color:var(--dp-primary, #315EDE);'>{dec.decision_id}</div></td>
-                    <td><strong style='color:var(--dp-text-primary, #17243B);'>{dec.project_id.upper()}</strong></td>
+                    <td><strong>{dec.title}</strong><div style='font-size:0.75rem; color:var(--dp-primary);'>{dec.decision_id}</div></td>
+                    <td><strong style='color:var(--dp-text-primary);'>{dec.project_id.upper()}</strong></td>
                     <td>{tech_chips}</td>
                     <td style='font-family:"JetBrains Mono", monospace; font-size:0.82rem;'>{date_s}</td>
                     <td>{st_badge}</td>

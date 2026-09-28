@@ -21,8 +21,10 @@ from ui.components import (
     render_system_health,
     render_top_bar,
 )
+from ui.components._state import init_session_state
 from ui.components.dialogs import check_and_render_evidence_dialog
 
+init_session_state()
 inject_custom_css()
 
 backend = get_backend()
@@ -37,7 +39,7 @@ st.markdown(
     """
     <div style='margin-bottom: 1.5rem;'>
         <h1 style='margin-bottom: 0.25rem;'>Good afternoon, John</h1>
-        <p style='color:#94A3B8; font-size:1.02rem; margin:0;'>Here's what's happening with your organization's architecture decisions.</p>
+        <p style='color:var(--dp-text-secondary); font-size:1.02rem; margin:0;'>Here's what's happening with your organization's architecture decisions.</p>
     </div>
     """,
     unsafe_allow_html=True,
@@ -64,31 +66,46 @@ with left_col:
     st.markdown("### Search Architectural Decisions")
     st.caption("Search across past ADRs, architecture docs, and meeting records:")
 
+    # Sync with global search if present
+    current_search = st.session_state.get("ov_search_input") or st.session_state.get("global_search") or ""
+
     col_search, col_quick = st.columns([3, 2])
     with col_search:
         search_query = st.text_input(
-            "Search query", value="", placeholder="e.g. Kafka, Redis, backup, tracing...", label_visibility="collapsed"
+            "Search query",
+            value=current_search,
+            placeholder="e.g. Kafka, Redis, backup, tracing...",
+            key="ov_search_text_input",
+            label_visibility="collapsed",
         )
+        if search_query != st.session_state.get("ov_search_input", ""):
+            st.session_state.ov_search_input = search_query
+
     with col_quick:
         q_cols = st.columns(4)
         if q_cols[0].button("Kafka", key="ov_quick_kafka"):
-            search_query = "Kafka"
+            st.session_state.ov_search_input = "Kafka"
+            st.rerun()
         if q_cols[1].button("Redis", key="ov_quick_redis"):
-            search_query = "Redis"
+            st.session_state.ov_search_input = "Redis"
+            st.rerun()
         if q_cols[2].button("Backup", key="ov_quick_backup"):
-            search_query = "backup"
+            st.session_state.ov_search_input = "backup"
+            st.rerun()
         if q_cols[3].button("GraphQL", key="ov_quick_graphql"):
-            search_query = "GraphQL"
+            st.session_state.ov_search_input = "GraphQL"
+            st.rerun()
 
-    if search_query:
-        st.markdown(f"**Search Results for:** `{search_query}`")
+    active_query = st.session_state.get("ov_search_input") or search_query
+    if active_query:
+        st.markdown(f"**Search Results for:** `{active_query}`")
         try:
-            results = backend.search_decisions(DecisionFilter(text=search_query), role)
+            results = backend.search_decisions(DecisionFilter(text=active_query), role)
             if results:
                 for dec in results:
                     render_decision_card(dec)
             else:
-                st.info(f"No decisions found matching '{search_query}'.")
+                st.info(f"No decisions found matching '{active_query}'.")
         except Exception as e:  # noqa: BLE001
             st.error(f"Search failed: {e}")
     st.markdown("</div>", unsafe_allow_html=True)

@@ -307,9 +307,12 @@ def get_current_theme() -> str:
 
 
 def set_current_theme(theme_name: str) -> None:
-    """Set the active theme preference ('light', 'dark', 'system')."""
+    """Set the active theme preference ('light', 'dark', 'system') across all synced keys."""
     if theme_name in ["light", "dark", "system"]:
-        st.session_state.theme = theme_name
+        st.session_state["theme"] = theme_name
+        st.session_state["app_theme_radio_sidebar"] = theme_name
+        if "settings_theme_radio" in st.session_state:
+            st.session_state["settings_theme_radio"] = theme_name
 
 
 def badge_html(category: str, value: str) -> str:
@@ -361,90 +364,130 @@ def inject_custom_css() -> None:
     # CSS Token Variables
     if theme == "dark":
         theme_vars = """
-        --dp-bg-app: #0D1422;
-        --dp-bg-main: #141E30;
-        --dp-surface-card: #141E30;
-        --dp-surface-secondary: #1A2740;
-        --dp-sidebar-bg: #0B111D;
-        --dp-sidebar-surface: #131E33;
-        --dp-sidebar-text: #E5ECF6;
-        --dp-text-primary: #F1F5FC;
-        --dp-text-secondary: #B6C4D8;
-        --dp-text-muted: #94A4BC;
-        --dp-primary: #82A6FF;
-        --dp-primary-hover: #A4BCFF;
-        --dp-primary-light: rgba(130, 166, 255, 0.15);
-        --dp-border: #33425B;
-        --dp-border-strong: #475A7B;
-        --dp-card-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
+        --dp-bg-app: #0B0F19;
+        --dp-bg-main: #0B0F19;
+        --dp-surface-card: #111827;
+        --dp-surface-secondary: #1E293B;
+        --dp-sidebar-bg: #0C1220;
+        --dp-sidebar-surface: #111827;
+        --dp-sidebar-text: #F8FAFC;
+        --dp-sidebar-border: #1E293B;
+        --dp-text-primary: #F8FAFC;
+        --dp-text-secondary: #94A3B8;
+        --dp-text-muted: #64748B;
+        --dp-primary: #3B82F6;
+        --dp-primary-hover: #60A5FA;
+        --dp-primary-light: rgba(59, 130, 246, 0.15);
+        --dp-border: #1E293B;
+        --dp-border-strong: #334155;
+        --dp-card-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
         --dp-table-hover: rgba(255, 255, 255, 0.03);
-        --dp-input-bg: #0B111D;
-        --dp-input-border: #33425B;
+        --dp-input-bg: #131C2E;
+        --dp-input-border: #334155;
+        --dp-input-text: #F8FAFC;
+        --dp-success: #34D399;
+        --dp-success-bg: rgba(16, 185, 129, 0.15);
+        --dp-error: #F87171;
+        --dp-error-bg: rgba(239, 68, 68, 0.18);
+        --dp-warning: #FBBF24;
+        --dp-warning-bg: rgba(245, 158, 11, 0.15);
+        --dp-info: #60A5FA;
+        --dp-info-bg: rgba(59, 130, 246, 0.15);
         """
     elif theme == "system":
         theme_vars = """
-        --dp-bg-app: #F5F7FB;
-        --dp-bg-main: #F8FAFD;
+        --dp-bg-app: #F8FAFC;
+        --dp-bg-main: #F8FAFC;
         --dp-surface-card: #FFFFFF;
-        --dp-surface-secondary: #EEF2F8;
-        --dp-sidebar-bg: #111D32;
-        --dp-sidebar-surface: #1B2A44;
-        --dp-sidebar-text: #E5ECF6;
-        --dp-text-primary: #17243B;
-        --dp-text-secondary: #52627A;
-        --dp-text-muted: #68778D;
-        --dp-primary: #315EDE;
-        --dp-primary-hover: #244CC4;
-        --dp-primary-light: #EAF0FF;
-        --dp-border: #DCE3ED;
-        --dp-border-strong: #C5CFDD;
-        --dp-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 2px 8px rgba(0, 0, 0, 0.03);
+        --dp-surface-secondary: #F1F5F9;
+        --dp-sidebar-bg: #FFFFFF;
+        --dp-sidebar-surface: #F8FAFC;
+        --dp-sidebar-text: #0F172A;
+        --dp-sidebar-border: #E2E8F0;
+        --dp-text-primary: #0F172A;
+        --dp-text-secondary: #475569;
+        --dp-text-muted: #64748B;
+        --dp-primary: #2563EB;
+        --dp-primary-hover: #1D4ED8;
+        --dp-primary-light: #EFF6FF;
+        --dp-border: #E2E8F0;
+        --dp-border-strong: #CBD5E1;
+        --dp-card-shadow: 0 1px 3px rgba(15, 23, 42, 0.05), 0 4px 12px rgba(15, 23, 42, 0.03);
         --dp-table-hover: #F8FAFD;
         --dp-input-bg: #FFFFFF;
-        --dp-input-border: #DCE3ED;
+        --dp-input-border: #CBD5E1;
+        --dp-input-text: #0F172A;
+        --dp-success: #16A34A;
+        --dp-success-bg: #F0FDF4;
+        --dp-error: #DC2626;
+        --dp-error-bg: #FEF2F2;
+        --dp-warning: #D97706;
+        --dp-warning-bg: #FFFBEB;
+        --dp-info: #2563EB;
+        --dp-info-bg: #EFF6FF;
         @media (prefers-color-scheme: dark) {
-            --dp-bg-app: #0D1422;
-            --dp-bg-main: #141E30;
-            --dp-surface-card: #141E30;
-            --dp-surface-secondary: #1A2740;
-            --dp-sidebar-bg: #0B111D;
-            --dp-sidebar-surface: #131E33;
-            --dp-sidebar-text: #E5ECF6;
-            --dp-text-primary: #F1F5FC;
-            --dp-text-secondary: #B6C4D8;
-            --dp-text-muted: #94A4BC;
-            --dp-primary: #82A6FF;
-            --dp-primary-hover: #A4BCFF;
-            --dp-primary-light: rgba(130, 166, 255, 0.15);
-            --dp-border: #33425B;
-            --dp-border-strong: #475A7B;
-            --dp-card-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
+            --dp-bg-app: #0B0F19;
+            --dp-bg-main: #0B0F19;
+            --dp-surface-card: #111827;
+            --dp-surface-secondary: #1E293B;
+            --dp-sidebar-bg: #0C1220;
+            --dp-sidebar-surface: #111827;
+            --dp-sidebar-text: #F8FAFC;
+            --dp-sidebar-border: #1E293B;
+            --dp-text-primary: #F8FAFC;
+            --dp-text-secondary: #94A3B8;
+            --dp-text-muted: #64748B;
+            --dp-primary: #3B82F6;
+            --dp-primary-hover: #60A5FA;
+            --dp-primary-light: rgba(59, 130, 246, 0.15);
+            --dp-border: #1E293B;
+            --dp-border-strong: #334155;
+            --dp-card-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
             --dp-table-hover: rgba(255, 255, 255, 0.03);
-            --dp-input-bg: #0B111D;
-            --dp-input-border: #33425B;
+            --dp-input-bg: #131C2E;
+            --dp-input-border: #334155;
+            --dp-input-text: #F8FAFC;
+            --dp-success: #34D399;
+            --dp-success-bg: rgba(16, 185, 129, 0.15);
+            --dp-error: #F87171;
+            --dp-error-bg: rgba(239, 68, 68, 0.18);
+            --dp-warning: #FBBF24;
+            --dp-warning-bg: rgba(245, 158, 11, 0.15);
+            --dp-info: #60A5FA;
+            --dp-info-bg: rgba(59, 130, 246, 0.15);
         }
         """
     else:  # light (default)
         theme_vars = """
-        --dp-bg-app: #F5F7FB;
-        --dp-bg-main: #F8FAFD;
+        --dp-bg-app: #F8FAFC;
+        --dp-bg-main: #F8FAFC;
         --dp-surface-card: #FFFFFF;
-        --dp-surface-secondary: #EEF2F8;
-        --dp-sidebar-bg: #111D32;
-        --dp-sidebar-surface: #1B2A44;
-        --dp-sidebar-text: #E5ECF6;
-        --dp-text-primary: #17243B;
-        --dp-text-secondary: #52627A;
-        --dp-text-muted: #68778D;
-        --dp-primary: #315EDE;
-        --dp-primary-hover: #244CC4;
-        --dp-primary-light: #EAF0FF;
-        --dp-border: #DCE3ED;
-        --dp-border-strong: #C5CFDD;
-        --dp-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 2px 8px rgba(0, 0, 0, 0.03);
+        --dp-surface-secondary: #F1F5F9;
+        --dp-sidebar-bg: #FFFFFF;
+        --dp-sidebar-surface: #F8FAFC;
+        --dp-sidebar-text: #0F172A;
+        --dp-sidebar-border: #E2E8F0;
+        --dp-text-primary: #0F172A;
+        --dp-text-secondary: #475569;
+        --dp-text-muted: #64748B;
+        --dp-primary: #2563EB;
+        --dp-primary-hover: #1D4ED8;
+        --dp-primary-light: #EFF6FF;
+        --dp-border: #E2E8F0;
+        --dp-border-strong: #CBD5E1;
+        --dp-card-shadow: 0 1px 3px rgba(15, 23, 42, 0.05), 0 4px 12px rgba(15, 23, 42, 0.03);
         --dp-table-hover: #F8FAFD;
         --dp-input-bg: #FFFFFF;
-        --dp-input-border: #DCE3ED;
+        --dp-input-border: #CBD5E1;
+        --dp-input-text: #0F172A;
+        --dp-success: #16A34A;
+        --dp-success-bg: #F0FDF4;
+        --dp-error: #DC2626;
+        --dp-error-bg: #FEF2F2;
+        --dp-warning: #D97706;
+        --dp-warning-bg: #FFFBEB;
+        --dp-info: #2563EB;
+        --dp-info-bg: #EFF6FF;
         """
 
     st.markdown(
@@ -461,15 +504,7 @@ def inject_custom_css() -> None:
     {theme_vars}
     --dp-violet: #7958D8;
     --dp-teal: #087F8C;
-    --dp-success: #18794E;
-    --dp-success-bg: #E8F6EE;
-    --dp-warning: #A85B08;
-    --dp-warning-bg: #FFF4DE;
-    --dp-error: #B42332;
-    --dp-error-bg: #FDECEE;
-    --dp-info: #245AC7;
-    --dp-info-bg: #EAF2FF;
-    --dp-focus-ring: #315EDE;
+    --dp-focus-ring: var(--dp-primary);
 }}
 
 /* --- Root & App Canvas --- */
@@ -513,13 +548,15 @@ p, span, label, div {{
     background: var(--dp-primary);
 }}
 
-/* --- Persistent Dark Navy Sidebar --- */
+/* --- Enterprise Sidebar (Cohesive with active theme) --- */
 [data-testid="stSidebar"] {{
     background-color: var(--dp-sidebar-bg) !important;
-    border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-right: 1px solid var(--dp-sidebar-border) !important;
 }}
 
-[data-testid="stSidebar"] * {{
+[data-testid="stSidebar"] p,
+[data-testid="stSidebar"] span:not(.dp-badge),
+[data-testid="stSidebar"] label {{
     color: var(--dp-sidebar-text) !important;
 }}
 
@@ -529,23 +566,36 @@ p, span, label, div {{
     margin: 2px 8px !important;
     padding: 8px 12px !important;
     font-weight: 500 !important;
+    color: var(--dp-sidebar-text) !important;
     transition: all 0.15s ease !important;
 }}
 
+[data-testid="stSidebarNav"] a span {{
+    color: var(--dp-sidebar-text) !important;
+    font-weight: 500 !important;
+    transition: color 0.15s ease !important;
+}}
+
 [data-testid="stSidebarNav"] a:hover {{
-    background: rgba(255, 255, 255, 0.07) !important;
-    color: #FFFFFF !important;
+    background: var(--dp-surface-secondary) !important;
+}}
+
+[data-testid="stSidebarNav"] a:hover span {{
+    color: var(--dp-primary) !important;
 }}
 
 [data-testid="stSidebarNav"] a[aria-current="page"] {{
-    background: #1E2D4A !important;
-    color: #82A6FF !important;
-    font-weight: 600 !important;
-    border-left: 3px solid #315EDE !important;
+    background: var(--dp-primary-light) !important;
+    border-left: 3px solid var(--dp-primary) !important;
+}}
+
+[data-testid="stSidebarNav"] a[aria-current="page"] span {{
+    color: var(--dp-primary) !important;
+    font-weight: 700 !important;
 }}
 
 .dp-sidebar-header {{
-    padding: 0.5rem 0.5rem 1rem 0.5rem;
+    padding: 0.5rem 0.5rem 0.8rem 0.5rem;
 }}
 
 .dp-sidebar-logo-group {{
@@ -557,13 +607,13 @@ p, span, label, div {{
 .dp-sidebar-brand-name {{
     font-size: 1.25rem;
     font-weight: 800;
-    color: #FFFFFF !important;
+    color: var(--dp-sidebar-text) !important;
     letter-spacing: -0.03em;
 }}
 
 .dp-sidebar-brand-sub {{
     font-size: 0.72rem;
-    color: #82A6FF !important;
+    color: var(--dp-primary) !important;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     font-weight: 600;
@@ -571,13 +621,13 @@ p, span, label, div {{
 
 .dp-sidebar-divider {{
     height: 1px;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--dp-sidebar-border);
     margin: 1rem 0;
 }}
 
 .dp-sidebar-status-card {{
-    background: #17243C;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--dp-sidebar-surface) !important;
+    border: 1px solid var(--dp-sidebar-border) !important;
     border-radius: 8px;
     padding: 0.65rem 0.85rem;
     margin-top: 1rem;
@@ -588,7 +638,7 @@ p, span, label, div {{
     align-items: center;
     gap: 0.5rem;
     font-size: 0.75rem;
-    color: #E5ECF6 !important;
+    color: var(--dp-sidebar-text) !important;
     font-family: 'JetBrains Mono', monospace;
 }}
 
@@ -596,14 +646,58 @@ p, span, label, div {{
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #34D399;
-    box-shadow: 0 0 8px #34D399;
+    background: var(--dp-success);
+    box-shadow: 0 0 8px var(--dp-success);
     display: inline-block;
+}}
+
+.dp-sidebar-status-detail {{
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    color: var(--dp-text-muted) !important;
+    margin-top: 0.35rem;
+}}
+
+.dp-sidebar-user-card {{
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: var(--dp-sidebar-surface) !important;
+    border: 1px solid var(--dp-sidebar-border) !important;
+    border-radius: 10px;
+    margin-top: 1.5rem;
+}}
+
+.dp-user-avatar-lg {{
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--dp-primary), var(--dp-violet));
+    color: #FFFFFF !important;
+    font-weight: 700;
+    font-size: 0.88rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}}
+
+.dp-user-name {{
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: var(--dp-sidebar-text) !important;
+}}
+
+.dp-user-role {{
+    font-size: 0.75rem;
+    color: var(--dp-text-muted) !important;
 }}
 
 .dp-sidebar-version {{
     font-size: 0.7rem;
-    color: #68778D !important;
+    color: var(--dp-text-muted) !important;
     font-family: 'JetBrains Mono', monospace;
     text-align: center;
     margin-top: 0.75rem;
@@ -996,36 +1090,175 @@ p, span, label, div {{
     background-color: var(--dp-table-hover);
 }}
 
+/* --- Code & Inline Syntax --- */
+code {{
+    background-color: var(--dp-surface-secondary) !important;
+    color: var(--dp-primary) !important;
+    border: 1px solid var(--dp-border) !important;
+    padding: 0.15rem 0.4rem !important;
+    border-radius: 6px !important;
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: 0.85em !important;
+}}
+
+hr, .dp-sidebar-divider {{
+    border: none !important;
+    height: 1px !important;
+    background-color: var(--dp-border) !important;
+    margin: 1rem 0 !important;
+}}
+
+/* --- Container Wrappers --- */
+[data-testid="stVerticalBlockBorderWrapper"] {{
+    background-color: var(--dp-surface-card) !important;
+    border: 1px solid var(--dp-border) !important;
+    border-radius: 12px !important;
+    box-shadow: var(--dp-card-shadow) !important;
+}}
+
 /* --- Primary & Secondary Action Buttons --- */
 .stButton > button {{
-    background: var(--dp-primary) !important;
-    color: #FFFFFF !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
     border-radius: 8px !important;
-    padding: 0.45rem 1.25rem !important;
+    padding: 0.45rem 1.15rem !important;
     font-weight: 600 !important;
     font-size: 0.88rem !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
     transition: all 0.15s ease !important;
 }}
 
-.stButton > button:hover {{
+/* Primary Buttons */
+.stButton > button[kind="primary"],
+.stButton > button[data-testid="baseButton-primary"] {{
+    background: var(--dp-primary) !important;
+    color: #FFFFFF !important;
+    border: 1px solid var(--dp-primary) !important;
+    box-shadow: 0 1px 3px rgba(37, 99, 235, 0.25) !important;
+}}
+
+.stButton > button[kind="primary"]:hover,
+.stButton > button[data-testid="baseButton-primary"]:hover {{
     background: var(--dp-primary-hover) !important;
-    box-shadow: 0 4px 12px rgba(49, 94, 222, 0.25) !important;
+    border-color: var(--dp-primary-hover) !important;
+    color: #FFFFFF !important;
     transform: translateY(-1px) !important;
 }}
 
-/* --- Form Controls --- */
-[data-baseweb="input"], [data-baseweb="select"] {{
+/* Secondary / Standard Buttons (Chips & Cards) */
+.stButton > button[kind="secondary"],
+.stButton > button[data-testid="baseButton-secondary"],
+.stButton > button:not([kind="primary"]):not([data-testid="baseButton-primary"]) {{
+    background: var(--dp-surface-card) !important;
+    color: var(--dp-text-primary) !important;
+    border: 1px solid var(--dp-border-strong) !important;
+    box-shadow: var(--dp-card-shadow) !important;
+}}
+
+.stButton > button[kind="secondary"]:hover,
+.stButton > button[data-testid="baseButton-secondary"]:hover,
+.stButton > button:not([kind="primary"]):not([data-testid="baseButton-primary"]):hover {{
+    background: var(--dp-surface-secondary) !important;
+    border-color: var(--dp-primary) !important;
+    color: var(--dp-primary) !important;
+    transform: translateY(-1px) !important;
+}}
+
+/* --- Form Controls & Text Inputs --- */
+[data-baseweb="input"],
+[data-baseweb="base-input"],
+[data-baseweb="select"],
+.stTextInput > div > div,
+.stTextArea > div > div {{
     background-color: var(--dp-input-bg) !important;
     border: 1px solid var(--dp-input-border) !important;
     border-radius: 8px !important;
+    color: var(--dp-input-text) !important;
+    transition: all 0.2s ease !important;
+}}
+
+[data-baseweb="select"] > div {{
+    background-color: var(--dp-input-bg) !important;
+    border: 1px solid var(--dp-input-border) !important;
+    border-radius: 8px !important;
+    color: var(--dp-input-text) !important;
+}}
+
+[data-baseweb="input"]:focus-within,
+[data-baseweb="select"] > div:focus-within,
+.stTextInput > div > div:focus-within {{
+    border-color: var(--dp-primary) !important;
+    box-shadow: 0 0 0 2px var(--dp-primary-light) !important;
+}}
+
+/* Real <input> and <textarea> text visibility & typing capability */
+input,
+textarea,
+[data-baseweb="input"] input,
+[data-baseweb="base-input"] input,
+[data-baseweb="textarea"] textarea,
+.stTextInput input,
+.stTextArea textarea {{
+    background-color: transparent !important;
+    color: var(--dp-input-text) !important;
+    -webkit-text-fill-color: var(--dp-input-text) !important;
+    caret-color: var(--dp-primary) !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    font-size: 0.9rem !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}}
+
+input::placeholder,
+textarea::placeholder,
+.stTextInput input::placeholder,
+.stTextArea textarea::placeholder {{
+    color: var(--dp-text-muted) !important;
+    -webkit-text-fill-color: var(--dp-text-muted) !important;
+    opacity: 0.75 !important;
+}}
+
+/* Dropdown Menu & Popovers */
+[data-baseweb="select"] * {{
+    color: var(--dp-text-primary) !important;
+    -webkit-text-fill-color: var(--dp-text-primary) !important;
+}}
+
+div[data-baseweb="popover"],
+div[data-baseweb="menu"],
+ul[role="listbox"],
+li[role="option"] {{
+    background-color: var(--dp-surface-card) !important;
+    border-color: var(--dp-border) !important;
     color: var(--dp-text-primary) !important;
 }}
 
-[data-baseweb="input"]:focus-within, [data-baseweb="select"]:focus-within {{
-    border-color: var(--dp-primary) !important;
-    box-shadow: 0 0 0 2px var(--dp-primary-light) !important;
+li[role="option"]:hover,
+li[role="option"][aria-selected="true"] {{
+    background-color: var(--dp-primary-light) !important;
+    color: var(--dp-primary) !important;
+}}
+
+/* Sidebar Select & Input styling */
+[data-testid="stSidebar"] [data-baseweb="select"],
+[data-testid="stSidebar"] [data-baseweb="input"] {{
+    background-color: var(--dp-sidebar-surface) !important;
+    border: 1px solid var(--dp-sidebar-border) !important;
+}}
+
+[data-testid="stSidebar"] [data-baseweb="select"] *,
+[data-testid="stSidebar"] input {{
+    color: var(--dp-sidebar-text) !important;
+    -webkit-text-fill-color: var(--dp-sidebar-text) !important;
+}}
+
+/* Radio buttons & Checkboxes */
+[data-testid="stRadio"] label,
+[data-testid="stCheckbox"] label {{
+    color: var(--dp-text-primary) !important;
+    font-weight: 500 !important;
+}}
+
+[data-testid="stSidebar"] [data-testid="stRadio"] label,
+[data-testid="stSidebar"] [data-testid="stCheckbox"] label {{
+    color: var(--dp-sidebar-text) !important;
 }}
 
 /* --- Tabs --- */

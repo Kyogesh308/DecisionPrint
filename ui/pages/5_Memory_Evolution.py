@@ -12,8 +12,10 @@ from ui.components import (
     render_sidebar_chrome,
     render_top_bar,
 )
+from ui.components._state import init_session_state
 from ui.components.dialogs import check_and_render_evidence_dialog
 
+init_session_state()
 inject_custom_css()
 
 backend = get_backend()
@@ -28,7 +30,7 @@ st.markdown(
     """
     <div style='margin-bottom: 1.25rem;'>
         <h1 style='margin-bottom: 0.25rem;'>Memory Evolution</h1>
-        <p style='color:#94A3B8; font-size:1.02rem; margin:0;'>
+        <p style='color:var(--dp-text-secondary); font-size:1.02rem; margin:0;'>
             How your organization's architecture decisions, assumptions, and context evolve over time.
         </p>
     </div>
@@ -54,7 +56,7 @@ with k2:
         """
     <div class='dp-kpi-card'>
         <div class='dp-kpi-label'>Mental Models</div>
-        <div class='dp-kpi-value' style='color:#818CF8;'>3</div>
+        <div class='dp-kpi-value' style='color:var(--dp-primary);'>3</div>
         <div class='dp-kpi-trend-pos'>+1 this month</div>
     </div>
     """,
@@ -65,7 +67,7 @@ with k3:
         """
     <div class='dp-kpi-card'>
         <div class='dp-kpi-label'>Evidence Items</div>
-        <div class='dp-kpi-value' style='color:#38BDF8;'>48</div>
+        <div class='dp-kpi-value' style='color:var(--dp-primary);'>48</div>
         <div class='dp-kpi-trend-pos'>+12 this month</div>
     </div>
     """,
@@ -101,18 +103,18 @@ st.markdown(
         <tbody>
             <tr>
                 <td><strong>Kafka event patterns and throughput benchmarks</strong></td>
-                <td><span class='dp-badge' style='background:rgba(99,102,241,0.15); color:#818CF8; border:1px solid rgba(99,102,241,0.3);'>PROJECT NOVA</span></td>
-                <td style='font-family:"JetBrains Mono", monospace; font-size:0.82rem; color:#94A3B8;'>May 13, 2026</td>
+                <td><span class='dp-badge' style='background:rgba(99,102,241,0.15); color:var(--dp-primary); border:1px solid rgba(99,102,241,0.3);'>PROJECT NOVA</span></td>
+                <td style='font-family:"JetBrains Mono", monospace; font-size:0.82rem; color:var(--dp-text-muted);'>May 13, 2026</td>
             </tr>
             <tr>
                 <td><strong>PostgreSQL query performance analysis</strong></td>
-                <td><span class='dp-badge' style='background:rgba(56,189,248,0.15); color:#38BDF8; border:1px solid rgba(56,189,248,0.3);'>PROJECT HELIOS</span></td>
-                <td style='font-family:"JetBrains Mono", monospace; font-size:0.82rem; color:#94A3B8;'>Apr 29, 2026</td>
+                <td><span class='dp-badge' style='background:rgba(56,189,248,0.15); color:#087F8C; border:1px solid rgba(56,189,248,0.3);'>PROJECT HELIOS</span></td>
+                <td style='font-family:"JetBrains Mono", monospace; font-size:0.82rem; color:var(--dp-text-muted);'>Apr 29, 2026</td>
             </tr>
             <tr>
                 <td><strong>Redis caching degradation patterns</strong></td>
                 <td><span class='dp-badge' style='background:rgba(249,115,22,0.15); color:#FB923C; border:1px solid rgba(251,146,60,0.3);'>PROJECT ORION</span></td>
-                <td style='font-family:"JetBrains Mono", monospace; font-size:0.82rem; color:#94A3B8;'>Feb 18, 2026</td>
+                <td style='font-family:"JetBrains Mono", monospace; font-size:0.82rem; color:var(--dp-text-muted);'>Feb 18, 2026</td>
             </tr>
         </tbody>
     </table>

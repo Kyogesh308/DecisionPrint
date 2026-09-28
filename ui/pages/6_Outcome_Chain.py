@@ -14,8 +14,10 @@ from ui.components import (
     render_sidebar_chrome,
     render_top_bar,
 )
+from ui.components._state import init_session_state
 from ui.components.dialogs import check_and_render_evidence_dialog
 
+init_session_state()
 inject_custom_css()
 
 backend = get_backend()
@@ -32,7 +34,7 @@ with c_head:
         """
         <div style='margin-bottom: 1.25rem;'>
             <h1 style='margin-bottom: 0.25rem;'>Outcome Chain</h1>
-            <p style='color:#94A3B8; font-size:1.02rem; margin:0;'>
+            <p style='color:var(--dp-text-secondary); font-size:1.02rem; margin:0;'>
                 Trace how cost-cutting directives and architectural choices link directly to project outcomes and evidence.
             </p>
         </div>
@@ -73,7 +75,7 @@ try:
     if selected_did == "DEC-DELTA-001":
         st.markdown(
             f"""
-            <p style='color:var(--dp-text-primary, #17243B); font-size:0.95rem; line-height: 1.6;'>
+            <p style='color:var(--dp-text-primary); font-size:0.95rem; line-height: 1.6;'>
                 <strong>The Cedar Chain:</strong> In Q2 2025, Project Delta disabled automated database backups
                 (<code>SRC-DELTA-001</code>, <code>SRC-DELTA-002</code>) to save $4,200/month under cost-reduction directives.
                 On July 22, 2025, an infrastructure outage struck (<code>SRC-DELTA-003</code>). The postmortem explicitly cited
@@ -87,7 +89,7 @@ try:
     else:
         st.markdown(
             f"""
-            <p style='color:var(--dp-text-primary, #17243B); font-size:0.95rem; line-height: 1.6;'>
+            <p style='color:var(--dp-text-primary); font-size:0.95rem; line-height: 1.6;'>
                 Downstream consequences are audited using evidence-backed causal inference. When an official postmortem names a decision
                 or when concrete latency/throughput metrics correlate with an architectural milestone, an
                 {causal_badge}

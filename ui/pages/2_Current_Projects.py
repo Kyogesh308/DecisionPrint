@@ -16,8 +16,10 @@ from ui.components import (
     render_sidebar_chrome,
     render_top_bar,
 )
+from ui.components._state import init_session_state
 from ui.components.dialogs import check_and_render_evidence_dialog
 
+init_session_state()
 inject_custom_css()
 
 backend = get_backend()
@@ -34,7 +36,7 @@ with c_title:
         """
         <div style='margin-bottom: 1.25rem;'>
             <h1 style='margin-bottom: 0.25rem;'>Current Projects</h1>
-            <p style='color:#94A3B8; font-size:1.02rem; margin:0;'>
+            <p style='color:var(--dp-text-secondary); font-size:1.02rem; margin:0;'>
                 Active projects and their decision context, constraints, and architectural drift status.
             </p>
         </div>
@@ -63,7 +65,7 @@ with kp2:
         """
     <div class='dp-kpi-card'>
         <div class='dp-kpi-label'>Active</div>
-        <div class='dp-kpi-value' style='color:var(--dp-success, #18794E);'>3</div>
+        <div class='dp-kpi-value' style='color:var(--dp-success);'>3</div>
         <div class='dp-kpi-trend-pos'>Under continuous recall</div>
     </div>
     """,
@@ -74,7 +76,7 @@ with kp3:
         """
     <div class='dp-kpi-card'>
         <div class='dp-kpi-label'>On Hold</div>
-        <div class='dp-kpi-value' style='color:var(--dp-warning, #A85B08);'>1</div>
+        <div class='dp-kpi-value' style='color:var(--dp-warning);'>1</div>
         <div class='dp-kpi-trend-neg'>Constraint evaluation pending</div>
     </div>
     """,
@@ -85,7 +87,7 @@ with kp4:
         """
     <div class='dp-kpi-card'>
         <div class='dp-kpi-label'>Completed</div>
-        <div class='dp-kpi-value' style='color:var(--dp-primary, #315EDE);'>1</div>
+        <div class='dp-kpi-value' style='color:var(--dp-primary);'>1</div>
         <div class='dp-kpi-trend-pos'>Archived with gold history</div>
     </div>
     """,
@@ -124,53 +126,53 @@ st.markdown(
         <tbody>
             <tr>
                 <td>
-                    <div style='font-weight:700; color:var(--dp-text-primary, #17243B);'>Project Nova</div>
-                    <div style='font-size:0.75rem; color:var(--dp-text-muted, #68778D);'>Event Streaming Platform</div>
+                    <div style='font-weight:700; color:var(--dp-text-primary);'>Project Nova</div>
+                    <div style='font-size:0.75rem; color:var(--dp-text-muted);'>Event Streaming Platform</div>
                 </td>
                 <td>{nova_status}</td>
-                <td><code style='color:var(--dp-primary, #315EDE);'>15</code></td>
+                <td><code style='color:var(--dp-primary);'>15</code></td>
                 <td>{nova_drift}</td>
-                <td style='color:var(--dp-text-muted, #68778D); font-size:0.82rem;'>2h ago</td>
+                <td style='color:var(--dp-text-muted); font-size:0.82rem;'>2h ago</td>
             </tr>
             <tr>
                 <td>
-                    <div style='font-weight:700; color:var(--dp-text-primary, #17243B);'>Project Orion (Delta)</div>
-                    <div style='font-size:0.75rem; color:var(--dp-text-muted, #68778D);'>Data Platform Migration</div>
+                    <div style='font-weight:700; color:var(--dp-text-primary);'>Project Orion (Delta)</div>
+                    <div style='font-size:0.75rem; color:var(--dp-text-muted);'>Data Platform Migration</div>
                 </td>
                 <td>{orion_status}</td>
-                <td><code style='color:var(--dp-primary, #315EDE);'>12</code></td>
+                <td><code style='color:var(--dp-primary);'>12</code></td>
                 <td>{orion_drift}</td>
-                <td style='color:var(--dp-text-muted, #68778D); font-size:0.82rem;'>5h ago</td>
+                <td style='color:var(--dp-text-muted); font-size:0.82rem;'>5h ago</td>
             </tr>
             <tr>
                 <td>
-                    <div style='font-weight:700; color:var(--dp-text-primary, #17243B);'>Project Helios (Beta)</div>
-                    <div style='font-size:0.75rem; color:var(--dp-text-muted, #68778D);'>ML Platform Gateway</div>
+                    <div style='font-weight:700; color:var(--dp-text-primary);'>Project Helios (Beta)</div>
+                    <div style='font-size:0.75rem; color:var(--dp-text-muted);'>ML Platform Gateway</div>
                 </td>
                 <td>{helios_status}</td>
-                <td><code style='color:var(--dp-primary, #315EDE);'>8</code></td>
+                <td><code style='color:var(--dp-primary);'>8</code></td>
                 <td>{helios_drift}</td>
-                <td style='color:var(--dp-text-muted, #68778D); font-size:0.82rem;'>1d ago</td>
+                <td style='color:var(--dp-text-muted); font-size:0.82rem;'>1d ago</td>
             </tr>
             <tr>
                 <td>
-                    <div style='font-weight:700; color:var(--dp-text-primary, #17243B);'>Project Zenith (Gamma)</div>
-                    <div style='font-size:0.75rem; color:var(--dp-text-muted, #68778D);'>Analytics Platform</div>
+                    <div style='font-weight:700; color:var(--dp-text-primary);'>Project Zenith (Gamma)</div>
+                    <div style='font-size:0.75rem; color:var(--dp-text-muted);'>Analytics Platform</div>
                 </td>
                 <td>{zenith_status}</td>
-                <td><code style='color:var(--dp-primary, #315EDE);'>14</code></td>
+                <td><code style='color:var(--dp-primary);'>14</code></td>
                 <td>{zenith_drift}</td>
-                <td style='color:var(--dp-text-muted, #68778D); font-size:0.82rem;'>1d ago</td>
+                <td style='color:var(--dp-text-muted); font-size:0.82rem;'>1d ago</td>
             </tr>
             <tr>
                 <td>
-                    <div style='font-weight:700; color:var(--dp-text-primary, #17243B);'>Project Atlas (Alpha)</div>
-                    <div style='font-size:0.75rem; color:var(--dp-text-muted, #68778D);'>Infrastructure Upgrade Baseline</div>
+                    <div style='font-weight:700; color:var(--dp-text-primary);'>Project Atlas (Alpha)</div>
+                    <div style='font-size:0.75rem; color:var(--dp-text-muted);'>Infrastructure Upgrade Baseline</div>
                 </td>
                 <td>{atlas_status}</td>
-                <td><code style='color:var(--dp-primary, #315EDE);'>6</code></td>
+                <td><code style='color:var(--dp-primary);'>6</code></td>
                 <td>{atlas_drift}</td>
-                <td style='color:var(--dp-text-muted, #68778D); font-size:0.82rem;'>3d ago</td>
+                <td style='color:var(--dp-text-muted); font-size:0.82rem;'>3d ago</td>
             </tr>
         </tbody>
     </table>

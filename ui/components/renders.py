@@ -124,7 +124,7 @@ def render_recent_activity(activities: list[dict] | None = None) -> None:
     st.markdown(
         "<div style='display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.8rem;'>"
         "<h3 style='margin:0;'>Recent Activity</h3>"
-        "<span style='color:#818CF8; font-size:0.8rem; font-weight:600;'>View all &rarr;</span>"
+        "<span style='color:var(--dp-primary); font-size:0.8rem; font-weight:600;'>View all &rarr;</span>"
         "</div>",
         unsafe_allow_html=True,
     )
@@ -172,7 +172,7 @@ def render_system_health() -> None:
     st.markdown(
         """
     <div class='dp-health-box'>
-        <div style='font-size:0.75rem; color:#94A3B8; text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em;'>System Health</div>
+        <div style='font-size:0.75rem; color:var(--dp-text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em;'>System Health</div>
         <div class='dp-health-status'>
             <span class='dp-pulse-dot'></span>
             <span>All systems operational</span>
@@ -254,33 +254,31 @@ def render_decision_detail_panel(decision: Decision) -> None:
     status_badge = badge_html("status", decision.status.value)
     date_str = decision.date.strftime("%Y-%m-%d") if decision.date else ""
 
-    st.markdown(
-        "<div class='dp-card' style='border-top: 3px solid var(--dp-primary, #315EDE);'>", unsafe_allow_html=True
-    )
+    st.markdown("<div class='dp-card' style='border-top: 3px solid var(--dp-primary);'>", unsafe_allow_html=True)
     st.markdown(
         f"""
         <div style='display:flex; justify-content:space-between; align-items:center;'>
-            <div style='font-size:0.8rem; color:var(--dp-primary, #315EDE); font-family:"JetBrains Mono", monospace;'>{decision.decision_id}</div>
+            <div style='font-size:0.8rem; color:var(--dp-primary); font-family:"JetBrains Mono", monospace;'>{decision.decision_id}</div>
             <div>{status_badge}</div>
         </div>
         <h3 style='margin: 0.3rem 0 0.8rem 0;'>{decision.title}</h3>
-        <div style='display:flex; gap:2rem; font-size:0.85rem; color:var(--dp-text-muted, #68778D); margin-bottom:0.8rem;'>
-            <div>Project: <strong style='color:var(--dp-text-primary, #17243B);'>{decision.project_id.upper()}</strong></div>
-            <div>Decision Date: <strong style='color:var(--dp-text-primary, #17243B);'>{date_str}</strong></div>
-            <div>Selected: <strong style='color:var(--dp-primary, #315EDE);'>{decision.selected_option}</strong></div>
+        <div style='display:flex; gap:2rem; font-size:0.85rem; color:var(--dp-text-muted); margin-bottom:0.8rem;'>
+            <div>Project: <strong style='color:var(--dp-text-primary);'>{decision.project_id.upper()}</strong></div>
+            <div>Decision Date: <strong style='color:var(--dp-text-primary);'>{date_str}</strong></div>
+            <div>Selected: <strong style='color:var(--dp-primary);'>{decision.selected_option}</strong></div>
         </div>
-        <p style='color:var(--dp-text-secondary, #52627A); font-size:0.9rem;'>{decision.statement}</p>
+        <p style='color:var(--dp-text-secondary); font-size:0.9rem;'>{decision.statement}</p>
         """,
         unsafe_allow_html=True,
     )
     if decision.reasons:
         st.markdown(
-            "<div style='font-size:0.82rem; color:var(--dp-text-muted, #68778D); font-weight:600;'>Core Rationale:</div>",
+            "<div style='font-size:0.82rem; color:var(--dp-text-muted); font-weight:600;'>Core Rationale:</div>",
             unsafe_allow_html=True,
         )
         for r in decision.reasons:
             st.markdown(
-                f"- <span style='font-size:0.85rem; color:var(--dp-text-primary, #17243B);'>{r}</span>",
+                f"- <span style='font-size:0.85rem; color:var(--dp-text-primary);'>{r}</span>",
                 unsafe_allow_html=True,
             )
     st.markdown("</div>", unsafe_allow_html=True)
@@ -299,15 +297,15 @@ def render_constraint_delta_table(delta: ConstraintDelta) -> None:
 
     for item in sorted_items:
         border_style = (
-            "border-left: 3px solid #6366F1; padding-left: 14px; background: rgba(99, 102, 241, 0.08); border-radius: 6px;"
+            "border-left: 3px solid var(--dp-primary); padding-left: 14px; background: var(--dp-primary-light); border-radius: 6px;"
             if item.is_reason_linked
             else "padding-left: 14px; border-left: 3px solid transparent;"
         )
         c_badge = badge_html("comparison", item.comparison.value)
         weight_text = (
-            f"<span style='color:#a78bfa; font-weight:600;'>⚡ Reason-linked (Weight {item.weight:.2f})</span>"
+            f"<span style='color:var(--dp-primary); font-weight:600;'>⚡ Reason-linked (Weight {item.weight:.2f})</span>"
             if item.is_reason_linked
-            else "<span style='color:#64748B;'>Standard constraint</span>"
+            else "<span style='color:var(--dp-text-muted);'>Standard constraint</span>"
         )
 
         old_v = item.old_value if item.old_value is not None else "—"
@@ -319,7 +317,7 @@ def render_constraint_delta_table(delta: ConstraintDelta) -> None:
         )
         st.markdown(f"**{item.key}** {c_badge} · {weight_text}", unsafe_allow_html=True)
         st.markdown(
-            f"<span style='color:#94A3B8;'>Old Premise:</span> <code>{old_v}</code> ➔ <span style='color:#38BDF8;'>Current:</span> <code>{new_v}</code>",
+            f"<span style='color:var(--dp-text-muted);'>Old Premise:</span> <code>{old_v}</code> ➔ <span style='color:var(--dp-primary); font-weight:600;'>Current:</span> <code>{new_v}</code>",
             unsafe_allow_html=True,
         )
         st.markdown("</div>", unsafe_allow_html=True)
@@ -360,7 +358,7 @@ def render_drift_card(drift: DriftResult) -> None:
         <p style='font-size: 1.4em; margin: 0.5rem 0; font-weight: 700; color:{text_color};'>
             Drift Score: {drift.score * 100:.1f}%
         </p>
-        <p style='margin-bottom:0; color:var(--dp-text-primary, #17243B); font-size:1.02rem;'>{drift.summary}</p>
+        <p style='margin-bottom:0; color:var(--dp-text-primary); font-size:1.02rem;'>{drift.summary}</p>
     </div>
     """,
         unsafe_allow_html=True,
@@ -376,7 +374,7 @@ def render_epistemic_section(title: str, claims: list[BriefClaim]) -> None:
     for claim in claims:
         badge = badge_html("epistemic", claim.epistemic_type.value)
         srcs = " ".join([f"`{sid}`" for sid in claim.source_ids])
-        src_markup = f" <span style='color:#94A3B8;'>[{srcs}]</span>" if srcs else ""
+        src_markup = f" <span style='color:var(--dp-text-muted);'>[{srcs}]</span>" if srcs else ""
         st.markdown(f"- {badge} {claim.text}{src_markup}", unsafe_allow_html=True)
 
 
@@ -420,20 +418,20 @@ def render_brief(brief: DecisionBrief) -> None:
         <div style='display:flex; justify-content:space-between; align-items:center;'>
             <div style='display:flex; align-items:center; gap: 0.6rem;'>
                 {check_svg}
-                <h3 style='margin:0; color:var(--dp-success, #18794E) !important;'>Recommended Choice Identified</h3>
+                <h3 style='margin:0; color:var(--dp-success) !important;'>Recommended Choice Identified</h3>
             </div>
-            <span style='color:var(--dp-primary, #315EDE); font-size:0.8rem; font-weight:600;'>View full context &rarr;</span>
+            <span style='color:var(--dp-primary); font-size:0.8rem; font-weight:600;'>View full context &rarr;</span>
         </div>
-        <p style='color:var(--dp-text-primary, #17243B); font-size:1.02rem; margin: 0.75rem 0 1rem 0; line-height: 1.6;'>
+        <p style='color:var(--dp-text-primary); font-size:1.02rem; margin: 0.75rem 0 1rem 0; line-height: 1.6;'>
             Based on historical precedents from <strong>Project Alpha</strong> and the current scale of <strong>Project Nova</strong>,
             the operational constraints that previously justified RabbitMQ (2 consumers, small ops team) have lapsed.
             Kafka provides superior scalability, stream auditability, and replay capability for high-throughput streaming.
         </p>
         <div style='display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;'>
-            <span style='font-size:0.8rem; color:var(--dp-text-muted, #68778D); font-weight:600;'>Evidence Grounding:</span>
-            <span class='dp-badge' style='background:rgba(49,94,222,0.12); color:var(--dp-primary, #315EDE); border:1px solid rgba(49,94,222,0.25);'>Project Nova</span>
+            <span style='font-size:0.8rem; color:var(--dp-text-muted); font-weight:600;'>Evidence Grounding:</span>
+            <span class='dp-badge' style='background:var(--dp-primary-light); color:var(--dp-primary); border:1px solid var(--dp-primary);'>Project Nova</span>
             <span class='dp-badge' style='background:rgba(8,127,140,0.12); color:#087F8C; border:1px solid rgba(8,127,140,0.25);'>Decision DEC-ALPHA-001</span>
-            <span class='dp-badge' style='background:rgba(24,121,78,0.12); color:#18794E; border:1px solid rgba(24,121,78,0.25);'>Memory Trace</span>
+            <span class='dp-badge' style='background:rgba(24,121,78,0.12); color:var(--dp-success); border:1px solid rgba(24,121,78,0.25);'>Memory Trace</span>
             <span class='dp-badge' style='background:rgba(121,88,216,0.12); color:#7958D8; border:1px solid rgba(121,88,216,0.25);'>Outcome Chain</span>
         </div>
     </div>
@@ -517,7 +515,7 @@ def render_evidence_panel(evidence: EvidenceExcerpt) -> None:
         unsafe_allow_html=True,
     )
     st.markdown(
-        f"""<blockquote style='border-left: 3px solid #6366F1; padding: 1rem 1.4rem; background: rgba(99, 102, 241, 0.08); border-radius: 8px; font-style: italic; color: #F1F5F9; border: 1px solid rgba(99, 102, 241, 0.2);'>
+        f"""<blockquote style='border-left: 3px solid var(--dp-primary); padding: 1rem 1.4rem; background: var(--dp-surface-secondary); border-radius: 8px; font-style: italic; color: var(--dp-text-primary); border: 1px solid var(--dp-border);'>
         "{evidence.excerpt}"
         </blockquote>""",
         unsafe_allow_html=True,
@@ -540,7 +538,7 @@ def render_decision_timeline(events: list[TimelineEvent]) -> None:
         st.markdown("<div class='dp-timeline-dot'></div>", unsafe_allow_html=True)
         st.markdown(f"<div class='dp-timeline-date'>{date_str} · {kind_title}</div>", unsafe_allow_html=True)
         st.markdown(f"**{event.title}** {status_b}", unsafe_allow_html=True)
-        st.markdown(f"<p style='color:#CBD5E1;'>{event.summary}</p>", unsafe_allow_html=True)
+        st.markdown(f"<p style='color:var(--dp-text-secondary);'>{event.summary}</p>", unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
 
     st.markdown("</div>", unsafe_allow_html=True)
@@ -549,7 +547,11 @@ def render_decision_timeline(events: list[TimelineEvent]) -> None:
 def render_ingest_result(result: IngestResult) -> None:
     """Render the result of an ingest operation."""
     color = (
-        "#4ade80" if result.status.value == "success" else "#fb923c" if result.status.value == "partial" else "#f87171"
+        "var(--dp-success)"
+        if result.status.value == "success"
+        else "var(--dp-warning)"
+        if result.status.value == "partial"
+        else "var(--dp-error)"
     )
 
     st.markdown(f"<div class='dp-card' style='border: 1px solid {color};'>", unsafe_allow_html=True)
@@ -579,7 +581,7 @@ def render_mental_models_grid(models: list[MentalModelView]) -> None:
     st.markdown(
         "<div style='display:flex; justify-content:space-between; align-items:center; margin: 1.5rem 0 0.8rem 0;'>"
         "<h3 style='margin:0;'>Mental Models</h3>"
-        "<span style='color:#818CF8; font-size:0.82rem; font-weight:600;'>View all &rarr;</span>"
+        "<span style='color:var(--dp-primary); font-size:0.82rem; font-weight:600;'>View all &rarr;</span>"
         "</div>",
         unsafe_allow_html=True,
     )
@@ -587,16 +589,16 @@ def render_mental_models_grid(models: list[MentalModelView]) -> None:
     for idx, model in enumerate(models[:3]):
         with cols[idx]:
             icon_name = "shield" if "Risk" in model.name else "cpu" if "System" in model.name else "trend_up"
-            icon_svg = get_icon_svg(icon_name, size=20, color="#818CF8")
+            icon_svg = get_icon_svg(icon_name, size=20, color="var(--dp-primary)")
             st.markdown(
                 f"""
-            <div class='dp-card' style='height: 100%; border-top: 3px solid #6366F1;'>
+            <div class='dp-card' style='height: 100%; border-top: 3px solid var(--dp-primary);'>
                 <div style='margin-bottom:0.5rem;'>{icon_svg}</div>
-                <div style='font-size: 1.05rem; font-weight: 700; color: #F8FAFC;'>{model.name}</div>
-                <div style='font-size: 0.75rem; color: #94A3B8; font-family: "JetBrains Mono", monospace; margin: 0.25rem 0 0.6rem 0;'>
+                <div style='font-size: 1.05rem; font-weight: 700; color: var(--dp-text-primary);'>{model.name}</div>
+                <div style='font-size: 0.75rem; color: var(--dp-text-muted); font-family: "JetBrains Mono", monospace; margin: 0.25rem 0 0.6rem 0;'>
                     {idx + 1} projects · {model.evidence_count} evidences
                 </div>
-                <p style='font-size: 0.85rem; color: #CBD5E1; line-height: 1.5;'>{model.content}</p>
+                <p style='font-size: 0.85rem; color: var(--dp-text-secondary); line-height: 1.5;'>{model.content}</p>
             </div>
             """,
                 unsafe_allow_html=True,
@@ -639,7 +641,9 @@ def render_mental_model_card(model: MentalModelView) -> None:
     """Render a card detailing a mental model."""
     st.markdown("<div class='dp-card'>", unsafe_allow_html=True)
     st.markdown(f"### 🧠 Mental Model: {model.name}")
-    st.markdown(f"<p style='font-size:1.1rem; color:#E2E8F0;'>{model.content}</p>", unsafe_allow_html=True)
+    st.markdown(
+        f"<p style='font-size:1.1rem; color:var(--dp-text-primary);'>{model.content}</p>", unsafe_allow_html=True
+    )
     refreshed_str = model.last_refreshed.strftime("%Y-%m-%d") if model.last_refreshed else "—"
     st.markdown(
         f"<p class='dp-timeline-date'>Consolidated: {refreshed_str} · Synthesized from <strong>{model.evidence_count}</strong> observations</p>",
@@ -704,22 +708,24 @@ def render_outcome_chain(chain: OutcomeChain) -> None:
         step_date = step.date.strftime("%Y-%m-%d") if step.date else "2025-04-01"
         steps_html.append(
             f"""
-        <div style='background:rgba(17,24,39,0.9); border: 1px solid {border_c}; border-radius:12px; padding:0.9rem 1.1rem; min-width: 170px; text-align:center;'>
+        <div style='background:var(--dp-surface-secondary); border: 1px solid {border_c}; border-radius:12px; padding:0.9rem 1.1rem; min-width: 170px; text-align:center; box-shadow:var(--dp-card-shadow);'>
             <div style='width:28px; height:28px; border-radius:50%; background:{border_c}25; color:{border_c}; font-weight:700; font-size:0.8rem; display:flex; align-items:center; justify-content:center; margin:0 auto 0.4rem auto; border:1px solid {border_c};'>{i + 1}</div>
-            <div style='font-size:0.9rem; font-weight:700; color:#F8FAFC;'>{step.title}</div>
+            <div style='font-size:0.9rem; font-weight:700; color:var(--dp-text-primary);'>{step.title}</div>
             <div style='font-size:0.75rem; color:{border_c}; text-transform:uppercase; font-weight:600; margin:0.2rem 0;'>{k}</div>
-            <div style='font-size:0.72rem; color:#94A3B8; font-family:"JetBrains Mono", monospace;'>{step_date}</div>
+            <div style='font-size:0.72rem; color:var(--dp-text-muted); font-family:"JetBrains Mono", monospace;'>{step_date}</div>
         </div>
         """
         )
 
-    flow_joined = " <div style='font-size:1.4rem; color:#818CF8; align-self:center;'>&rarr;</div> ".join(steps_html)
+    flow_joined = " <div style='font-size:1.4rem; color:var(--dp-primary); align-self:center;'>&rarr;</div> ".join(
+        steps_html
+    )
     st.markdown(
         f"""
         <div style='display:flex; justify-content:space-between; align-items:stretch; overflow-x:auto; padding: 1rem 0; gap:0.5rem;'>
             {flow_joined}
         </div>
-        <div style='display:flex; justify-content:center; gap:1.5rem; font-size:0.78rem; color:#94A3B8; margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid rgba(255,255,255,0.06);'>
+        <div style='display:flex; justify-content:center; gap:1.5rem; font-size:0.78rem; color:var(--dp-text-muted); margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid var(--dp-border);'>
             <span><strong style='color:#A855F7;'>&bull;</strong> Directive</span>
             <span><strong style='color:#6366F1;'>&bull;</strong> Decision</span>
             <span><strong style='color:#38BDF8;'>&bull;</strong> Outcome</span>

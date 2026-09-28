@@ -27,7 +27,7 @@ def render_launchpad() -> None:
         """
         <div style='margin-bottom: 1.5rem;'>
             <h1 style='margin-bottom: 0.25rem;'>Good afternoon, John</h1>
-            <p style='color:#94A3B8; font-size:1.02rem; margin:0;'>
+            <p style='color:var(--dp-text-secondary); font-size:1.02rem; margin:0;'>
                 Welcome to DecisionPrint — the organizational decision memory and architecture intelligence system.
             </p>
         </div>
@@ -52,7 +52,7 @@ def render_launchpad() -> None:
             """
             <div class='dp-card'>
                 <h4>🔍 Continuous Memory Recall (The Ask Screen)</h4>
-                <p style='color:#94A3B8; font-size:0.9rem;'>
+                <p style='color:var(--dp-text-secondary); font-size:0.9rem;'>
                     Evaluate technical proposals (e.g. <em>"Should Nova use Kafka?"</em>) against historical precedents,
                     automatic constraint deltas, and multi-dimensional confidence scores.
                 </p>
@@ -67,7 +67,7 @@ def render_launchpad() -> None:
             """
             <div class='dp-card'>
                 <h4>📊 Organizational Memory Overview</h4>
-                <p style='color:#94A3B8; font-size:0.9rem;'>
+                <p style='color:var(--dp-text-secondary); font-size:0.9rem;'>
                     Explore high-level decision memory statistics, full-text decision search, and live document ingestion with real-time memory consolidation.
                 </p>
             </div>
@@ -81,7 +81,7 @@ def render_launchpad() -> None:
             """
             <div class='dp-card'>
                 <h4>🏗️ Current Projects &amp; Decision Drift</h4>
-                <p style='color:#94A3B8; font-size:0.9rem;'>
+                <p style='color:var(--dp-text-secondary); font-size:0.9rem;'>
                     Monitor active project constraints and audit decision drift warnings when original operational premises no longer hold.
                 </p>
             </div>
@@ -96,7 +96,7 @@ def render_launchpad() -> None:
             """
             <div class='dp-card'>
                 <h4>🔗 Outcome Chain &amp; Causal Consequence</h4>
-                <p style='color:#94A3B8; font-size:0.9rem;'>
+                <p style='color:var(--dp-text-secondary); font-size:0.9rem;'>
                     Trace how cost-cutting directives in Project Delta caused a production outage, backed by postmortem evidence with an <strong>EXPLICIT CAUSAL LINK</strong>.
                 </p>
             </div>
@@ -110,7 +110,7 @@ def render_launchpad() -> None:
             """
             <div class='dp-card'>
                 <h4>📅 Architectural Decision Timeline</h4>
-                <p style='color:#94A3B8; font-size:0.9rem;'>
+                <p style='color:var(--dp-text-secondary); font-size:0.9rem;'>
                     Inspect how architectural decisions evolve across project iterations: from initial ADRs through recurring exceptions to formal supersession.
                 </p>
             </div>
@@ -124,7 +124,7 @@ def render_launchpad() -> None:
             """
             <div class='dp-card'>
                 <h4>🧬 Memory Evolution &amp; Mental Models</h4>
-                <p style='color:#94A3B8; font-size:0.9rem;'>
+                <p style='color:var(--dp-text-secondary); font-size:0.9rem;'>
                     Watch raw project decisions consolidate into recurring architectural observations and company-wide mental models.
                 </p>
             </div>
