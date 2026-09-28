@@ -1,4 +1,32 @@
+# project docs / planning
 DecisionPrint_PRD.md
 P1_Memory_Platform_Engineer.md
 plan.md
-.venv
+
+# local environment
+.venv/
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# Python cache / tooling
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# generated runtime data
+var/
+*.db
+*.sqlite3
+
+# local data / demo artifacts
+data/
+
+# editor / OS noise
+.DS_Store
+.idea/
+.vscode/
