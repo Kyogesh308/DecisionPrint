@@ -51,6 +51,7 @@ def build_decision_brief(
     current: CurrentProjectContext | None,
     reflect_fn: ReflectFn,
 ) -> DecisionBrief:
+    """Build a cited decision brief, falling back safely if assembly fails."""
     project_id = (
         current.project_id
         if current

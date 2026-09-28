@@ -38,10 +38,10 @@ class DriftLevel(str, Enum):
     low = "low"
     medium = "medium"
     high = "high"
-    NONE = "NONE"
-    LOW = "LOW"
-    MEDIUM = "MEDIUM"
-    HIGH = "HIGH"
+    NONE = "none"
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
 
 
 class EpistemicType(str, Enum):

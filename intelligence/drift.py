@@ -35,6 +35,7 @@ def normalize_constraints(
     *,
     use_llm_for_semantics: bool = False,
 ) -> list[Constraint]:
+    """Return copied constraints with values normalized when recognized."""
     result: list[Constraint] = []
     for c in constraints:
         normalized = deepcopy(c)
@@ -84,6 +85,7 @@ def compare_constraints(
     decision: Decision,
     current: CurrentProjectContext,
 ) -> ConstraintDelta:
+    """Compare a decision's historical constraints with the current context."""
     historical_by_key: dict[str, Constraint] = {c.key: c for c in decision.constraints}
     current_by_key: dict[str, Constraint] = {c.key: c for c in current.constraints}
     items: list[ConstraintDeltaItem] = []
@@ -180,6 +182,7 @@ def _classify_pair(
 
 
 def score_drift(delta: ConstraintDelta) -> DriftResult:
+    """Score changes to reason-linked constraints and assess reconsideration."""
     reason_linked_items = [i for i in delta.items if i.is_reason_linked]
     if not reason_linked_items:
         logger.debug(

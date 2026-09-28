@@ -31,8 +31,5 @@ class IntelligenceSettings:
 
 @lru_cache(maxsize=1)
 def get_settings() -> IntelligenceSettings:
-    """Return the singleton settings object. Raises ValueError if required vars are missing."""
-    s = IntelligenceSettings()
-    if not s.llm_api_key:
-        raise ValueError("DP_LLM_API_KEY is not set — add it to .env")
-    return s
+    """Return the singleton settings object; provider credentials are checked on use."""
+    return IntelligenceSettings()

@@ -27,16 +27,22 @@ def make_cache_key(label: str, prompt: str, schema: type[BaseModel] | None = Non
 
 
 def load_cached(key: str) -> str | None:
+    legacy_key = key.rsplit(".", 1)[0]
     for directory in (_live_dir(), DEMO_CACHE_DIR):
-        path = directory / f"{key}.json"
-        if not path.is_file():
-            continue
-        try:
-            envelope = json.loads(path.read_text("utf-8"))
-            if envelope.get("format") == CACHE_FORMAT:
-                return envelope["response"]
-        except (OSError, ValueError, KeyError):
-            _LOG.warning("ignoring unreadable cache entry %s", path.name)
+        for filename in (f"{key}.json", f"{legacy_key}.json"):
+            path = directory / filename
+            if not path.is_file():
+                continue
+            try:
+                envelope = json.loads(path.read_text("utf-8"))
+                if envelope.get("format") == CACHE_FORMAT:
+                    return envelope["response"]
+                if "json" in envelope:
+                    return json.dumps(envelope["json"], ensure_ascii=False)
+                if "text" in envelope:
+                    return str(envelope["text"])
+            except (OSError, ValueError, KeyError):
+                _LOG.warning("ignoring unreadable cache entry %s", path.name)
     return None
 
 

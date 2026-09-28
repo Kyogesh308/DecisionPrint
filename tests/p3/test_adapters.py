@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import builtins
 from datetime import UTC, datetime
 
 import pytest
@@ -31,11 +32,18 @@ def test_get_backend_reads_env(monkeypatch: pytest.MonkeyPatch) -> None:
         get_backend()
 
 
-def test_live_backend_lazy_import() -> None:
-    """LiveBackend must not crash on import or module definition; handles missing facade at runtime."""
-    # Instantiating LiveBackend without facade should raise MemoryUnavailableError
+def test_live_backend_lazy_import(monkeypatch: pytest.MonkeyPatch) -> None:
+    """LiveBackend reports a missing facade at construction time."""
     from contracts.errors import MemoryUnavailableError
 
+    original_import = builtins.__import__
+
+    def import_without_facade(name, globals=None, locals=None, fromlist=(), level=0):
+        if name == "facade":
+            raise ImportError("Facade module not available")
+        return original_import(name, globals, locals, fromlist, level)
+
+    monkeypatch.setattr(builtins, "__import__", import_without_facade)
     with pytest.raises(MemoryUnavailableError, match="Facade module not available"):
         LiveBackend()
 

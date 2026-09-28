@@ -127,11 +127,10 @@ class TestConfig:
         assert s.llm_api_key == "sk-test"
         get_settings.cache_clear()
 
-    def test_get_settings_raises_when_api_key_missing(self, monkeypatch):
+    def test_get_settings_allows_cache_use_when_api_key_missing(self, monkeypatch):
         monkeypatch.setenv("DP_LLM_API_KEY", "")
         from intelligence.config import get_settings
 
         get_settings.cache_clear()
-        with pytest.raises(ValueError, match="DP_LLM_API_KEY"):
-            get_settings()
+        assert get_settings().llm_api_key == ""
         get_settings.cache_clear()
