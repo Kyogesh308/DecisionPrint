@@ -7,11 +7,14 @@ import streamlit as st
 from contracts import DecisionFilter
 from contracts.errors import ScopeError
 from ui.adapters import get_backend
+from ui.components._theme import inject_custom_css
 from ui.components.dialogs import check_and_render_evidence_dialog
 from ui.components.renders import render_outcome_chain
 
+inject_custom_css()
+
 backend = get_backend()
-role = st.session_state.get("role", "admin")
+role = st.session_state.get("role") or "admin"
 
 check_and_render_evidence_dialog(backend, role)
 

@@ -10,13 +10,14 @@ import streamlit as st
 from contracts import DecisionFilter, SourceManifestEntry, SourceType
 from contracts.ids import make_source_id
 from ui.adapters import get_backend
+from ui.components._theme import inject_custom_css
 from ui.components.dialogs import check_and_render_evidence_dialog
 from ui.components.renders import render_decision_card, render_ingest_result, render_memory_overview
 
 backend = get_backend()
-role = st.session_state.get("role", "admin")
+role = st.session_state.get("role") or "admin"
 
-# Always check if an evidence dialog needs to be displayed
+inject_custom_css()
 check_and_render_evidence_dialog(backend, role)
 
 st.title("📊 Organizational Decision Memory Overview")

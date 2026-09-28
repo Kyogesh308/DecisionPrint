@@ -117,9 +117,9 @@ def render_constraint_delta_table(delta: ConstraintDelta) -> None:
 
     for item in sorted_items:
         border_style = (
-            "border-left: 4px solid #6C63FF; padding-left: 12px; background: rgba(108, 99, 255, 0.05); border-radius: 4px;"
+            "border-left: 3px solid #6366F1; padding-left: 14px; background: rgba(99, 102, 241, 0.08); border-radius: 6px;"
             if item.is_reason_linked
-            else "padding-left: 12px;"
+            else "padding-left: 14px; border-left: 3px solid transparent;"
         )
         c_badge = badge_html("comparison", item.comparison.value)
         weight_text = (
@@ -137,7 +137,7 @@ def render_constraint_delta_table(delta: ConstraintDelta) -> None:
         )
         st.markdown(f"**{item.key}** {c_badge} · {weight_text}", unsafe_allow_html=True)
         st.markdown(
-            f"<span style='color:#94A3B8;'>Old Premise:</span> <code>{old_v}</code> ➔ <span style='color:#60a5fa;'>Current:</span> <code>{new_v}</code>",
+            f"<span style='color:#94A3B8;'>Old Premise:</span> <code>{old_v}</code> ➔ <span style='color:#38BDF8;'>Current:</span> <code>{new_v}</code>",
             unsafe_allow_html=True,
         )
         st.markdown("</div>", unsafe_allow_html=True)
@@ -153,15 +153,15 @@ def render_drift_card(drift: DriftResult) -> None:
     text_color = colors["text"]
 
     border_pulse = (
-        "box-shadow: 0 0 15px rgba(248, 113, 113, 0.3); border: 2px solid #f87171;"
+        "box-shadow: 0 0 20px rgba(239, 68, 68, 0.35); border: 1.5px solid #EF4444;"
         if lvl == "high"
         else f"border: 1px solid {text_color};"
     )
 
     rec_badge = (
-        "<span style='background:#3d1a1a; color:#f87171; padding:4px 12px; border-radius:12px; font-weight:700;'>⚠️ RECONSIDERATION WARRANTED</span>"
+        "<span style='background: rgba(239, 68, 68, 0.2); color:#F87171; border: 1px solid rgba(239, 68, 68, 0.4); padding:4px 12px; border-radius:9999px; font-weight:700; font-size:0.8rem; letter-spacing:0.04em;'>⚠️ RECONSIDERATION WARRANTED</span>"
         if drift.reconsideration_warranted
-        else "<span style='background:#1a3a2a; color:#4ade80; padding:4px 12px; border-radius:12px; font-weight:700;'>✅ ORIGINAL DECISION HOLDS</span>"
+        else "<span style='background: rgba(34, 197, 94, 0.2); color:#4ADE80; border: 1px solid rgba(34, 197, 94, 0.4); padding:4px 12px; border-radius:9999px; font-weight:700; font-size:0.8rem; letter-spacing:0.04em;'>✅ ORIGINAL DECISION HOLDS</span>"
     )
 
     st.markdown(
@@ -302,7 +302,7 @@ def render_evidence_panel(evidence: EvidenceExcerpt) -> None:
         unsafe_allow_html=True,
     )
     st.markdown(
-        f"""<blockquote style='border-left: 4px solid #6C63FF; padding: 1rem 1.5rem; background: rgba(108, 99, 255, 0.08); border-radius: 8px; font-style: italic; color: #F1F5F9;'>
+        f"""<blockquote style='border-left: 3px solid #6366F1; padding: 1rem 1.4rem; background: rgba(99, 102, 241, 0.08); border-radius: 8px; font-style: italic; color: #F1F5F9; border: 1px solid rgba(99, 102, 241, 0.2);'>
         "{evidence.excerpt}"
         </blockquote>""",
         unsafe_allow_html=True,
@@ -364,7 +364,7 @@ def render_observation_card(obs: ObservationView) -> None:
     st.markdown("<div class='dp-card'>", unsafe_allow_html=True)
     st.markdown(f"### 🔭 {obs.statement}")
     st.markdown(
-        f"<span class='dp-badge' style='background:#1a3a3a; color:#5eead4;'>Supporting Evidence: {obs.evidence_count} sources</span>",
+        f"<span class='dp-badge' style='background: rgba(20, 184, 166, 0.15); color: #2DD4BF; border: 1px solid rgba(20, 184, 166, 0.3);'>Supporting Evidence: {obs.evidence_count} sources</span>",
         unsafe_allow_html=True,
     )
 
@@ -453,10 +453,10 @@ def render_outcome_chain(chain: OutcomeChain) -> None:
         step_date = step.date.strftime("%Y-%m-%d") if step.date else "Undated"
         st.markdown(
             f"""
-        <div class='dp-card' style='background:#111625; border-left: 4px solid #6C63FF; padding: 1rem 1.2rem; margin-bottom: 0.5rem;'>
-            <div style='font-size:0.85rem; color:#94A3B8;'>Step {i + 1} · {step_date}</div>
-            <h4 style='margin: 0.2rem 0; color:#F8FAFC !important;'>{step.title}</h4>
-            <div style='font-size:0.85rem; color:#60a5fa;'>Sources: {", ".join([f"<code>{s}</code>" for s in step.source_ids])}</div>
+        <div class='dp-card' style='background: rgba(17, 24, 39, 0.85); border-left: 4px solid #6366F1; padding: 1rem 1.4rem; margin-bottom: 0.5rem;'>
+            <div style='font-size:0.85rem; color:#94A3B8; font-family: "JetBrains Mono", monospace;'>Step {i + 1} · {step_date}</div>
+            <h4 style='margin: 0.3rem 0; color:#F8FAFC !important;'>{step.title}</h4>
+            <div style='font-size:0.85rem; color:#38BDF8;'>Sources: {", ".join([f"<code>{s}</code>" for s in step.source_ids])}</div>
         </div>
         """,
             unsafe_allow_html=True,
@@ -468,9 +468,9 @@ def render_outcome_chain(chain: OutcomeChain) -> None:
             badge = badge_html("causal", lbl)
             is_explicit = lbl == "explicit_causal_link"
             glow_style = (
-                "background: rgba(129, 140, 248, 0.15); border: 1px solid #818cf8; padding: 0.6rem 1rem; border-radius: 8px;"
+                "background: rgba(99, 102, 241, 0.12); border: 1px solid #6366F1; box-shadow: 0 0 15px rgba(99, 102, 241, 0.25); padding: 0.75rem 1.25rem; border-radius: 10px;"
                 if is_explicit
-                else "padding: 0.4rem 1rem;"
+                else "background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); padding: 0.5rem 1rem; border-radius: 8px;"
             )
 
             st.markdown(

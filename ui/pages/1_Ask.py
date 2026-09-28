@@ -5,13 +5,14 @@ from __future__ import annotations
 import streamlit as st
 
 from ui.adapters import get_backend
+from ui.components._theme import inject_custom_css
 from ui.components.dialogs import check_and_render_evidence_dialog, show_memory_trace_dialog
 from ui.components.renders import render_brief
 
 backend = get_backend()
-role = st.session_state.get("role", "admin")
+role = st.session_state.get("role") or "admin"
 
-# Always check if evidence dialog needs to be opened
+inject_custom_css()
 check_and_render_evidence_dialog(backend, role)
 
 st.title("🔍 Ask DecisionPrint")

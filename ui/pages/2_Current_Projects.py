@@ -9,12 +9,14 @@ import streamlit as st
 from contracts import CurrentProjectContext
 from contracts.errors import ScopeError
 from ui.adapters import get_backend
+from ui.components._theme import inject_custom_css
 from ui.components.dialogs import check_and_render_evidence_dialog
 from ui.components.renders import render_drift_card
 
 backend = get_backend()
-role = st.session_state.get("role", "admin")
+role = st.session_state.get("role") or "admin"
 
+inject_custom_css()
 check_and_render_evidence_dialog(backend, role)
 
 st.title("🏗️ Current Projects & Active Decision Drift")
