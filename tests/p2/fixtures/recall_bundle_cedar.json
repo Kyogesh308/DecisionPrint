@@ -1,0 +1,27 @@
+{
+  "query": "What caused the Cedar data loss incident and was it connected to an earlier decision?",
+  "memories": [
+    {
+      "memory_id": "mem-cedar-pm-001",
+      "kind": "experience",
+      "text": "Cedar postmortem (2026-06): The investigation concluded that disabling automated backups in the Cedar production deployment configuration directly caused the unrecoverable data loss.",
+      "occurred_at": "2026-06-10T00:00:00Z",
+      "entities": ["cedar", "backups", "data-loss"],
+      "tags": ["project:cedar", "source:postmortem"],
+      "source_refs": [{"source_id": "SRC-CEDAR-PM-001", "locator": "§4 Root Cause"}],
+      "relevance": 0.97
+    },
+    {
+      "memory_id": "mem-cedar-dec-001",
+      "kind": "experience",
+      "text": "Cedar MVP launch decision (2025-11) deferred automated backups to reduce initial infrastructure cost; manual backups were noted as a short-term measure pending SLA upgrade.",
+      "occurred_at": "2025-11-01T00:00:00Z",
+      "entities": ["cedar", "backups", "cost"],
+      "tags": ["project:cedar", "source:prd"],
+      "source_refs": [{"source_id": "SRC-CEDAR-001", "locator": "§5.3 Cost Constraints"}],
+      "relevance": 0.93
+    }
+  ],
+  "decision_ids": ["DEC-CEDAR-001"],
+  "retrieval_confidence": 0.91
+}

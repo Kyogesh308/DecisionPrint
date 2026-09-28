@@ -1,0 +1,15 @@
+{
+  "source_id": "SRC-ALPHA-001",
+  "project_id": "alpha",
+  "source_type": "architecture_doc",
+  "title": "Alpha Project Architecture Decision — Messaging Layer",
+  "occurred_at": "2025-03-14T10:00:00Z",
+  "path": "historical/alpha/SRC-ALPHA-001_kafka_adr.md",
+  "sensitivity": "internal",
+  "tags": [
+    "org:northstar-systems",
+    "project:alpha",
+    "source:architecture_doc"
+  ],
+  "is_current": false
+}

@@ -1,0 +1,8 @@
+Incident Report: Cedar Storage Outage
+Date: 2025-11-03
+
+On November 2nd, the Cedar project experienced a major storage outage when the primary database cluster ran out of space.
+Because automated backups were disabled to save money in Q1, we had to rely on manual dumps which were 48 hours old.
+The postmortem explicitly identifies the decision to disable automated backups as the primary contributing factor to the extended recovery window.
+As a result of this, recovery took 14 hours due to absence of automated backups.
+We lost significant customer trust and missed our quarterly SLA targets.

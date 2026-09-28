@@ -1,124 +1,256 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, model_validator
 
 from .enums import (
     AlternativeDisposition,
+    AssumptionStatus,
     CausalLabel,
     Comparison,
+    ConstraintComparison,
     DecisionStatus,
     DriftLevel,
+    EpistemicLabel,
     EpistemicType,
     IngestStatus,
+    MemoryKind,
+    Role,
     SourceType,
     TimelineEventKind,
 )
 
 
-class SourceManifestEntry(BaseModel):
-    """Manifest entry for a document source."""
-
+class SourceRef(BaseModel):
     source_id: str
-    project_id: str
-    source_type: SourceType
-    title: str
-    file_path: str
-    date: datetime
-    tags: list[str] = []
-    sensitivity: str = "internal"
-    is_current: bool = False
+    document_id: str | None = None
+    chunk_id: str | None = None
+    locator: str | None = None
+    excerpt: str | None = None
 
 
-class ConstraintDeltaItem(BaseModel):
-    """Represents a delta in a specific constraint."""
-
+class Constraint(BaseModel):
     key: str
-    old_value: str | None = None
-    new_value: str | None = None
-    comparison: Comparison
+    value: Any
+    unit: str | None = None
+    normalized_value: Any | None = None
+    source_memory_id: str | None = None
     is_reason_linked: bool = False
-    weight: float = 0.0
 
 
-class ConstraintDelta(BaseModel):
-    """Collection of constraint changes."""
-
-    items: list[ConstraintDeltaItem]
-
-
-class BriefClaim(BaseModel):
-    """A brief epistemic claim."""
-
-    text: str
-    epistemic_type: EpistemicType
-    source_ids: list[str] = []
-
-
-class ConfidenceBreakdown(BaseModel):
-    """Breakdown of confidence scores."""
-
-    evidence_quality: float | None = None
-    temporal_relevance: float | None = None
-    source_agreement: float | None = None
-    information_completeness: float | None = None
+class Assumption(BaseModel):
+    statement: str
+    status: AssumptionStatus | str = AssumptionStatus.active
+    source_memory_id: str | None = None
 
 
 class Alternative(BaseModel):
-    """An alternative option considered during a decision."""
-
-    name: str
+    name: str | None = None
+    option: str | None = None
     disposition: AlternativeDisposition
-    reasons: list[str] = []
+    reason: str | None = None
+    reasons: list[str] = Field(default_factory=list)
+    source_memory_id: str | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _normalize_option_name(cls, values: Any) -> Any:
+        if isinstance(values, dict):
+            values = values.copy()
+            values.setdefault("name", values.get("option"))
+            values.setdefault("option", values.get("name"))
+        return values
+
+
+class Reason(BaseModel):
+    statement: str
+    source_memory_id: str | None = None
+
+
+class ConstraintDeltaItem(BaseModel):
+    key: str
+    old_value: Any | None = None
+    new_value: Any | None = None
+    historical_value: Any | None = None
+    current_value: Any | None = None
+    comparison: Comparison | ConstraintComparison
+    is_reason_linked: bool = False
+    weight: float = 0.0
+    note: str | None = None
+
+
+class ConstraintDelta(BaseModel):
+    decision_id: str | None = None
+    project_id: str | None = None
+    items: list[ConstraintDeltaItem] = Field(default_factory=list)
 
 
 class Decision(BaseModel):
-    """Represents an architectural decision."""
-
-    decision_id: str
+    decision_id: str | None = None
+    id: str | None = None
     title: str
-    statement: str
-    date: datetime
+    statement: str | None = None
+    decision_statement: str | None = None
+    date: datetime | None = None
+    occurred_at: datetime | None = None
     status: DecisionStatus
-    selected_option: str
-    reasons: list[str] = []
-    constraints: list[ConstraintDeltaItem] = []
-    alternatives: list[Alternative] = []
-    technologies: list[str] = []
-    source_ids: list[str] = []
+    selected_option: str | None = None
+    reasons: list[str | Reason] = Field(default_factory=list)
+    constraints: list[Constraint | ConstraintDeltaItem] = Field(default_factory=list)
+    assumptions: list[Assumption] = Field(default_factory=list)
+    alternatives: list[Alternative] = Field(default_factory=list)
+    technologies: list[str] = Field(default_factory=list)
+    source_ids: list[str] = Field(default_factory=list)
+    source_refs: list[SourceRef] = Field(default_factory=list)
     project_id: str
+    participants: list[str] = Field(default_factory=list)
+    context_summary: str = ""
+    extraction_confidence: float = 0.0
+    outcome_refs: list[str] = Field(default_factory=list)
+    superseded_by: str | None = None
+    related_decisions: list[str] = Field(default_factory=list)
     needs_review: bool = False
+
+    @model_validator(mode="before")
+    @classmethod
+    def _normalize_branch_fields(cls, values: Any) -> Any:
+        if not isinstance(values, dict):
+            return values
+        values = values.copy()
+        for left, right in (
+            ("id", "decision_id"),
+            ("statement", "decision_statement"),
+            ("date", "occurred_at"),
+        ):
+            if left not in values and right in values:
+                values[left] = values[right]
+            if right not in values and left in values:
+                values[right] = values[left]
+        return values
+
+
+class CurrentProjectContext(BaseModel):
+    project_id: str
+    summary: str | None = None
+    project_name: str | None = None
+    constraints: list[Constraint] | dict[str, str] = Field(default_factory=list)
+    source_refs: list[SourceRef] = Field(default_factory=list)
+    updated_at: datetime | None = None
+
+
+class RecalledMemory(BaseModel):
+    memory_id: str
+    kind: MemoryKind
+    text: str
+    summary: str | None = None
+    occurred_at: datetime | None = None
+    entities: list[str] = Field(default_factory=list)
+    tags: list[str] = Field(default_factory=list)
+    source_refs: list[SourceRef] = Field(default_factory=list)
+    relevance: float = 0.0
+
+
+class RecallBundle(BaseModel):
+    query: str
+    memories: list[RecalledMemory] = Field(default_factory=list)
+    decision_ids: list[str] = Field(default_factory=list)
+    retrieval_confidence: float = 0.0
 
 
 class DriftResult(BaseModel):
-    """Result of analyzing architectural drift."""
-
     decision_id: str
     level: DriftLevel
     score: float
     delta: ConstraintDelta
     reconsideration_warranted: bool = False
+    drift_confidence: float | None = None
     summary: str = ""
 
 
-class DecisionBrief(BaseModel):
-    """Brief representation of a decision in response to a query."""
+class BriefClaim(BaseModel):
+    text: str
+    epistemic_type: EpistemicType | None = None
+    label: EpistemicLabel | None = None
+    source_ids: list[str] = Field(default_factory=list)
+    memory_ids: list[str] = Field(default_factory=list)
+    source_refs: list[SourceRef] = Field(default_factory=list)
 
+
+class ConfidenceBreakdown(BaseModel):
+    evidence_quality: float | None = None
+    temporal_relevance: float | None = None
+    source_agreement: float | None = None
+    information_completeness: float | None = None
+    extraction: float | None = None
+    retrieval: float | None = None
+    drift: float | None = None
+    causal: float | None = None
+
+
+class DecisionBrief(BaseModel):
     query_id: str
-    question: str
+    query: str | None = None
+    question: str | None = None
     project_id: str
-    current_constraints: dict[str, str] = {}
+    answer_summary: str = ""
+    current_constraints: list[Constraint] | dict[str, str] = Field(default_factory=list)
     historical_decision: Decision | None = None
+    historical_decisions: list[BriefClaim] = Field(default_factory=list)
+    historical_constraints: list[Constraint] = Field(default_factory=list)
+    constraint_differences: list[ConstraintDelta] = Field(default_factory=list)
+    claims: list[BriefClaim] = Field(default_factory=list)
+    observations: list[BriefClaim] = Field(default_factory=list)
+    inferences: list[BriefClaim] = Field(default_factory=list)
     drift: DriftResult | None = None
-    claims: list[BriefClaim] = []
+    reconsideration_warranted: bool = False
+    recommendation: BriefClaim | None = None
     confidence: ConfidenceBreakdown | None = None
-    source_ids: list[str] = []
+    sources: list[SourceRef] = Field(default_factory=list)
+    source_ids: list[str] = Field(default_factory=list)
+    generated_at: str = ""
+
+    @model_validator(mode="before")
+    @classmethod
+    def _normalize_question_query(cls, values: Any) -> Any:
+        if isinstance(values, dict):
+            values = values.copy()
+            values.setdefault("query", values.get("question"))
+            values.setdefault("question", values.get("query"))
+        return values
+
+
+class SourceManifestEntry(BaseModel):
+    """Manifest entry for a document source from either branch contract."""
+
+    source_id: str
+    project_id: str
+    source_type: SourceType
+    title: str
+    file_path: str | None = None
+    path: str | None = None
+    date: datetime | None = None
+    occurred_at: datetime | None = None
+    tags: list[str] = Field(default_factory=list)
+    sensitivity: str = "internal"
+    is_current: bool = False
+
+    @model_validator(mode="before")
+    @classmethod
+    def _normalize_path_and_date(cls, values: Any) -> Any:
+        if not isinstance(values, dict):
+            return values
+        values = values.copy()
+        for left, right in (("file_path", "path"), ("date", "occurred_at")):
+            if left not in values and right in values:
+                values[left] = values[right]
+            if right not in values and left in values:
+                values[right] = values[left]
+        return values
 
 
 class EvidenceExcerpt(BaseModel):
-    """An excerpt from a source used as evidence."""
-
     source_id: str
     excerpt: str
     date: datetime | None = None
@@ -127,8 +259,6 @@ class EvidenceExcerpt(BaseModel):
 
 
 class TimelineEvent(BaseModel):
-    """An event on the decision timeline."""
-
     event_id: str
     decision_id: str
     kind: TimelineEventKind
@@ -139,8 +269,6 @@ class TimelineEvent(BaseModel):
 
 
 class MemoryOverview(BaseModel):
-    """High-level overview of memory backend state."""
-
     project_count: int = 0
     source_count: int = 0
     decision_count: int = 0
@@ -150,76 +278,56 @@ class MemoryOverview(BaseModel):
     last_updated: datetime | None = None
 
 
-class CurrentProjectContext(BaseModel):
-    """Current contextual constraints and metadata for a project."""
-
-    project_id: str
-    project_name: str
-    constraints: dict[str, str] = {}
-    updated_at: datetime | None = None
-
-
 class IngestResult(BaseModel):
-    """Result of source ingestion."""
-
     status: IngestStatus
     source_id: str
     memories_created: int = 0
     decisions_extracted: int = 0
     outcomes_linked: int = 0
-    needs_review_ids: list[str] = []
-    warnings: list[str] = []
+    needs_review_ids: list[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
 
 
 class CausalLink(BaseModel):
-    """A causal link in an outcome chain."""
-
+    decision_id: str | None = None
+    outcome_id: str | None = None
     label: CausalLabel
     rationale: str = ""
-    evidence_ids: list[str] = []
+    evidence_ids: list[str] = Field(default_factory=list)
+    confidence: float | None = None
 
 
 class ChainStep(BaseModel):
-    """A single step in a decision's outcome chain."""
-
     step_id: str
     title: str
     date: datetime | None = None
-    source_ids: list[str] = []
+    source_ids: list[str] = Field(default_factory=list)
 
 
 class OutcomeChain(BaseModel):
-    """A chain of events linking a decision to its outcomes."""
-
     chain_id: str
     decision_id: str
-    steps: list[ChainStep] = []
-    links: list[CausalLink] = []
+    steps: list[ChainStep] = Field(default_factory=list)
+    links: list[CausalLink] = Field(default_factory=list)
 
 
 class ObservationHistory(BaseModel):
-    """Historical context for an observation."""
-
     timestamp: datetime
     evidence_count: int
     summary: str = ""
 
 
 class ObservationView(BaseModel):
-    """Current view of a deduced observation."""
-
     observation_id: str
     statement: str
     evidence_count: int = 0
-    supporting_source_ids: list[str] = []
+    supporting_source_ids: list[str] = Field(default_factory=list)
     first_seen: datetime | None = None
     last_updated: datetime | None = None
-    history: list[ObservationHistory] = []
+    history: list[ObservationHistory] = Field(default_factory=list)
 
 
 class MentalModelView(BaseModel):
-    """A high-level mental model aggregated from observations."""
-
     model_id: str
     name: str
     content: str
@@ -228,33 +336,25 @@ class MentalModelView(BaseModel):
 
 
 class MemoryTraceRetained(BaseModel):
-    """Represents a direct memory that was retained."""
-
     source_id: str
     title: str = ""
 
 
 class MemoryTraceRecalled(BaseModel):
-    """Represents a synthetic memory that was recalled."""
-
     memory_id: str
     kind: str = ""
     relevance: float = 0.0
-    entities: list[str] = []
+    entities: list[str] = Field(default_factory=list)
 
 
 class MemoryTrace(BaseModel):
-    """The trace of memories accessed for a given query."""
-
     query_id: str
-    retained: list[MemoryTraceRetained] = []
-    recalled: list[MemoryTraceRecalled] = []
-    observations_used: list[str] = []
+    retained: list[MemoryTraceRetained] = Field(default_factory=list)
+    recalled: list[MemoryTraceRecalled] = Field(default_factory=list)
+    observations_used: list[str] = Field(default_factory=list)
 
 
 class DecisionFilter(BaseModel):
-    """Criteria for searching decisions."""
-
     text: str | None = None
     project_id: str | None = None
     technology: str | None = None
@@ -264,9 +364,41 @@ class DecisionFilter(BaseModel):
 
 
 class ReviewQueueItem(BaseModel):
-    """Item needing human review."""
-
     decision_id: str
     title: str
     reason: str = ""
     confidence: ConfidenceBreakdown | None = None
+
+
+class ReflectResult(BaseModel):
+    text: str
+    memory_ids: list[str] = Field(default_factory=list)
+    source_refs: list[SourceRef] = Field(default_factory=list)
+
+
+class Scope(BaseModel):
+    role: Role
+    allowed_project_ids: list[str] = Field(default_factory=list)
+    allowed_tags: list[str] = Field(default_factory=list)
+    visibility_levels: list[str] = Field(default_factory=list)
+
+
+class RetainResult(BaseModel):
+    source_id: str
+    document_id: str
+    memory_ids: list[str] = Field(default_factory=list)
+    memories: list[RecalledMemory] = Field(default_factory=list)
+
+
+class Outcome(BaseModel):
+    outcome_id: str
+    project_id: str
+    occurred_at: datetime
+    statement: str
+    source_refs: list[SourceRef] = Field(default_factory=list)
+    decision_ids: list[str] = Field(default_factory=list)
+    causal_label: CausalLabel
+    confidence: float
+
+
+ProjectContext = CurrentProjectContext

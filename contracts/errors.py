@@ -12,3 +12,15 @@ class NotFoundError(DecisionPrintError):
 
 class MemoryUnavailableError(DecisionPrintError):
     """Hindsight memory backend is unreachable."""
+
+
+class LLMUnavailableError(DecisionPrintError):
+    """LLM provider is unavailable."""
+
+
+class ExtractionError(DecisionPrintError):
+    """Decision or outcome extraction failed."""
+
+
+class ValidationFailedError(DecisionPrintError):
+    """Generated data failed validation."""

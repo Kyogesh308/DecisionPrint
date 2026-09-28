@@ -1,0 +1,8 @@
+Alice: Welcome to the Nova project architecture planning meeting. Let's discuss our constraints.
+Bob: Our consumer count has grown to 15, which is way up from the 2 we had historically.
+Charlie: Yes, and we definitely need replay capability now. A replay required flag is basically yes.
+Alice: What about our traffic?
+Bob: Traffic volume is going to be high, so we need to plan accordingly.
+Charlie: Are we looking at async workflows?
+Bob: Yes, async workflows are true. They are a core requirement for this system.
+Alice: Good. We aren't making any tech decisions today, just getting alignment on the current state.
