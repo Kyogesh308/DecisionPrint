@@ -69,3 +69,21 @@ def test_brief_nova_kafka_structure() -> None:
     assert len(brief.claims) >= 4
     assert brief.confidence is not None
     assert brief.confidence.evidence_quality is not None
+
+
+def test_brief_new_fixtures_structure() -> None:
+    """All additional fixture briefs must produce valid DecisionBrief instances."""
+    g_brief = builders.build_fixture_brief_graphql_alpha_partner()
+    assert isinstance(g_brief, DecisionBrief)
+    assert g_brief.historical_decision is not None
+    assert g_brief.drift is not None
+    assert g_brief.drift.reconsideration_warranted is False
+
+    r_brief = builders.build_fixture_brief_redis_scale()
+    assert isinstance(r_brief, DecisionBrief)
+    assert r_brief.historical_decision is not None
+
+    c_brief = builders.build_fixture_brief_cedar_outcome()
+    assert isinstance(c_brief, DecisionBrief)
+    assert len(c_brief.claims) >= 3
+

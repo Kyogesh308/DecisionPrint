@@ -139,3 +139,21 @@ def test_fixture_backend_scope_error_enforcement() -> None:
     assert "delta" in ctx.project_id
     ctx_exec = fb.get_project_context("delta", "executive")
     assert "delta" in ctx_exec.project_id
+
+
+def test_ask_question_suggestion_chips_routing() -> None:
+    """Every Ask suggestion chip must return a valid brief on FixtureBackend."""
+    fb = FixtureBackend()
+    role = "admin"
+
+    chip_queries = [
+        ("Should Nova use Kafka?", "nova"),
+        ("Why was GraphQL rejected?", "nova"),
+        ("What happened after Cedar skipped backups?", "delta"),
+        ("Has our Redis position changed?", "nova"),
+    ]
+    for q, proj in chip_queries:
+        brief = fb.ask_question(q, proj, role)
+        assert brief is not None
+        assert brief.project_id == proj
+
