@@ -137,6 +137,12 @@ class FixtureBackend:
         """The core organizational memory question answering endpoint."""
         self._check_scope(project_id, user_role)
         q = question.lower()
+        if "graphql" in q:
+            return builders.build_fixture_brief_graphql_alpha_partner()
+        if "redis" in q:
+            return builders.build_fixture_brief_redis_scale()
+        if "cedar" in q or "backup" in q:
+            return builders.build_fixture_brief_cedar_outcome()
         if "kafka" in q or project_id.lower() == "nova":
             return builders.build_fixture_brief_nova_kafka()
 

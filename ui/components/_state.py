@@ -3,13 +3,26 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from datetime import UTC, datetime
 from typing import TypeVar
 
 import streamlit as st
+from pydantic import BaseModel, Field
 
+from contracts import DecisionBrief
 from contracts.errors import MemoryUnavailableError, NotFoundError, ScopeError
 
 T = TypeVar("T")
+
+
+class ChatTurn(BaseModel):
+    """One Q&A turn in the Ask thread."""
+
+    question: str
+    brief: DecisionBrief | None = None
+    error: str | None = None
+    query_id: str = ""
+    asked_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 def run_guarded(fn: Callable[..., T], *args, **kwargs) -> T | None:
@@ -47,6 +60,7 @@ def init_session_state() -> None:
         "global_search": "",
         "ask_input": "Should Nova use Kafka for event streaming?",
         "ov_search_input": "",
+        "chat_turns": [],
     }
     for key, val in defaults.items():
         if key not in st.session_state:

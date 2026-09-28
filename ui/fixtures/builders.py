@@ -742,6 +742,104 @@ def build_fixture_ingest_result_nova() -> IngestResult:
     )
 
 
+def build_fixture_brief_graphql_alpha_partner() -> DecisionBrief:
+    """GraphQL drift but still rejected — proves drift != forced reversal."""
+    return DecisionBrief(
+        query_id="q-graphql-alpha-partner",
+        question="Why was GraphQL rejected for internal APIs?",
+        project_id="nova",
+        current_constraints={
+            "client_count": "12",
+            "client_diversity": "partner_ecosystem",
+            "schema_complexity": "high",
+        },
+        historical_decision=build_fixture_decision_beta_graphql(),
+        drift=build_fixture_drift_graphql(),
+        claims=[
+            BriefClaim(
+                text="Client count increased from 3 to 12.",
+                epistemic_type=EpistemicType.fact,
+                source_ids=["SRC-BETA-002"],
+            ),
+            BriefClaim(
+                text="Schema complexity remains too high to justify migration.",
+                epistemic_type=EpistemicType.observation,
+                source_ids=["SRC-BETA-002"],
+            ),
+        ],
+        confidence=ConfidenceBreakdown(
+            evidence_quality=0.80, temporal_relevance=0.65, source_agreement=0.85, information_completeness=0.70
+        ),
+        source_ids=["SRC-BETA-002"],
+    )
+
+
+def build_fixture_brief_redis_scale() -> DecisionBrief:
+    """Redis scaling story — straightforward drift."""
+    return DecisionBrief(
+        query_id="q-redis-scale",
+        question="Has our Redis position changed?",
+        project_id="nova",
+        current_constraints={"instance_count": "20", "cache_hit_ratio": "0.90", "session_persistence": "true"},
+        historical_decision=build_fixture_decision_alpha_redis(),
+        drift=build_fixture_drift_redis(),
+        claims=[
+            BriefClaim(
+                text="Instance count scaled significantly.",
+                epistemic_type=EpistemicType.fact,
+                source_ids=["SRC-ALPHA-004"],
+            ),
+            BriefClaim(
+                text="Single instance is showing degradation under load.",
+                epistemic_type=EpistemicType.observation,
+                source_ids=["SRC-GAMMA-001"],
+            ),
+        ],
+        confidence=ConfidenceBreakdown(
+            evidence_quality=0.85, temporal_relevance=0.75, source_agreement=0.90, information_completeness=0.80
+        ),
+        source_ids=["SRC-ALPHA-004", "SRC-GAMMA-001"],
+    )
+
+
+def build_fixture_brief_cedar_outcome() -> DecisionBrief:
+    """Cedar backup removal — the causal chain story."""
+    return DecisionBrief(
+        query_id="q-cedar-outcome",
+        question="What happened after Cedar skipped backups?",
+        project_id="delta",
+        current_constraints={"backup_policy": "daily_incremental", "data_criticality": "high"},
+        historical_decision=build_fixture_decision_delta_backup(),
+        drift=None,
+        claims=[
+            BriefClaim(
+                text="Automated backups were disabled to save costs.",
+                epistemic_type=EpistemicType.fact,
+                source_ids=["SRC-DELTA-001"],
+            ),
+            BriefClaim(
+                text="A critical data loss incident occurred.",
+                epistemic_type=EpistemicType.observation,
+                source_ids=["SRC-DELTA-002"],
+            ),
+            BriefClaim(
+                text="Postmortem explicitly names removal of automated backups as direct contributing factor.",
+                epistemic_type=EpistemicType.inference,
+                source_ids=["SRC-DELTA-003"],
+            ),
+            BriefClaim(
+                text="Maintain daily incremental backups for all high-criticality data.",
+                epistemic_type=EpistemicType.recommendation,
+                source_ids=["SRC-DELTA-003"],
+            ),
+        ],
+        confidence=ConfidenceBreakdown(
+            evidence_quality=0.90, temporal_relevance=0.85, source_agreement=0.95, information_completeness=0.88
+        ),
+        source_ids=["SRC-DELTA-001", "SRC-DELTA-002", "SRC-DELTA-003"],
+    )
+
+
 def build_all_fixture_decisions() -> list[Decision]:
     """All 6 decisions for search/explorer."""
     return [

@@ -14,17 +14,18 @@ from ui.components import (
     render_sidebar_chrome,
     render_top_bar,
 )
-from ui.components._state import init_session_state
+from ui.components._state import init_session_state, run_guarded
 from ui.components.dialogs import check_and_render_evidence_dialog
 
 init_session_state()
-inject_custom_css()
+
+if not st.session_state.get("_top_nav_active"):
+    inject_custom_css()
+    render_top_bar(active_stage="DECIDE")
+    render_sidebar_chrome()
 
 backend = get_backend()
 role = st.session_state.get("role") or "admin"
-
-render_top_bar(active_stage="DECIDE")
-render_sidebar_chrome()
 check_and_render_evidence_dialog(backend, role)
 
 # 1. Header with Project Selector
@@ -45,12 +46,15 @@ with c_head:
 with c_sel:
     # Decision Picker
     try:
-        all_decisions = backend.search_decisions(DecisionFilter(), role)
+        all_decisions = run_guarded(backend.search_decisions, DecisionFilter(), role)
         options = [f"{d.decision_id}: {d.title}" for d in all_decisions]
         id_map = {f"{d.decision_id}: {d.title}": d.decision_id for d in all_decisions}
     except Exception:  # noqa: BLE001
         options = ["DEC-DELTA-001: Remove automated backups", "DEC-ALPHA-001: Reject Kafka for messaging"]
-        id_map = {"DEC-DELTA-001: Remove automated backups": "DEC-DELTA-001"}
+        id_map = {
+            "DEC-DELTA-001: Remove automated backups": "DEC-DELTA-001",
+            "DEC-ALPHA-001: Reject Kafka for messaging": "DEC-ALPHA-001",
+        }
 
     preselected = st.session_state.get("selected_decision_id") or "DEC-DELTA-001"
     default_idx = 0
@@ -66,7 +70,7 @@ st.markdown("<div style='height: 0.5rem;'></div>", unsafe_allow_html=True)
 
 # 2. Render Outcome Chain (Horizontal Visual Flow + Evidence Table)
 try:
-    chain = backend.get_outcome_chain(selected_did, role)
+    chain = run_guarded(backend.get_outcome_chain, selected_did, role)
     render_outcome_chain(chain)
 
     st.markdown("<div class='dp-card' style='margin-top: 1rem;'>", unsafe_allow_html=True)

@@ -7,7 +7,6 @@ from datetime import UTC, datetime
 import streamlit as st
 
 from contracts import CurrentProjectContext
-from contracts.errors import ScopeError
 from ui.adapters import get_backend
 from ui.components import (
     badge_html,
@@ -16,17 +15,20 @@ from ui.components import (
     render_sidebar_chrome,
     render_top_bar,
 )
-from ui.components._state import init_session_state
+from ui.components._state import init_session_state, run_guarded
+from ui.components._viz import _chip
 from ui.components.dialogs import check_and_render_evidence_dialog
 
 init_session_state()
-inject_custom_css()
+
+if not st.session_state.get("_top_nav_active"):
+    inject_custom_css()
+    render_top_bar(active_stage="ANALYZE")
+    render_sidebar_chrome()
 
 backend = get_backend()
 role = st.session_state.get("role") or "admin"
 
-render_top_bar(active_stage="ANALYZE")
-render_sidebar_chrome()
 check_and_render_evidence_dialog(backend, role)
 
 # 1. Header with New Project CTA
@@ -184,12 +186,11 @@ st.markdown("</div>", unsafe_allow_html=True)
 # 4. Project Drilldown & Real Backend Integration
 st.markdown("### Inspect Project Context Constraints")
 
-try:
-    all_projects = backend.list_projects(role)
+all_projects = run_guarded(lambda: backend.list_projects(role))
+if all_projects:
     proj_map = {p.project_id: p for p in all_projects}
     proj_options = list(proj_map.keys())
-except Exception as e:  # noqa: BLE001
-    st.error(f"Failed to fetch projects: {e}")
+else:
     proj_options = ["nova"]
     proj_map = {}
 
@@ -201,34 +202,32 @@ with col_sel:
         index=proj_options.index("nova") if "nova" in proj_options else 0,
     )
 
-try:
-    context = backend.get_project_context(selected_pid, role)
-except ScopeError as se:
-    st.warning(f"🔒 {se}")
-    st.stop()
-except Exception as e:  # noqa: BLE001
-    st.error(f"Could not load context for {selected_pid}: {e}")
+context = run_guarded(lambda: backend.get_project_context(selected_pid, role))
+if not context:
     st.stop()
 
 # Active Drift Cards
 st.markdown(f"#### Active Architectural Drift Cards for `{context.project_name}`")
-try:
-    drift_cards = backend.list_drift_cards(selected_pid, role)
-    if drift_cards:
-        for card in drift_cards:
-            render_drift_card(card)
-    else:
-        st.info("No active decision drift recorded for this project.")
-except Exception as e:  # noqa: BLE001
-    st.error(f"Could not load drift cards: {e}")
+drift_cards = run_guarded(lambda: backend.list_drift_cards(selected_pid, role))
+if drift_cards:
+    for card in drift_cards:
+        render_drift_card(card)
+else:
+    st.info("No active decision drift recorded for this project.")
 
 # Context Constraints Table & Live Edit Form
 c_const, c_edit = st.columns([3, 2])
 with c_const:
     st.markdown("<div class='dp-card'>", unsafe_allow_html=True)
     st.markdown(f"**Operational Constraints for {context.project_name}:**")
-    for k, v in context.constraints.items():
-        st.markdown(f"- <code>{k}</code> = **{v}**", unsafe_allow_html=True)
+
+    html_chips = " ".join([_chip(f"{k}: {v}") for k, v in context.constraints.items()])
+    if html_chips:
+        st.markdown(
+            f"<div style='display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px;'>{html_chips}</div>",
+            unsafe_allow_html=True,
+        )
+
     if context.updated_at:
         st.caption(f"Last updated: {context.updated_at.strftime('%Y-%m-%d %H:%M')}")
     st.markdown("</div>", unsafe_allow_html=True)
@@ -247,11 +246,9 @@ with c_edit, st.expander("✏️ Update / Add Constraint", expanded=False):
                 constraints=updated_constraints,
                 updated_at=datetime.now(tz=UTC),
             )
-            try:
-                backend.update_project_context(updated_context, role)
+            res = run_guarded(lambda: backend.update_project_context(updated_context, role))
+            if res is not None:
                 st.success(f"Updated `{key_name}` to `{key_val}`!")
                 st.rerun()
-            except Exception as e:  # noqa: BLE001
-                st.error(f"Failed to update context: {e}")
         else:
             st.warning("Please provide both key and value.")

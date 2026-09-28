@@ -12,17 +12,18 @@ from ui.components import (
     render_sidebar_chrome,
     render_top_bar,
 )
-from ui.components._state import init_session_state
+from ui.components._state import init_session_state, run_guarded
 from ui.components.dialogs import check_and_render_evidence_dialog
 
 init_session_state()
-inject_custom_css()
+
+if not st.session_state.get("_top_nav_active"):
+    inject_custom_css()
+    render_top_bar(active_stage="LEARN")
+    render_sidebar_chrome()
 
 backend = get_backend()
 role = st.session_state.get("role") or "admin"
-
-render_top_bar(active_stage="LEARN")
-render_sidebar_chrome()
 check_and_render_evidence_dialog(backend, role)
 
 # 1. Header
@@ -39,91 +40,57 @@ st.markdown(
 )
 
 # 2. KPI Metrics Row (3 Cards matching Screen 6)
-k1, k2, k3 = st.columns(3)
-with k1:
-    st.markdown(
-        """
-    <div class='dp-kpi-card'>
-        <div class='dp-kpi-label'>Total Memories</div>
-        <div class='dp-kpi-value'>12</div>
-        <div class='dp-kpi-trend-pos'>+4 this month</div>
-    </div>
-    """,
-        unsafe_allow_html=True,
-    )
-with k2:
-    st.markdown(
-        """
-    <div class='dp-kpi-card'>
-        <div class='dp-kpi-label'>Mental Models</div>
-        <div class='dp-kpi-value' style='color:var(--dp-primary);'>3</div>
-        <div class='dp-kpi-trend-pos'>+1 this month</div>
-    </div>
-    """,
-        unsafe_allow_html=True,
-    )
-with k3:
-    st.markdown(
-        """
-    <div class='dp-kpi-card'>
-        <div class='dp-kpi-label'>Evidence Items</div>
-        <div class='dp-kpi-value' style='color:var(--dp-primary);'>48</div>
-        <div class='dp-kpi-trend-pos'>+12 this month</div>
-    </div>
-    """,
-        unsafe_allow_html=True,
-    )
+try:
+    overview = run_guarded(backend.get_memory_overview, role)
+    k1, k2, k3 = st.columns(3)
+    with k1:
+        st.markdown(
+            f"""
+        <div class='dp-kpi-card'>
+            <div class='dp-kpi-label'>Total Observations</div>
+            <div class='dp-kpi-value'>{overview.total_observations}</div>
+            <div class='dp-kpi-trend-pos'>+4 this month</div>
+        </div>
+        """,
+            unsafe_allow_html=True,
+        )
+    with k2:
+        st.markdown(
+            f"""
+        <div class='dp-kpi-card'>
+            <div class='dp-kpi-label'>Mental Models</div>
+            <div class='dp-kpi-value' style='color:var(--dp-primary);'>{overview.total_mental_models}</div>
+            <div class='dp-kpi-trend-pos'>+1 this month</div>
+        </div>
+        """,
+            unsafe_allow_html=True,
+        )
+    with k3:
+        st.markdown(
+            f"""
+        <div class='dp-kpi-card'>
+            <div class='dp-kpi-label'>Total Facts</div>
+            <div class='dp-kpi-value' style='color:var(--dp-primary);'>{overview.total_facts}</div>
+            <div class='dp-kpi-trend-pos'>+12 this month</div>
+        </div>
+        """,
+            unsafe_allow_html=True,
+        )
+except Exception as e:  # noqa: BLE001
+    st.error(f"Failed to load metrics: {e}")
 
 st.markdown("<div style='height: 1.25rem;'></div>", unsafe_allow_html=True)
 
 # 3. Higher-Order Mental Models Grid matching Screen 6
 try:
-    models = backend.list_mental_models(role)
+    models = run_guarded(backend.list_mental_models, role)
     render_mental_models_grid(models)
 except Exception as e:  # noqa: BLE001
     st.error(f"Failed to fetch mental models: {e}")
 
 st.markdown("<div style='height: 1.25rem;'></div>", unsafe_allow_html=True)
 
-# 4. Recent Memory Ingestions Table / Feed
-st.markdown("<div class='dp-card'>", unsafe_allow_html=True)
-st.markdown("### Recent Memory Ingestions")
-st.caption("Fresh technical evidence continuously grounded in repository artifacts and transcripts:")
-
-st.markdown(
-    """
-    <table class='dp-table'>
-        <thead>
-            <tr>
-                <th>Ingested Memory Topic</th>
-                <th>Target Project</th>
-                <th>Date Grounded</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td><strong>Kafka event patterns and throughput benchmarks</strong></td>
-                <td><span class='dp-badge' style='background:rgba(99,102,241,0.15); color:var(--dp-primary); border:1px solid rgba(99,102,241,0.3);'>PROJECT NOVA</span></td>
-                <td style='font-family:"JetBrains Mono", monospace; font-size:0.82rem; color:var(--dp-text-muted);'>May 13, 2026</td>
-            </tr>
-            <tr>
-                <td><strong>PostgreSQL query performance analysis</strong></td>
-                <td><span class='dp-badge' style='background:rgba(56,189,248,0.15); color:#087F8C; border:1px solid rgba(56,189,248,0.3);'>PROJECT HELIOS</span></td>
-                <td style='font-family:"JetBrains Mono", monospace; font-size:0.82rem; color:var(--dp-text-muted);'>Apr 29, 2026</td>
-            </tr>
-            <tr>
-                <td><strong>Redis caching degradation patterns</strong></td>
-                <td><span class='dp-badge' style='background:rgba(249,115,22,0.15); color:#FB923C; border:1px solid rgba(251,146,60,0.3);'>PROJECT ORION</span></td>
-                <td style='font-family:"JetBrains Mono", monospace; font-size:0.82rem; color:var(--dp-text-muted);'>Feb 18, 2026</td>
-            </tr>
-        </tbody>
-    </table>
-    """,
-    unsafe_allow_html=True,
-)
-st.markdown("</div>", unsafe_allow_html=True)
-
-# 5. Synthesized Observations with Topic Filter
+# 4. Synthesized Observations with Topic Filter
 st.markdown("### 🔭 Synthesized Observations & Evolutionary Trajectories")
 st.caption(
     "Observations strengthen as evidence repeats across independent project lifecycles. Notice how evidence counts grow over time:"
@@ -138,7 +105,7 @@ with col_topic:
 topic_arg = None if topic_choice == "All Topics" else topic_choice
 
 try:
-    observations = backend.list_observations(role, topic_arg)
+    observations = run_guarded(backend.list_observations, role, topic_arg)
     if observations:
         for obs in observations:
             render_observation_card(obs)

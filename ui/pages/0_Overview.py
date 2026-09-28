@@ -13,44 +13,45 @@ from ui.adapters import get_backend
 from ui.components import (
     inject_custom_css,
     render_decision_card,
-    render_drift_alert_summary,
+    render_drift_card,
     render_ingest_result,
     render_memory_overview,
-    render_recent_activity,
     render_sidebar_chrome,
-    render_system_health,
     render_top_bar,
 )
-from ui.components._state import init_session_state
+from ui.components._state import init_session_state, run_guarded
 from ui.components.dialogs import check_and_render_evidence_dialog
 
 init_session_state()
-inject_custom_css()
+
+if not st.session_state.get("_top_nav_active"):
+    inject_custom_css()
+    render_top_bar(active_stage="DECIDE")
+    render_sidebar_chrome()
 
 backend = get_backend()
 role = st.session_state.get("role") or "admin"
 
-render_top_bar(active_stage="DECIDE")
-render_sidebar_chrome()
 check_and_render_evidence_dialog(backend, role)
+
+# Fetch Memory Overview before header
+overview = run_guarded(lambda: backend.get_memory_overview(role))
+proj_count = overview.project_count if overview else 0
 
 # 1. Concise Workspace Heading
 st.markdown(
-    """
+    f"""
     <div style='margin-bottom: 1.5rem;'>
-        <h1 style='margin-bottom: 0.25rem;'>Good afternoon, John</h1>
-        <p style='color:var(--dp-text-secondary); font-size:1.02rem; margin:0;'>Here's what's happening with your organization's architecture decisions.</p>
+        <h1 style='margin-bottom: 0.25rem;'>Architecture Decision Intelligence</h1>
+        <p style='color:var(--dp-text-secondary); font-size:1.02rem; margin:0;'>Memory learned from {proj_count} historical projects</p>
     </div>
     """,
     unsafe_allow_html=True,
 )
 
 # 2. Four KPI Cards
-try:
-    overview = backend.get_memory_overview(role)
+if overview:
     render_memory_overview(overview)
-except Exception as e:  # noqa: BLE001
-    st.error(f"Failed to fetch memory overview: {e}")
 
 st.markdown("<div style='height: 1.5rem;'></div>", unsafe_allow_html=True)
 
@@ -58,9 +59,6 @@ st.markdown("<div style='height: 1.5rem;'></div>", unsafe_allow_html=True)
 left_col, right_col = st.columns([3, 2])
 
 with left_col:
-    # Recent Activity Feed
-    render_recent_activity()
-
     # Search & Direct Retrieval
     st.markdown("<div class='dp-card'>", unsafe_allow_html=True)
     st.markdown("### Search Architectural Decisions")
@@ -99,15 +97,12 @@ with left_col:
     active_query = st.session_state.get("ov_search_input") or search_query
     if active_query:
         st.markdown(f"**Search Results for:** `{active_query}`")
-        try:
-            results = backend.search_decisions(DecisionFilter(text=active_query), role)
-            if results:
-                for dec in results:
-                    render_decision_card(dec)
-            else:
-                st.info(f"No decisions found matching '{active_query}'.")
-        except Exception as e:  # noqa: BLE001
-            st.error(f"Search failed: {e}")
+        results = run_guarded(lambda: backend.search_decisions(DecisionFilter(text=active_query), role))
+        if results:
+            for dec in results:
+                render_decision_card(dec)
+        elif results is not None:
+            st.info(f"No decisions found matching '{active_query}'.")
     st.markdown("</div>", unsafe_allow_html=True)
 
     # Document Ingest Expander (Demo Step preserved)
@@ -115,11 +110,8 @@ with left_col:
         st.markdown("#### Ground Organizational Memory in Real Artifacts")
         st.caption("Ingesting documents parses constraints, links decisions to causal outcomes, and updates memory.")
 
-        try:
-            projects = backend.list_projects(role)
-            proj_options = [p.project_id for p in projects]
-        except Exception:  # noqa: BLE001
-            proj_options = ["nova", "alpha", "beta", "gamma", "delta"]
+        projects = run_guarded(lambda: backend.list_projects(role))
+        proj_options = [p.project_id for p in projects] if projects else ["nova", "alpha", "beta", "gamma", "delta"]
 
         c1, c2 = st.columns(2)
         with c1:
@@ -164,29 +156,26 @@ with left_col:
                     tags=[selected_proj, selected_type, "ingest"],
                     is_current=selected_proj.lower() == "nova",
                 )
-                try:
-                    res = backend.ingest_source(entry, doc_content, role)
+                res = run_guarded(lambda: backend.ingest_source(entry, doc_content, role))
+                if res:
                     render_ingest_result(res)
                     st.balloons()
-                except Exception as e:  # noqa: BLE001
-                    st.error(f"Ingestion failed: {e}")
 
 with right_col:
-    # Drift Alert Card matching Mockup
-    render_drift_alert_summary(
-        title="Kafka rejection &rarr; constraints changed",
-        description="Consumer count increased to 15+ and ops capacity improved. Reconsideration recommended.",
-        level="high",
-    )
+    # Real Drift Cards for Nova
+    drift_cards = run_guarded(lambda: backend.list_drift_cards("nova", role))
+    if drift_cards:
+        for card in drift_cards:
+            render_drift_card(card)
+    else:
+        st.info("No active decision drift recorded.")
+
     if st.button("View Details &rarr;", key="btn_view_drift_details", use_container_width=True):
         st.session_state.selected_decision_id = "DEC-ALPHA-001"
         try:
             st.switch_page("pages/1_Ask.py")
         except Exception:  # noqa: BLE001
             st.info("Navigate to 'Ask DecisionPrint' to inspect the Kafka brief.")
-
-    # System Health
-    render_system_health()
 
     # Quick Actions Panel
     st.markdown("<div class='dp-card' style='margin-top: 1rem;'>", unsafe_allow_html=True)

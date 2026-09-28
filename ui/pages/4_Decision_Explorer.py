@@ -14,17 +14,18 @@ from ui.components import (
     render_sidebar_chrome,
     render_top_bar,
 )
-from ui.components._state import init_session_state
+from ui.components._state import init_session_state, run_guarded
 from ui.components.dialogs import check_and_render_evidence_dialog
 
 init_session_state()
-inject_custom_css()
+
+if not st.session_state.get("_top_nav_active"):
+    inject_custom_css()
+    render_top_bar(active_stage="ANALYZE")
+    render_sidebar_chrome()
 
 backend = get_backend()
 role = st.session_state.get("role") or "admin"
-
-render_top_bar(active_stage="ANALYZE")
-render_sidebar_chrome()
 check_and_render_evidence_dialog(backend, role)
 
 # 1. Header
@@ -81,7 +82,7 @@ with tab_decisions:
     )
 
     try:
-        decisions = backend.search_decisions(d_filter, role)
+        decisions = run_guarded(backend.search_decisions, d_filter, role)
 
         # Structured Table View matching Screen 5
         st.markdown("<div class='dp-card'>", unsafe_allow_html=True)
@@ -141,7 +142,7 @@ with tab_review:
     )
 
     try:
-        review_items = backend.list_review_queue(role)
+        review_items = run_guarded(backend.list_review_queue, role)
         if review_items:
             for item in review_items:
                 st.markdown("<div class='dp-card'>", unsafe_allow_html=True)
@@ -155,9 +156,11 @@ with tab_review:
 
                 col_appr, col_rej = st.columns([1, 4])
                 with col_appr:
+                    # ponytail: hardcoded for demo, wire to approve endpoint later
                     if st.button("✅ Confirm Extraction", key=f"appr_{item.decision_id}"):
                         st.success(f"Decision {item.decision_id} confirmed and validated!")
                 with col_rej:
+                    # ponytail: hardcoded for demo, wire to reject endpoint later
                     if st.button("❌ Reject Extraction", key=f"rej_{item.decision_id}"):
                         st.info(f"Decision {item.decision_id} queued for manual correction.")
                 st.markdown("</div>", unsafe_allow_html=True)

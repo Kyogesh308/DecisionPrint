@@ -17,13 +17,14 @@ from ui.components.dialogs import check_and_render_evidence_dialog
 from ui.components.shell import set_theme
 
 init_session_state()
-inject_custom_css()
+
+if not st.session_state.get("_top_nav_active"):
+    inject_custom_css()
+    render_top_bar(active_stage="DECIDE", search_placeholder="Search settings...")
+    render_sidebar_chrome()
 
 backend = get_backend()
 role = st.session_state.get("role") or "admin"
-
-render_top_bar(active_stage="DECIDE", search_placeholder="Search settings...")
-render_sidebar_chrome()
 check_and_render_evidence_dialog(backend, role)
 
 # 1. Header
@@ -147,6 +148,7 @@ with tab_role:
 with tab_backend:
     st.markdown("<div class='dp-card'>", unsafe_allow_html=True)
     st.markdown("### Backend & Infrastructure Services")
+    # ponytail: hardcoded for demo, wire to health endpoint later
     st.caption("Active connection health and protocol adapters:")
 
     current_backend = os.getenv("DP_BACKEND", "fixture")
