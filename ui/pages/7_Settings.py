@@ -141,59 +141,21 @@ with tab_role:
 
 with tab_backend:
     st.markdown("### Backend & Infrastructure Services")
-    # ponytail: hardcoded for demo, wire to health endpoint later
-    st.caption("Active connection health and protocol adapters:")
+    st.caption("Configured services. Configuration status does not imply a remote health check.")
 
-    current_backend = os.getenv("DP_BACKEND", "fixture")
+    current_backend = os.getenv("DP_BACKEND", "fixture").lower()
+    db_path = os.getenv("DP_DB_PATH", "var/decisionprint.db")
+    hindsight_configured = bool(os.getenv("DP_HINDSIGHT_BASE_URL"))
+    llm_configured = bool(os.getenv("DP_LLM_API_KEY"))
 
     c_b1, c_b2 = st.columns(2)
     with c_b1:
-        render_html(
-            """
-            <div style='padding:0.75rem 0;'>
-                <div style='font-size:0.85rem; color:var(--dp-text-muted);'>Database</div>
-                <div style='display:flex; align-items:center; gap:0.6rem; margin-top:0.25rem;'>
-                    <strong style='font-size:1.05rem;'>PostgreSQL 16</strong>
-                    <span class='dp-badge' style='background:rgba(34,197,94,0.15); color:var(--dp-success); border:1px solid rgba(74,222,128,0.4);'>CONNECTED</span>
-                </div>
-            </div>
-            """
-        )
-        render_html(
-            """
-            <div style='padding:0.75rem 0;'>
-                <div style='font-size:0.85rem; color:var(--dp-text-muted);'>LLM Reasoning & Synthesis</div>
-                <div style='display:flex; align-items:center; gap:0.6rem; margin-top:0.25rem;'>
-                    <strong style='font-size:1.05rem;'>Gemini 1.5 Pro / Claude 3.5</strong>
-                    <span class='dp-badge' style='background:rgba(34,197,94,0.15); color:var(--dp-success); border:1px solid rgba(74,222,128,0.4);'>CONNECTED</span>
-                </div>
-            </div>
-            """
-        )
+        st.markdown(f"**Application database:** SQLite (`{db_path}`)")
+        st.markdown(f"**LLM extraction:** {'Configured' if llm_configured else 'Not configured'}")
 
     with c_b2:
-        render_html(
-            f"""
-            <div style='padding:0.75rem 0;'>
-                <div style='font-size:0.85rem; color:var(--dp-text-muted);'>Active Adapter Protocol</div>
-                <div style='display:flex; align-items:center; gap:0.6rem; margin-top:0.25rem;'>
-                    <strong style='font-size:1.05rem;'>{current_backend.upper()} BACKEND</strong>
-                    <span class='dp-badge' style='background:rgba(99,102,241,0.15); color:var(--dp-primary); border:1px solid var(--dp-primary);'>OPERATIONAL</span>
-                </div>
-            </div>
-            """
-        )
-        render_html(
-            """
-            <div style='padding:0.75rem 0;'>
-                <div style='font-size:0.85rem; color:var(--dp-text-muted);'>Vector Memory Index</div>
-                <div style='display:flex; align-items:center; gap:0.6rem; margin-top:0.25rem;'>
-                    <strong style='font-size:1.05rem;'>Hindsight Multi-Tenant Vector Store</strong>
-                    <span class='dp-badge' style='background:rgba(34,197,94,0.15); color:var(--dp-success); border:1px solid rgba(74,222,128,0.4);'>SYNCHRONIZED</span>
-                </div>
-            </div>
-            """
-        )
+        st.markdown(f"**UI adapter:** {'Fixture demo' if current_backend == 'fixture' else current_backend.upper()}")
+        st.markdown(f"**Hindsight memory:** {'Configured' if hindsight_configured else 'Using local default endpoint'}")
 
 with tab_appearance:
     st.markdown("### Interface Theme & Mode")

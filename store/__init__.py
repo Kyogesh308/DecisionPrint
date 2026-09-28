@@ -7,9 +7,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any
 
-
-class ScopeError(PermissionError):
-    """Raised when a project or tag is outside the caller's authorized scope."""
+from contracts.errors import ScopeError
 
 
 @dataclass
@@ -262,9 +260,94 @@ def list_projects_in_scope(scope: Scope) -> list[str]:
     try:
         rows = conn.execute("SELECT project_id FROM projects ORDER BY project_id").fetchall()
         projects = [row["project_id"] for row in rows]
+        if scope.role == "engineer":
+            projects = [project_id for project_id in projects if project_id.lower() != "delta"]
         if not scope.allowed_projects:
             return projects
         return [project_id for project_id in projects if project_id in set(scope.allowed_projects)]
+    finally:
+        conn.close()
+
+
+def list_project_records(scope: Scope) -> list[dict[str, Any]]:
+    project_ids = list_projects_in_scope(scope)
+    return [get_project(project_id) for project_id in project_ids]
+
+
+def list_source_records(*, project_id: str | None = None) -> list[dict[str, Any]]:
+    conn = _connect()
+    try:
+        if project_id is None:
+            rows = conn.execute(
+                "SELECT source_id, project_id, source_type, title, hindsight_document_id, created_at FROM sources ORDER BY created_at, source_id"
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                "SELECT source_id, project_id, source_type, title, hindsight_document_id, created_at FROM sources WHERE project_id = ? ORDER BY created_at, source_id",
+                (project_id,),
+            ).fetchall()
+        return [dict(row) for row in rows]
+    finally:
+        conn.close()
+
+
+def list_decision_records(*, project_id: str | None = None) -> list[dict[str, Any]]:
+    conn = _connect()
+    try:
+        if project_id is None:
+            rows = conn.execute(
+                "SELECT decision_id, project_id, title, decision_statement, occurred_at, status, superseded_by, created_at, updated_at FROM decisions ORDER BY occurred_at, decision_id"
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                "SELECT decision_id, project_id, title, decision_statement, occurred_at, status, superseded_by, created_at, updated_at FROM decisions WHERE project_id = ? ORDER BY occurred_at, decision_id",
+                (project_id,),
+            ).fetchall()
+        return [dict(row) for row in rows]
+    finally:
+        conn.close()
+
+
+def list_outcome_records(*, decision_id: str | None = None) -> list[dict[str, Any]]:
+    conn = _connect()
+    try:
+        if decision_id is None:
+            rows = conn.execute(
+                "SELECT outcome_id, project_id, decision_id, title, summary, created_at FROM outcomes ORDER BY created_at, outcome_id"
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                "SELECT outcome_id, project_id, decision_id, title, summary, created_at FROM outcomes WHERE decision_id = ? ORDER BY created_at, outcome_id",
+                (decision_id,),
+            ).fetchall()
+        return [dict(row) for row in rows]
+    finally:
+        conn.close()
+
+
+def list_causal_link_records(*, decision_id: str) -> list[dict[str, Any]]:
+    conn = _connect()
+    try:
+        rows = conn.execute(
+            "SELECT causal_link_id, decision_id, outcome_id, relation, evidence_ids, created_at FROM causal_links WHERE decision_id = ? ORDER BY created_at, causal_link_id",
+            (decision_id,),
+        ).fetchall()
+        result = [dict(row) for row in rows]
+        for item in result:
+            item["evidence_ids"] = _deserialize_json(item["evidence_ids"]) or []
+        return result
+    finally:
+        conn.close()
+
+
+def get_record_counts() -> dict[str, int]:
+    conn = _connect()
+    try:
+        tables = ("projects", "sources", "decisions", "audit_events")
+        return {
+            table: int(conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0])
+            for table in tables
+        }
     finally:
         conn.close()
 
@@ -601,6 +684,12 @@ def list_audit_events(*, project_id: str | None = None, role: str | None = None)
 
 def resolve_scope(role: str) -> Scope:
     role = (role or "viewer").lower()
+    if role in {"admin", "executive", "project_lead"}:
+        return Scope(
+            role=role,
+            allowed_tags=["decision", "technology", "risk", "decisionprint"],
+            visibility="organization",
+        )
     if role == "lead":
         return Scope(
             role="lead",
@@ -611,7 +700,7 @@ def resolve_scope(role: str) -> Scope:
     if role == "engineer":
         return Scope(
             role="engineer",
-            allowed_projects=["project-001"],
+            allowed_projects=[],
             allowed_tags=["decision", "technology"],
             visibility="project",
         )
@@ -631,7 +720,9 @@ def resolve_scope(role: str) -> Scope:
 
 
 def assert_project_allowed(scope: Scope, project_id: str) -> None:
-    if project_id not in scope.allowed_projects:
+    if scope.role == "engineer" and project_id.lower() == "delta":
+        raise ScopeError(f"Project '{project_id}' is not allowed for role '{scope.role}'")
+    if scope.allowed_projects and project_id not in scope.allowed_projects:
         raise ScopeError(f"Project '{project_id}' is not allowed for role '{scope.role}'")
 
 
@@ -642,6 +733,12 @@ __all__ = [
     "upsert_project",
     "get_project",
     "list_projects_in_scope",
+    "list_project_records",
+    "list_source_records",
+    "list_decision_records",
+    "list_outcome_records",
+    "list_causal_link_records",
+    "get_record_counts",
     "save_source",
     "get_source",
     "save_decision",

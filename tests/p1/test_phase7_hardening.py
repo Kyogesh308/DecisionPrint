@@ -33,7 +33,7 @@ class FakeHindsight:
 
 def test_client_supplied_tags_are_ignored(monkeypatch):
     fake_client = FakeHindsight(base_url="http://localhost:8888")
-    monkeypatch.setattr(memory_module, "Hindsight", lambda base_url: fake_client)
+    monkeypatch.setattr(memory_module, "Hindsight", lambda base_url, api_key=None: fake_client)
     monkeypatch.setenv("DP_HINDSIGHT_BASE_URL", "http://localhost:8888")
     monkeypatch.setenv("DP_HINDSIGHT_BANK_ID", "northstar-org")
 
@@ -65,7 +65,7 @@ def test_recall_memories_retries_when_backend_is_eventually_consistent(monkeypat
             }
 
     fake_client = EventuallyConsistentHindsight()
-    monkeypatch.setattr(memory_module, "Hindsight", lambda base_url: fake_client)
+    monkeypatch.setattr(memory_module, "Hindsight", lambda base_url, api_key=None: fake_client)
     monkeypatch.setenv("DP_HINDSIGHT_BASE_URL", "http://localhost:8888")
     monkeypatch.setenv("DP_HINDSIGHT_BANK_ID", "northstar-org")
 
@@ -88,7 +88,7 @@ def test_ask_question_returns_partial_answer_when_memory_is_empty(monkeypatch):
 
 def test_prompt_injection_text_is_sanitized(monkeypatch):
     fake_client = FakeHindsight(base_url="http://localhost:8888")
-    monkeypatch.setattr(memory_module, "Hindsight", lambda base_url: fake_client)
+    monkeypatch.setattr(memory_module, "Hindsight", lambda base_url, api_key=None: fake_client)
     monkeypatch.setenv("DP_HINDSIGHT_BASE_URL", "http://localhost:8888")
     monkeypatch.setenv("DP_HINDSIGHT_BANK_ID", "northstar-org")
 

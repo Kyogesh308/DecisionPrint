@@ -159,7 +159,7 @@ def render_sidebar_chrome() -> None:
         st.rerun()
 
     backend = os.getenv("DP_BACKEND", "fixture")
-    backend_status = "Connected"
+    backend_status = "deterministic demo data" if os.getenv("DP_BACKEND", "fixture").lower() == "fixture" else "SQLite + Hindsight selected"
     shield_icon = get_icon_svg("shield", size=13, color="var(--dp-success, #16A34A)")
 
     render_html(
@@ -203,13 +203,13 @@ def get_nav_badges(backend: object = None, role: str = "admin", project_id: str 
     if not backend:
         return badges
     try:
-        queue = getattr(backend, "list_review_queue", list)()
+        queue = getattr(backend, "list_review_queue", lambda _role: [])(role)
         badges["explorer_queue"] = len(queue)
     except Exception:  # noqa: BLE001
         badges["explorer_queue"] = 0
 
     try:
-        drift_cards = getattr(backend, "list_drift_cards", lambda _p: [])(project_id)
+        drift_cards = getattr(backend, "list_drift_cards", lambda _p, _r: [])(project_id, role)
         badges["high_drift_count"] = sum(
             1 for d in drift_cards if getattr(d, "level", None) and d.level.value.lower() == "high"
         )
@@ -234,11 +234,13 @@ def render_nav_context_bar(backend: object = None) -> None:
     projects = []
     if backend:
         try:
-            projects = getattr(backend, "list_projects", list)()
+            projects = getattr(backend, "list_projects", lambda _role: [])(st.session_state.get("role") or "admin")
         except Exception:  # noqa: BLE001
             projects = []
-    if not projects:
+    if not projects and os.getenv("DP_BACKEND", "fixture").lower() == "fixture":
         project_ids = ["nova", "alpha", "beta", "gamma", "delta"]
+    elif not projects:
+        project_ids = [st.session_state.get("project_id") or "nova"]
     else:
         project_ids = [getattr(p, "project_id", str(p)) for p in projects]
 

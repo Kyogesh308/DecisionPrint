@@ -1,5 +1,6 @@
 """Live backend — thin pass-through to the facade module."""
 
+from contracts.enums import EpistemicType, IngestStatus
 from contracts import (
     CurrentProjectContext,
     Decision,
@@ -17,6 +18,7 @@ from contracts import (
     SourceManifestEntry,
     TimelineEvent,
 )
+from contracts.models import BriefClaim, ConfidenceBreakdown, SourceRef
 
 
 class LiveBackend:
@@ -43,10 +45,29 @@ class LiveBackend:
         return self._facade.get_project_context(project_id, user_role)
 
     def update_project_context(self, context: CurrentProjectContext, user_role: str) -> CurrentProjectContext:
-        return self._facade.update_project_context(context, user_role)
+        self._facade.get_project_context(context.project_id, user_role)
+        if isinstance(context.constraints, dict):
+            values = dict(context.constraints)
+        else:
+            values = {constraint.key: constraint.value for constraint in context.constraints}
+        consumer_count = values.get("consumer_count")
+        replay_required = values.get("replay_required")
+        self._facade.update_project_context(
+            context.project_id,
+            consumer_count=consumer_count if isinstance(consumer_count, int) else None,
+            replay_required=replay_required if isinstance(replay_required, bool) else None,
+            context_json=values,
+        )
+        return self._facade.get_project_context(context.project_id, user_role)
 
     def ingest_source(self, entry: SourceManifestEntry, content: str, user_role: str) -> IngestResult:
-        return self._facade.ingest_source(entry, content, user_role)
+        result = self._facade.ingest_source(user_role, entry.model_dump(mode="json"), content)
+        return IngestResult(
+            status=IngestStatus.success if result.get("status") == "stored" else IngestStatus.failed,
+            source_id=result["source_id"],
+            memories_created=len(result.get("memory_ids", [])),
+            warnings=result.get("warnings", []),
+        )
 
     def search_decisions(self, filter: DecisionFilter, user_role: str) -> list[Decision]:
         return self._facade.search_decisions(filter, user_role)
@@ -58,16 +79,33 @@ class LiveBackend:
         return self._facade.get_decision_timeline(decision_id, user_role)
 
     def ask_question(self, question: str, project_id: str, user_role: str) -> DecisionBrief:
-        return self._facade.ask_question(question, project_id, user_role)
+        result = self._facade.ask_question(user_role, project_id, question)
+        answer = result.get("answer", "")
+        source_ids = result.get("source_ids", [])
+        claims = (
+            [BriefClaim(text=answer, epistemic_type=EpistemicType.fact, source_ids=source_ids)]
+            if answer
+            else []
+        )
+        return DecisionBrief(
+            query_id=result["query_id"],
+            question=question,
+            project_id=project_id,
+            answer_summary=answer,
+            claims=claims,
+            sources=[SourceRef(source_id=source_id) for source_id in source_ids],
+            source_ids=source_ids,
+            confidence=ConfidenceBreakdown(retrieval=result.get("retrieval_confidence", 0.0)),
+        )
 
     def list_drift_cards(self, project_id: str, user_role: str) -> list[DriftResult]:
-        return self._facade.list_drift_cards(project_id, user_role)
+        return self._facade.list_drift_cards(user_role, project_id)
 
     def get_evidence(self, source_id: str, user_role: str) -> EvidenceExcerpt:
         return self._facade.get_evidence(source_id, user_role)
 
     def get_outcome_chain(self, decision_id: str, user_role: str) -> OutcomeChain:
-        return self._facade.get_outcome_chain(decision_id, user_role)
+        return OutcomeChain.model_validate(self._facade.get_outcome_chain(user_role, decision_id))
 
     def list_observations(self, user_role: str, topic: str | None = None) -> list[ObservationView]:
         return self._facade.list_observations(user_role, topic)
