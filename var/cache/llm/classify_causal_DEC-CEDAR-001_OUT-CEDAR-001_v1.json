@@ -1,0 +1,10 @@
+{
+  "json": {
+    "label": "explicit_causal_link",
+    "rationale": "The postmortem explicitly identifies the decision to disable automated backups as the primary contributing factor to the extended recovery window.",
+    "evidence_ids": [
+      "mem-cedar-001"
+    ],
+    "confidence": 0.9
+  }
+}

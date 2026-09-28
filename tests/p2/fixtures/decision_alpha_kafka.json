@@ -1,0 +1,41 @@
+{
+  "id": "DEC-ALPHA-001",
+  "project_id": "alpha",
+  "title": "Reject Kafka in favour of a simple message queue",
+  "decision_statement": "Use an in-process job queue (e.g. Redis Streams) instead of Kafka for the Alpha service bus.",
+  "occurred_at": "2025-03-15T10:00:00Z",
+  "participants": ["eng-lead", "arch-lead"],
+  "context_summary": "Alpha has two internal consumers, moderate traffic, no replay requirement, and a small ops team with no Kafka experience.",
+  "constraints": [
+    {"key": "consumer_count",   "value": 2,          "is_reason_linked": true,  "source_memory_id": "mem-alpha-001"},
+    {"key": "replay_required",  "value": false,       "is_reason_linked": true,  "source_memory_id": "mem-alpha-002"},
+    {"key": "traffic_volume",   "value": "moderate",  "is_reason_linked": true,  "source_memory_id": "mem-alpha-003"},
+    {"key": "ops_capacity",     "value": "small",     "is_reason_linked": true,  "source_memory_id": "mem-alpha-004"},
+    {"key": "async_workflows",  "value": false,       "is_reason_linked": false, "source_memory_id": "mem-alpha-005"}
+  ],
+  "assumptions": [
+    {"statement": "Consumer count will remain low (<5) for the foreseeable future.", "status": "active", "source_memory_id": "mem-alpha-006"},
+    {"statement": "Ops team will not grow significantly in the next 12 months.",      "status": "active", "source_memory_id": "mem-alpha-007"}
+  ],
+  "alternatives": [
+    {"option": "Apache Kafka",   "disposition": "rejected", "reason": "Operational overhead too high for two consumers and no replay need.", "source_memory_id": "mem-alpha-008"},
+    {"option": "Redis Streams",  "disposition": "selected", "reason": "Low ops burden, sufficient throughput for moderate traffic.",          "source_memory_id": "mem-alpha-009"},
+    {"option": "RabbitMQ",       "disposition": "deferred", "reason": "Adequate but team unfamiliar; not justified over Redis for MVP.",      "source_memory_id": "mem-alpha-010"}
+  ],
+  "selected_option": "Redis Streams",
+  "reasons": [
+    {"statement": "Kafka's partition/broker model is over-engineered for two consumers at moderate traffic.", "source_memory_id": "mem-alpha-008"},
+    {"statement": "No replay requirement removes Kafka's primary differentiating value.",                     "source_memory_id": "mem-alpha-002"},
+    {"statement": "Small ops team lacks Kafka expertise; operational risk outweighs messaging benefits.",     "source_memory_id": "mem-alpha-004"}
+  ],
+  "technologies": ["kafka", "redis-streams", "rabbitmq"],
+  "source_refs": [
+    {"source_id": "SRC-ALPHA-001", "document_id": "doc-alpha-arch-001", "locator": "§3.2 Messaging Architecture"}
+  ],
+  "extraction_confidence": 0.92,
+  "outcome_refs": [],
+  "status": "active",
+  "superseded_by": null,
+  "related_decisions": [],
+  "needs_review": false
+}

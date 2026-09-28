@@ -1,0 +1,10 @@
+{
+  "json": {
+    "label": "possible_causal_link",
+    "rationale": "There is a temporal relationship between the decision to disable automated backups and the outcome of a lengthy recovery period. The evidence from the Cedar project indicates a storage incident occurred in November 2025, which aligns with the timing of the decision.",
+    "evidence_ids": [
+      "mem-cedar-001"
+    ],
+    "confidence": 0.5
+  }
+}

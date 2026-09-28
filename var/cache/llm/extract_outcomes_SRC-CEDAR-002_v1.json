@@ -1,0 +1,30 @@
+{
+  "json": {
+    "outcomes": [
+      {
+        "statement": "The Cedar project experienced a major storage outage when the primary database cluster ran out of space.",
+        "occurred_at": "2025-11-02",
+        "source_memory_id": null,
+        "confidence": 1.0
+      },
+      {
+        "statement": "Recovery took 14 hours due to the absence of automated backups.",
+        "occurred_at": null,
+        "source_memory_id": null,
+        "confidence": 1.0
+      },
+      {
+        "statement": "We lost significant customer trust.",
+        "occurred_at": null,
+        "source_memory_id": null,
+        "confidence": 1.0
+      },
+      {
+        "statement": "We missed our quarterly SLA targets.",
+        "occurred_at": null,
+        "source_memory_id": null,
+        "confidence": 1.0
+      }
+    ]
+  }
+}

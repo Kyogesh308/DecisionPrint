@@ -1,0 +1,16 @@
+{
+  "project_id": "nova",
+  "summary": "Nova is a high-throughput event processing platform with 15 internal and external consumers, mandatory replay for compliance, and a large dedicated platform team.",
+  "constraints": [
+    {"key": "consumer_count",    "value": 15,     "is_reason_linked": false, "source_memory_id": "mem-nova-001"},
+    {"key": "replay_required",   "value": true,   "is_reason_linked": false, "source_memory_id": "mem-nova-002"},
+    {"key": "traffic_volume",    "value": "high",  "is_reason_linked": false, "source_memory_id": "mem-nova-003"},
+    {"key": "ops_capacity",      "value": "large", "is_reason_linked": false, "source_memory_id": "mem-nova-004"},
+    {"key": "async_workflows",   "value": true,   "is_reason_linked": false, "source_memory_id": "mem-nova-005"},
+    {"key": "sla_tier",          "value": "high",  "is_reason_linked": false, "source_memory_id": "mem-nova-006"}
+  ],
+  "source_refs": [
+    {"source_id": "SRC-NOVA-001", "document_id": "doc-nova-prd-001", "locator": "§2 Technical Requirements"}
+  ],
+  "updated_at": "2026-09-15T09:00:00Z"
+}

@@ -1,0 +1,5 @@
+pyproject.toml
+decisionprint.egg-info/PKG-INFO
+decisionprint.egg-info/SOURCES.txt
+decisionprint.egg-info/dependency_links.txt
+decisionprint.egg-info/top_level.txt

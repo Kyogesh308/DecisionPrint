@@ -1,0 +1,30 @@
+{
+  "json": {
+    "project_id": "nova",
+    "summary": "The Nova project is currently facing several technical and operational constraints. The consumer count has significantly increased, and there is a need for replay capability due to high traffic volume, which necessitates careful planning.",
+    "constraints": [
+      {
+        "key": "consumer_count",
+        "value": "15",
+        "unit": null,
+        "source_memory_id": null,
+        "is_reason_linked": false
+      },
+      {
+        "key": "replay_required",
+        "value": "yes",
+        "unit": null,
+        "source_memory_id": null,
+        "is_reason_linked": false
+      },
+      {
+        "key": "traffic_volume",
+        "value": "high",
+        "unit": null,
+        "source_memory_id": null,
+        "is_reason_linked": false
+      }
+    ],
+    "extraction_confidence": 0.9
+  }
+}

@@ -1,0 +1,6 @@
+Incident Report: Cedar Storage Issue
+
+We had an issue with the Cedar project in November 2025.
+The storage ran out of space and caused a significant downtime event.
+Recovery was slow because the team had to reconstruct data from upstream events.
+The outage lasted several hours, impacting our main clients.

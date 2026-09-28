@@ -1,0 +1,85 @@
+{
+  "json": {
+    "decisions": [
+      {
+        "title": "Reject Kafka for Alpha Messaging Layer",
+        "decision_statement": "Kafka was rejected as the messaging layer for the Alpha project.",
+        "occurred_at": "2025-03-14T10:00:00+00:00",
+        "participants": [
+          "architecture team"
+        ],
+        "context_summary": "The decision was made based on specific constraints regarding consumer count and operational overhead. The team evaluated several alternatives for the messaging layer.",
+        "selected_option": "Redis Streams",
+        "technologies": [
+          "Kafka",
+          "RabbitMQ",
+          "Redis Streams"
+        ],
+        "extraction_confidence": 1.0,
+        "constraints": [
+          {
+            "key": "consumer_count",
+            "value": "2 consumers",
+            "unit": null,
+            "source_memory_id": null,
+            "is_reason_linked": false
+          },
+          {
+            "key": "replay_required",
+            "value": "no replay",
+            "unit": null,
+            "source_memory_id": null,
+            "is_reason_linked": false
+          },
+          {
+            "key": "traffic_volume",
+            "value": "moderate traffic",
+            "unit": null,
+            "source_memory_id": null,
+            "is_reason_linked": false
+          },
+          {
+            "key": "ops_capacity",
+            "value": "small ops team",
+            "unit": null,
+            "source_memory_id": null,
+            "is_reason_linked": false
+          }
+        ],
+        "reasons": [
+          {
+            "statement": "low consumer count, operational overhead, no replay requirement",
+            "source_memory_id": null
+          }
+        ],
+        "alternatives": [
+          {
+            "option": "Kafka",
+            "disposition": "rejected",
+            "reason": "rejected due to low consumer count and operational overhead",
+            "source_memory_id": null
+          },
+          {
+            "option": "RabbitMQ",
+            "disposition": "deferred",
+            "reason": null,
+            "source_memory_id": null
+          },
+          {
+            "option": "Redis Streams",
+            "disposition": "selected",
+            "reason": null,
+            "source_memory_id": null
+          }
+        ],
+        "assumptions": [],
+        "reason_linked_constraint_keys": [
+          "consumer_count",
+          "replay_required",
+          "traffic_volume",
+          "ops_capacity"
+        ]
+      }
+    ]
+  }
+}
