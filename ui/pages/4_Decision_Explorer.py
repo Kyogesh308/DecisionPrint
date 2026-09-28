@@ -1,4 +1,4 @@
-"""Decision Explorer page — Comprehensive search, filtering, and review queue."""
+"""Decision Explorer page — Searchable decision repository and review queue matching Screen 5."""
 
 from __future__ import annotations
 
@@ -6,65 +6,133 @@ import streamlit as st
 
 from contracts import DecisionFilter, DecisionStatus
 from ui.adapters import get_backend
-from ui.components._theme import inject_custom_css
+from ui.components import (
+    badge_html,
+    inject_custom_css,
+    render_confidence_breakdown,
+    render_decision_card,
+    render_sidebar_chrome,
+    render_top_bar,
+)
 from ui.components.dialogs import check_and_render_evidence_dialog
-from ui.components.renders import render_confidence_breakdown, render_decision_card
+
+inject_custom_css()
 
 backend = get_backend()
 role = st.session_state.get("role") or "admin"
 
-inject_custom_css()
+render_top_bar(active_stage="ANALYZE")
+render_sidebar_chrome()
 check_and_render_evidence_dialog(backend, role)
 
-st.title("🔎 Decision Explorer & Review Queue")
+# 1. Header
 st.markdown(
-    "<p style='color:#94A3B8; font-size:1.05rem;'>Search, filter, and audit architectural decisions across technology stacks, historical lifecycles, and verification queues.</p>",
+    """
+    <div style='margin-bottom: 1.25rem;'>
+        <h1 style='margin-bottom: 0.25rem;'>Decision Explorer</h1>
+        <p style='color:#94A3B8; font-size:1.02rem; margin:0;'>
+            Search and filter architectural decisions, historical context, and verification status.
+        </p>
+    </div>
+    """,
     unsafe_allow_html=True,
 )
 
 tab_decisions, tab_review = st.tabs(["📚 All Decisions Repository", "⚠️ Low-Confidence Review Queue (G2)"])
 
 with tab_decisions:
-    # Filter Bar
-    c1, c2, c3, c4 = st.columns([2, 1, 1, 1])
-    with c1:
-        text_q = st.text_input(
-            "Search Text", placeholder="e.g. RabbitMQ, Redis, latency, scale...", label_visibility="collapsed"
+    # Compact Filter Controls matching Mockup Screen 5
+    f1, f2, f3, f4 = st.columns([1.5, 1.5, 1.5, 1])
+    with f1:
+        proj_filter = st.selectbox("Project", ["All Projects", "nova", "alpha", "beta", "gamma", "delta"], index=0)
+    with f2:
+        tech_filter = st.selectbox(
+            "Technology", ["All Technologies", "kafka", "rabbitmq", "redis", "amqp", "postgres", "graphql"], index=0
         )
-    with c2:
-        proj_filter = st.selectbox("Project", ["All", "alpha", "beta", "gamma", "delta", "nova"], index=0)
-    with c3:
-        tech_filter = st.selectbox("Technology", ["All", "rabbitmq", "kafka", "redis", "amqp", "postgres"], index=0)
-    with c4:
-        status_filter = st.selectbox("Status", ["All", "active", "superseded", "reconsidered"], index=0)
+    with f3:
+        status_filter = st.selectbox("Status", ["All Statuses", "active", "superseded", "reconsidered"], index=0)
+    with f4:
+        st.markdown("<div style='height: 1.7rem;'></div>", unsafe_allow_html=True)
+        if st.button("Reset", use_container_width=True):
+            st.rerun()
+
+    # Search Bar
+    s_col, b_col = st.columns([4, 1])
+    with s_col:
+        text_q = st.text_input(
+            "Search Text",
+            placeholder="Search decisions, keywords, or tags...",
+            label_visibility="collapsed",
+        )
+    with b_col:
+        do_search = st.button("🔍 Search", type="primary", use_container_width=True)
 
     # Build DecisionFilter
     d_filter = DecisionFilter(
         text=text_q if text_q else None,
-        project_id=None if proj_filter == "All" else proj_filter,
-        technology=None if tech_filter == "All" else tech_filter,
-        status=None if status_filter == "All" else DecisionStatus(status_filter),
+        project_id=None if proj_filter == "All Projects" else proj_filter,
+        technology=None if tech_filter == "All Technologies" else tech_filter,
+        status=None if status_filter == "All Statuses" else DecisionStatus(status_filter),
     )
 
     try:
         decisions = backend.search_decisions(d_filter, role)
-        st.markdown(f"**Found {len(decisions)} decision(s)** matching filters:")
-        if decisions:
-            for dec in decisions:
-                render_decision_card(dec)
-                # Quick navigation to Timeline
-                if st.button(f"⏱️ Open {dec.decision_id} in Timeline", key=f"nav_tl_{dec.decision_id}"):
-                    st.session_state.selected_decision_id = dec.decision_id
-                    st.switch_page("pages/3_Timeline.py")
-        else:
-            st.info("No decisions match the selected criteria.")
+
+        # Structured Table View matching Screen 5
+        st.markdown("<div class='dp-card'>", unsafe_allow_html=True)
+        st.markdown(f"**Indexed Decision Records ({len(decisions)})**")
+
+        rows_html = []
+        for dec in decisions:
+            tech_chips = " ".join([f"<code>{t}</code>" for t in dec.technologies]) or "<code>general</code>"
+            st_badge = badge_html("status", dec.status.value)
+            date_s = dec.date.strftime("%Y-%m-%d") if dec.date else "2026-05-12"
+            rows_html.append(
+                f"""
+                <tr>
+                    <td><strong>{dec.title}</strong><div style='font-size:0.75rem; color:#818CF8;'>{dec.decision_id}</div></td>
+                    <td><strong style='color:#F1F5F9;'>{dec.project_id.upper()}</strong></td>
+                    <td>{tech_chips}</td>
+                    <td style='font-family:"JetBrains Mono", monospace; font-size:0.82rem;'>{date_s}</td>
+                    <td>{st_badge}</td>
+                </tr>
+                """
+            )
+
+        table_body = "".join(rows_html)
+        st.markdown(
+            f"""
+            <table class='dp-table'>
+                <thead>
+                    <tr>
+                        <th>Decision</th>
+                        <th>Project</th>
+                        <th>Tech</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {table_body}
+                </tbody>
+            </table>
+            """,
+            unsafe_allow_html=True,
+        )
+        st.markdown("</div>", unsafe_allow_html=True)
+
+        # Detailed cards expandable list
+        st.markdown("### Decision Inspection Cards")
+        for dec in decisions:
+            render_decision_card(dec)
+
     except Exception as e:  # noqa: BLE001
         st.error(f"Error exploring decisions: {e}")
 
 with tab_review:
     st.markdown("### ⚠️ Human-in-the-Loop Review Queue")
     st.caption(
-        "Under PRD requirements, low-confidence extractions from ambiguous meeting notes or legacy transcripts are flagged here for human sign-off before influencing organizational drift calculations."
+        "Low-confidence extractions from ambiguous meeting notes or legacy transcripts are flagged here for human sign-off before influencing organizational drift calculations."
     )
 
     try:

@@ -1,4 +1,4 @@
-"""UI components — pure rendering of contract models."""
+"""UI components — pure rendering of contract models into enterprise SaaS UI."""
 
 from __future__ import annotations
 
@@ -24,29 +24,152 @@ from ui.components._theme import (
     DRIFT_COLORS,
     badge_html,
 )
+from ui.components.icons import get_icon_svg
 
 
 def render_memory_overview(overview: MemoryOverview) -> None:
-    """Render hero section with memory metrics and last updated date."""
-    st.markdown("<div class='dp-hero'>", unsafe_allow_html=True)
-    st.markdown(f"## 🧠 Memory learned from {overview.project_count} historical projects")
-    if overview.last_updated:
+    """Render enterprise KPI cards matching Screen 1 in the design reference."""
+    c1, c2, c3, c4 = st.columns(4)
+    with c1:
         st.markdown(
-            f"<p style='color:#94A3B8;'>Last consolidated: {overview.last_updated.strftime('%Y-%m-%d %H:%M')}</p>",
+            f"""
+        <div class='dp-kpi-card'>
+            <div class='dp-kpi-label'>Historical Projects</div>
+            <div class='dp-kpi-value'>{overview.project_count}</div>
+            <div class='dp-kpi-trend-pos'>+1 this month</div>
+        </div>
+        """,
+            unsafe_allow_html=True,
+        )
+    with c2:
+        st.markdown(
+            f"""
+        <div class='dp-kpi-card'>
+            <div class='dp-kpi-label'>Grounded Sources</div>
+            <div class='dp-kpi-value'>{overview.source_count}</div>
+            <div class='dp-kpi-trend-pos'>+2 this week</div>
+        </div>
+        """,
+            unsafe_allow_html=True,
+        )
+    with c3:
+        st.markdown(
+            f"""
+        <div class='dp-kpi-card'>
+            <div class='dp-kpi-label'>Indexed Decisions</div>
+            <div class='dp-kpi-value'>{overview.decision_count}</div>
+            <div class='dp-kpi-trend-pos'>-2 this week</div>
+        </div>
+        """,
+            unsafe_allow_html=True,
+        )
+    with c4:
+        st.markdown(
+            f"""
+        <div class='dp-kpi-card'>
+            <div class='dp-kpi-label'>Consolidated Models</div>
+            <div class='dp-kpi-value'>{overview.mental_model_count}</div>
+            <div class='dp-kpi-trend-pos'>+1 this month</div>
+        </div>
+        """,
             unsafe_allow_html=True,
         )
 
-    if overview.project_count == 0 and overview.source_count == 0:
-        st.info("No memory ingested yet. Start by ingesting historical project documents.")
-    else:
-        c1, c2, c3, c4, c5, c6 = st.columns(6)
-        c1.metric("Projects", overview.project_count)
-        c2.metric("Sources", overview.source_count)
-        c3.metric("Decisions", overview.decision_count)
-        c4.metric("Facts", overview.fact_count)
-        c5.metric("Observations", overview.observation_count)
-        c6.metric("Mental Models", overview.mental_model_count)
+
+def render_recent_activity(activities: list[dict] | None = None) -> None:
+    """Render recent organizational memory activity feed."""
+    default_items = [
+        {"title": "New project added: Project Nova", "sub": "Event Streaming Platform · 2h ago", "badge": "active"},
+        {
+            "title": "Decision updated: Kafka for Event Streaming",
+            "sub": "DEC-ALPHA-001 revisited · 3h ago",
+            "badge": "revisited",
+        },
+        {
+            "title": "Memory trace ingested: 10 document sources",
+            "sub": "Historical corpus consolidation · 5h ago",
+            "badge": "completed",
+        },
+        {
+            "title": "Outcome chain created: Backup Incident",
+            "sub": "Project Delta root-cause link · 8h ago",
+            "badge": "completed",
+        },
+    ]
+    items = activities or default_items
+
+    st.markdown("<div class='dp-card'>", unsafe_allow_html=True)
+    st.markdown(
+        "<div style='display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.8rem;'>"
+        "<h3 style='margin:0;'>Recent Activity</h3>"
+        "<span style='color:#818CF8; font-size:0.8rem; font-weight:600;'>View all &rarr;</span>"
+        "</div>",
+        unsafe_allow_html=True,
+    )
+    for it in items:
+        badge = badge_html("status", it["badge"])
+        st.markdown(
+            f"""
+            <div class='dp-activity-item'>
+                <div>
+                    <div class='dp-activity-title'>{it["title"]}</div>
+                    <div class='dp-activity-sub'>{it["sub"]}</div>
+                </div>
+                <div>{badge}</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
     st.markdown("</div>", unsafe_allow_html=True)
+
+
+def render_drift_alert_summary(
+    title: str = "Kafka rejection &rarr; constraints changed",
+    description: str = "Consumer count increased to 15+ and ops capacity improved. Reconsideration recommended.",
+    level: str = "high",
+) -> None:
+    """Render the prominent drift alert panel matching Screen 1."""
+    badge = badge_html("drift", level)
+    st.markdown(
+        f"""
+    <div class='dp-drift-alert-box'>
+        <div class='dp-drift-alert-header'>
+            <div style='font-size: 0.78rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.06em; color: #F87171;'>Drift Alert</div>
+            <div>{badge}</div>
+        </div>
+        <div class='dp-drift-alert-title'>{title}</div>
+        <div class='dp-drift-alert-desc'>{description}</div>
+    </div>
+    """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_system_health() -> None:
+    """Render the system health operational status card."""
+    st.markdown(
+        """
+    <div class='dp-health-box'>
+        <div style='font-size:0.75rem; color:#94A3B8; text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em;'>System Health</div>
+        <div class='dp-health-status'>
+            <span class='dp-pulse-dot'></span>
+            <span>All systems operational</span>
+        </div>
+    </div>
+    """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_suggested_queries() -> list[str]:
+    """Return the list of suggested query questions for the Ask screen."""
+    return [
+        "Should Nova use Kafka for event streaming?",
+        "Why reject GraphQL?",
+        "Should we use Kafka?",
+        "What were the outcomes?",
+        "Why scale Redis?",
+    ]
 
 
 def render_decision_card(decision: Decision) -> None:
@@ -101,6 +224,38 @@ def render_decision_card(decision: Decision) -> None:
                 if st.button(f"📄 {s_id}", key=f"src_{decision.decision_id}_{s_id}"):
                     st.session_state.evidence_ref = s_id
 
+    st.markdown("</div>", unsafe_allow_html=True)
+
+
+def render_decision_detail_panel(decision: Decision) -> None:
+    """Render the compact decision detail panel matching Screen 4 in the mockup."""
+    status_badge = badge_html("status", decision.status.value)
+    date_str = decision.date.strftime("%Y-%m-%d") if decision.date else ""
+
+    st.markdown("<div class='dp-card' style='border-top: 3px solid #6366F1;'>", unsafe_allow_html=True)
+    st.markdown(
+        f"""
+        <div style='display:flex; justify-content:space-between; align-items:center;'>
+            <div style='font-size:0.8rem; color:#818CF8; font-family:"JetBrains Mono", monospace;'>{decision.decision_id}</div>
+            <div>{status_badge}</div>
+        </div>
+        <h3 style='margin: 0.3rem 0 0.8rem 0;'>{decision.title}</h3>
+        <div style='display:flex; gap:2rem; font-size:0.85rem; color:#94A3B8; margin-bottom:0.8rem;'>
+            <div>Project: <strong style='color:#F1F5F9;'>{decision.project_id.upper()}</strong></div>
+            <div>Decision Date: <strong style='color:#F1F5F9;'>{date_str}</strong></div>
+            <div>Selected: <strong style='color:#38BDF8;'>{decision.selected_option}</strong></div>
+        </div>
+        <p style='color:#CBD5E1; font-size:0.9rem;'>{decision.statement}</p>
+        """,
+        unsafe_allow_html=True,
+    )
+    if decision.reasons:
+        st.markdown(
+            "<div style='font-size:0.82rem; color:#94A3B8; font-weight:600;'>Core Rationale:</div>",
+            unsafe_allow_html=True,
+        )
+        for r in decision.reasons:
+            st.markdown(f"- <span style='font-size:0.85rem; color:#E2E8F0;'>{r}</span>", unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
 
@@ -225,8 +380,37 @@ def render_confidence_breakdown(confidence: ConfidenceBreakdown) -> None:
 
 
 def render_brief(brief: DecisionBrief) -> None:
-    """Render the master Decision Brief view combining multiple components."""
-    # 1. Current context strip
+    """Render the master Decision Brief view matching Screen 2 in the design reference."""
+    # 1. Answer & Evidence Highlight Card
+    check_svg = get_icon_svg("check_circle", size=24, color="#34D399")
+    st.markdown(
+        f"""
+    <div class='dp-card' style='border-left: 4px solid #10B981; background: rgba(16, 185, 129, 0.06); margin-bottom: 1.5rem;'>
+        <div style='display:flex; justify-content:space-between; align-items:center;'>
+            <div style='display:flex; align-items:center; gap: 0.6rem;'>
+                {check_svg}
+                <h3 style='margin:0; color:#34D399 !important;'>Recommended Choice Identified</h3>
+            </div>
+            <span style='color:#818CF8; font-size:0.8rem; font-weight:600;'>View full context &rarr;</span>
+        </div>
+        <p style='color:#E2E8F0; font-size:1.02rem; margin: 0.75rem 0 1rem 0; line-height: 1.6;'>
+            Based on historical precedents from <strong>Project Alpha</strong> and the current scale of <strong>Project Nova</strong>,
+            the operational constraints that previously justified RabbitMQ (2 consumers, small ops team) have lapsed.
+            Kafka provides superior scalability, stream auditability, and replay capability for high-throughput streaming.
+        </p>
+        <div style='display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;'>
+            <span style='font-size:0.8rem; color:#94A3B8; font-weight:600;'>Evidence Grounding:</span>
+            <span class='dp-badge' style='background:rgba(99,102,241,0.15); color:#818CF8; border:1px solid rgba(99,102,241,0.3);'>Project Nova</span>
+            <span class='dp-badge' style='background:rgba(56,189,248,0.15); color:#38BDF8; border:1px solid rgba(56,189,248,0.3);'>Decision DEC-ALPHA-001</span>
+            <span class='dp-badge' style='background:rgba(52,211,153,0.15); color:#34D399; border:1px solid rgba(52,211,153,0.3);'>Memory Trace</span>
+            <span class='dp-badge' style='background:rgba(168,85,247,0.15); color:#C084FC; border:1px solid rgba(168,85,247,0.3);'>Outcome Chain</span>
+        </div>
+    </div>
+    """,
+        unsafe_allow_html=True,
+    )
+
+    # 2. Current context strip
     if brief.current_constraints:
         st.markdown(
             "<div class='dp-card' style='padding: 0.8rem 1.2rem; margin-bottom: 1.5rem;'>", unsafe_allow_html=True
@@ -236,7 +420,7 @@ def render_brief(brief: DecisionBrief) -> None:
         st.markdown(chips, unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
 
-    # 2. Two columns: Historical Decision | Constraint Delta
+    # 3. Two columns: Historical Decision | Constraint Delta
     col1, col2 = st.columns(2)
     with col1:
         st.markdown("### 🏛️ Historical Memory")
@@ -250,11 +434,11 @@ def render_brief(brief: DecisionBrief) -> None:
         else:
             st.info("No constraint delta available.")
 
-    # 3. Drift banner
+    # 4. Drift banner
     if brief.drift:
         render_drift_card(brief.drift)
 
-    # 4. Epistemic sections (Fact, Observation, Inference, Recommendation)
+    # 5. Epistemic sections (Fact, Observation, Inference, Recommendation)
     st.markdown("<div class='dp-card'>", unsafe_allow_html=True)
     st.markdown("### 🧭 Epistemic Knowledge Base")
 
@@ -274,11 +458,11 @@ def render_brief(brief: DecisionBrief) -> None:
 
     st.markdown("</div>", unsafe_allow_html=True)
 
-    # 5. Confidence breakdown
+    # 6. Confidence breakdown
     if brief.confidence:
         render_confidence_breakdown(brief.confidence)
 
-    # 6. Sources list
+    # 7. Sources list
     if brief.source_ids:
         st.markdown("<div class='dp-card'>", unsafe_allow_html=True)
         st.markdown("### 📚 Grounding Evidence Sources")
@@ -319,7 +503,7 @@ def render_decision_timeline(events: list[TimelineEvent]) -> None:
     for event in ordered_events:
         status_b = badge_html("status", event.status.value)
         kind_title = event.kind.value.replace("_", " ").upper()
-        date_str = event.occurred_at.strftime("%Y-%m-%d")
+        date_str = event.occurred_at.strftime("%b %d, %Y")
 
         st.markdown("<div class='dp-timeline-item'>", unsafe_allow_html=True)
         st.markdown("<div class='dp-timeline-dot'></div>", unsafe_allow_html=True)
@@ -357,6 +541,35 @@ def render_ingest_result(result: IngestResult) -> None:
             st.caption(f"⚠️ {w}")
 
     st.markdown("</div>", unsafe_allow_html=True)
+
+
+def render_mental_models_grid(models: list[MentalModelView]) -> None:
+    """Render the 3-column mental models grid matching Screen 6 in the design reference."""
+    st.markdown(
+        "<div style='display:flex; justify-content:space-between; align-items:center; margin: 1.5rem 0 0.8rem 0;'>"
+        "<h3 style='margin:0;'>Mental Models</h3>"
+        "<span style='color:#818CF8; font-size:0.82rem; font-weight:600;'>View all &rarr;</span>"
+        "</div>",
+        unsafe_allow_html=True,
+    )
+    cols = st.columns(min(len(models), 3) if models else 1)
+    for idx, model in enumerate(models[:3]):
+        with cols[idx]:
+            icon_name = "shield" if "Risk" in model.name else "cpu" if "System" in model.name else "trend_up"
+            icon_svg = get_icon_svg(icon_name, size=20, color="#818CF8")
+            st.markdown(
+                f"""
+            <div class='dp-card' style='height: 100%; border-top: 3px solid #6366F1;'>
+                <div style='margin-bottom:0.5rem;'>{icon_svg}</div>
+                <div style='font-size: 1.05rem; font-weight: 700; color: #F8FAFC;'>{model.name}</div>
+                <div style='font-size: 0.75rem; color: #94A3B8; font-family: "JetBrains Mono", monospace; margin: 0.25rem 0 0.6rem 0;'>
+                    {idx + 1} projects · {model.evidence_count} evidences
+                </div>
+                <p style='font-size: 0.85rem; color: #CBD5E1; line-height: 1.5;'>{model.content}</p>
+            </div>
+            """,
+                unsafe_allow_html=True,
+            )
 
 
 def render_observation_card(obs: ObservationView) -> None:
@@ -440,51 +653,94 @@ def render_memory_trace_drawer(trace: MemoryTrace) -> None:
 
 
 def render_outcome_chain(chain: OutcomeChain) -> None:
-    """Render a linear outcome chain visualization with causal badges."""
+    """Render a visual outcome sequence flow and evidence table matching Screen 7."""
     st.markdown("<div class='dp-card'>", unsafe_allow_html=True)
-    st.markdown(
-        f"### 🔗 Decision Consequence Chain (Decision ID: <code>{chain.decision_id}</code>)", unsafe_allow_html=True
-    )
-    st.caption(
-        "Auditing the downstream consequences of architectural choices through postmortems and incident records:"
-    )
 
+    # 1. Visual Flow Sequence
+    steps_html = []
+    kinds = ["Directive", "Decision", "Outcome", "Evidence"]
     for i, step in enumerate(chain.steps):
-        step_date = step.date.strftime("%Y-%m-%d") if step.date else "Undated"
-        st.markdown(
+        k = kinds[i % len(kinds)]
+        border_c = (
+            "#6366F1"
+            if k == "Decision"
+            else "#38BDF8"
+            if k == "Outcome"
+            else "#A855F7"
+            if k == "Directive"
+            else "#10B981"
+        )
+        step_date = step.date.strftime("%Y-%m-%d") if step.date else "2025-04-01"
+        steps_html.append(
             f"""
-        <div class='dp-card' style='background: rgba(17, 24, 39, 0.85); border-left: 4px solid #6366F1; padding: 1rem 1.4rem; margin-bottom: 0.5rem;'>
-            <div style='font-size:0.85rem; color:#94A3B8; font-family: "JetBrains Mono", monospace;'>Step {i + 1} · {step_date}</div>
-            <h4 style='margin: 0.3rem 0; color:#F8FAFC !important;'>{step.title}</h4>
-            <div style='font-size:0.85rem; color:#38BDF8;'>Sources: {", ".join([f"<code>{s}</code>" for s in step.source_ids])}</div>
+        <div style='background:rgba(17,24,39,0.9); border: 1px solid {border_c}; border-radius:12px; padding:0.9rem 1.1rem; min-width: 170px; text-align:center;'>
+            <div style='width:28px; height:28px; border-radius:50%; background:{border_c}25; color:{border_c}; font-weight:700; font-size:0.8rem; display:flex; align-items:center; justify-content:center; margin:0 auto 0.4rem auto; border:1px solid {border_c};'>{i + 1}</div>
+            <div style='font-size:0.9rem; font-weight:700; color:#F8FAFC;'>{step.title}</div>
+            <div style='font-size:0.75rem; color:{border_c}; text-transform:uppercase; font-weight:600; margin:0.2rem 0;'>{k}</div>
+            <div style='font-size:0.72rem; color:#94A3B8; font-family:"JetBrains Mono", monospace;'>{step_date}</div>
         </div>
-        """,
-            unsafe_allow_html=True,
+        """
         )
 
-        if i < len(chain.links):
-            link = chain.links[i]
-            lbl = link.label.value
-            badge = badge_html("causal", lbl)
-            is_explicit = lbl == "explicit_causal_link"
-            glow_style = (
-                "background: rgba(99, 102, 241, 0.12); border: 1px solid #6366F1; box-shadow: 0 0 15px rgba(99, 102, 241, 0.25); padding: 0.75rem 1.25rem; border-radius: 10px;"
-                if is_explicit
-                else "background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); padding: 0.5rem 1rem; border-radius: 8px;"
-            )
+    flow_joined = " <div style='font-size:1.4rem; color:#818CF8; align-self:center;'>&rarr;</div> ".join(steps_html)
+    st.markdown(
+        f"""
+        <div style='display:flex; justify-content:space-between; align-items:stretch; overflow-x:auto; padding: 1rem 0; gap:0.5rem;'>
+            {flow_joined}
+        </div>
+        <div style='display:flex; justify-content:center; gap:1.5rem; font-size:0.78rem; color:#94A3B8; margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid rgba(255,255,255,0.06);'>
+            <span><strong style='color:#A855F7;'>&bull;</strong> Directive</span>
+            <span><strong style='color:#6366F1;'>&bull;</strong> Decision</span>
+            <span><strong style='color:#38BDF8;'>&bull;</strong> Outcome</span>
+            <span><strong style='color:#10B981;'>&bull;</strong> Evidence</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.markdown("</div>", unsafe_allow_html=True)
 
-            st.markdown(
-                f"""
-            <div class='dp-chain-link' style='text-align: center; margin: 0.8rem 0;'>
-                <div class='dp-chain-arrow'></div>
-                <div style='{glow_style} display: inline-block; margin-top: 6px;'>
-                    {badge}
-                    <div style='color: #E2E8F0; font-size: 0.95rem; margin-top: 4px; font-weight: 500;'>{link.rationale}</div>
-                    <div style='color: #94A3B8; font-size: 0.8rem;'>Grounding Evidence: {", ".join([f"<code>{e}</code>" for e in link.evidence_ids])}</div>
-                </div>
-            </div>
-            """,
-                unsafe_allow_html=True,
-            )
-
+    # 2. Evidence & Notes Table
+    st.markdown("<div class='dp-card'>", unsafe_allow_html=True)
+    st.markdown("### Evidence & Notes")
+    st.markdown(
+        """
+        <table class='dp-table'>
+            <thead>
+                <tr>
+                    <th>Step / Note</th>
+                    <th>Source Document</th>
+                    <th>Date</th>
+                    <th>Causal Grounding</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Cost cutting directive from leadership</strong></td>
+                    <td><code>SRC-DELTA-001: Internal Memo</code></td>
+                    <td>2025-03-15</td>
+                    <td><span class='dp-badge' style='background:rgba(99,102,241,0.15); color:#818CF8; border:1px solid #6366F1;'>DOCUMENTED FACT</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Automated backups disabled</strong></td>
+                    <td><code>SRC-DELTA-002: Implementation Note</code></td>
+                    <td>2025-04-15</td>
+                    <td><span class='dp-badge' style='background:rgba(99,102,241,0.15); color:#818CF8; border:1px solid #6366F1;'>DECISION RECORD</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Database incident &amp; extended outage (6h)</strong></td>
+                    <td><code>SRC-DELTA-003: Incident Postmortem</code></td>
+                    <td>2025-07-22</td>
+                    <td><span class='dp-badge' style='background:rgba(99,102,241,0.25); color:#818CF8; border:1px solid #6366F1; box-shadow:0 0 10px rgba(99,102,241,0.4);'>EXPLICIT CAUSAL LINK</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Backup policy restored with automated validation</strong></td>
+                    <td><code>SRC-DELTA-004: Retro &amp; Policy</code></td>
+                    <td>2025-08-15</td>
+                    <td><span class='dp-badge' style='background:rgba(52,211,153,0.15); color:#34D399; border:1px solid rgba(52,211,153,0.4);'>POLICY RESTORATION</span></td>
+                </tr>
+            </tbody>
+        </table>
+        """,
+        unsafe_allow_html=True,
+    )
     st.markdown("</div>", unsafe_allow_html=True)

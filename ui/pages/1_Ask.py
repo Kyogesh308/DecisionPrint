@@ -1,56 +1,94 @@
-"""Ask page — The core DecisionPrint intelligence interface."""
+"""Ask page — The core DecisionPrint intelligence interface matching Screen 2."""
 
 from __future__ import annotations
 
 import streamlit as st
 
 from ui.adapters import get_backend
-from ui.components._theme import inject_custom_css
+from ui.components import (
+    inject_custom_css,
+    render_brief,
+    render_sidebar_chrome,
+    render_top_bar,
+)
 from ui.components.dialogs import check_and_render_evidence_dialog, show_memory_trace_dialog
-from ui.components.renders import render_brief
+
+inject_custom_css()
 
 backend = get_backend()
 role = st.session_state.get("role") or "admin"
 
-inject_custom_css()
+render_top_bar(active_stage="ANALYZE")
+render_sidebar_chrome()
 check_and_render_evidence_dialog(backend, role)
 
-st.title("🔍 Ask DecisionPrint")
+# 1. Page Header
 st.markdown(
-    "<p style='color:#94A3B8; font-size:1.05rem;'>Query organizational memory to detect architectural drift, invalidate obsolete constraints, and ground technical choices in historical outcomes.</p>",
+    """
+    <div style='margin-bottom: 1.5rem;'>
+        <h1 style='margin-bottom: 0.25rem;'>Ask DecisionPrint</h1>
+        <p style='color:#94A3B8; font-size:1.02rem; margin:0;'>
+            Query your organizational memory to detect architectural drift, validate constraints, and ground technical choices in historical outcomes.
+        </p>
+    </div>
+    """,
     unsafe_allow_html=True,
 )
 
-# 1. Project Selector & Question Box
-c1, c2 = st.columns([1, 3])
-with c1:
-    try:
-        projects = backend.list_projects(role)
-        p_ids = [p.project_id for p in projects]
-    except Exception:  # noqa: BLE001
-        p_ids = ["nova", "alpha", "beta", "gamma", "delta"]
-    selected_project = st.selectbox("Current Project", p_ids, index=p_ids.index("nova") if "nova" in p_ids else 0)
+# 2. Query Composer Card
+st.markdown("<div class='dp-card'>", unsafe_allow_html=True)
+st.markdown(
+    "<div style='font-size:0.9rem; font-weight:600; color:#F8FAFC; margin-bottom:0.5rem;'>Ask a question</div>",
+    unsafe_allow_html=True,
+)
 
-with c2:
-    question = st.text_input(
-        "Ask a decision question",
-        value=st.session_state.get("ask_input", "Should Nova use Kafka for event streaming?"),
-        placeholder="e.g. Should Nova use Kafka? Why was GraphQL rejected?",
+try:
+    projects = backend.list_projects(role)
+    p_ids = [p.project_id for p in projects]
+except Exception:  # noqa: BLE001
+    p_ids = ["nova", "alpha", "beta", "gamma", "delta"]
+
+col_proj, col_input, col_btn = st.columns([1.2, 4, 1])
+with col_proj:
+    selected_project = st.selectbox(
+        "Project Context",
+        p_ids,
+        index=p_ids.index("nova") if "nova" in p_ids else 0,
+        label_visibility="collapsed",
     )
 
-col_ask, col_quick1, col_quick2, col_quick3 = st.columns([1.5, 1.5, 1.5, 1.5])
-do_ask = col_ask.button("🧠 Query Memory", type="primary")
-if col_quick1.button("Should Nova use Kafka?"):
+with col_input:
+    current_q = st.session_state.get("ask_input", "Should Nova use Kafka for event streaming?")
+    question = st.text_input(
+        "Ask a decision question",
+        value=current_q,
+        placeholder="Should Nova use Kafka for event streaming?",
+        label_visibility="collapsed",
+    )
+
+with col_btn:
+    do_ask = st.button("🔍 Search", type="primary", use_container_width=True)
+
+# Suggested Questions Row
+st.markdown(
+    "<div style='font-size:0.78rem; color:#94A3B8; font-weight:600; margin-top:0.8rem;'>Suggested questions:</div>",
+    unsafe_allow_html=True,
+)
+sq_cols = st.columns(4)
+if sq_cols[0].button("Why reject GraphQL?", key="sq_graphql"):
+    st.session_state.ask_input = "Why was GraphQL rejected for internal APIs?"
+    st.rerun()
+if sq_cols[1].button("Should we use Kafka?", key="sq_kafka"):
     st.session_state.ask_input = "Should Nova use Kafka for event streaming?"
     st.rerun()
-if col_quick2.button("Why reject GraphQL?"):
-    st.session_state.ask_input = "Why was GraphQL rejected?"
+if sq_cols[2].button("What were the outcomes?", key="sq_outcomes"):
+    st.session_state.ask_input = "What downstream outcomes occurred from backup removal?"
     st.rerun()
-if col_quick3.button("Why scale Redis?"):
-    st.session_state.ask_input = "Has Redis scaling been an issue?"
+if sq_cols[3].button("Why scale Redis?", key="sq_redis"):
+    st.session_state.ask_input = "Why did Project Gamma scale Redis to cluster?"
     st.rerun()
 
-st.markdown("---")
+st.markdown("</div>", unsafe_allow_html=True)
 
 # Execute query or retrieve cached brief
 brief = st.session_state.get("last_brief")
@@ -66,17 +104,22 @@ if do_ask or brief is None:
             brief = None
 
 if brief:
-    # Top action bar with Memory Trace inspection
+    # Action bar with Memory Trace inspection
     c_left, c_right = st.columns([3, 1])
     with c_left:
-        st.caption(f"Query ID: `{brief.query_id}` · Scope evaluated under role: **{role}**")
+        st.markdown(
+            f"<div style='font-size:0.82rem; color:#94A3B8; margin-bottom:0.5rem;'>"
+            f"Query ID: <code style='color:#818CF8;'>{brief.query_id}</code> &middot; Evaluated under role: <strong>{role}</strong>"
+            f"</div>",
+            unsafe_allow_html=True,
+        )
     with c_right:
-        if st.button("🧬 Inspect Memory Trace", key="btn_trace"):
+        if st.button("🧬 Inspect Memory Trace", key="btn_trace", use_container_width=True):
             try:
                 trace = backend.get_memory_trace(brief.query_id, role)
                 show_memory_trace_dialog(trace)
             except Exception as e:  # noqa: BLE001
                 st.error(f"Could not load memory trace: {e}")
 
-    # Render the master Decision Brief above the fold
+    # Render master Decision Brief
     render_brief(brief)

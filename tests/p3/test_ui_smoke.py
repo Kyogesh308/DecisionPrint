@@ -28,10 +28,11 @@ def test_app_landing_smoke() -> None:
         "ui/pages/4_Decision_Explorer.py",
         "ui/pages/5_Memory_Evolution.py",
         "ui/pages/6_Outcome_Chain.py",
+        "ui/pages/7_Settings.py",
     ],
 )
 def test_all_pages_smoke(rel_page_path: str) -> None:
-    """All 7 Streamlit pages must render without exceptions in fixture mode."""
+    """All 8 Streamlit pages must render without exceptions in fixture mode."""
     page_path = REPO_ROOT / rel_page_path
     at = AppTest.from_file(str(page_path), default_timeout=15)
     at.run()
@@ -48,10 +49,11 @@ def test_all_pages_smoke(rel_page_path: str) -> None:
         "ui/pages/4_Decision_Explorer.py",
         "ui/pages/5_Memory_Evolution.py",
         "ui/pages/6_Outcome_Chain.py",
+        "ui/pages/7_Settings.py",
     ],
 )
 def test_all_pages_with_initialized_session_state(rel_page_path: str) -> None:
-    """All 7 Streamlit pages must render cleanly when session state has default None values (G9 regression test)."""
+    """All 8 Streamlit pages must render cleanly when session state has default None values (G9 regression test)."""
     page_path = REPO_ROOT / rel_page_path
     at = AppTest.from_file(str(page_path), default_timeout=15)
     at.session_state["role"] = "admin"
