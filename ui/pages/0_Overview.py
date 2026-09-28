@@ -14,6 +14,7 @@ from ui.components import (
     inject_custom_css,
     render_decision_card,
     render_drift_card,
+    render_html,
     render_ingest_result,
     render_memory_overview,
     render_sidebar_chrome,
@@ -39,28 +40,25 @@ overview = run_guarded(lambda: backend.get_memory_overview(role))
 proj_count = overview.project_count if overview else 0
 
 # 1. Concise Workspace Heading
-st.markdown(
+render_html(
     f"""
     <div style='margin-bottom: 1.5rem;'>
         <h1 style='margin-bottom: 0.25rem;'>Architecture Decision Intelligence</h1>
-        <p style='color:var(--dp-text-secondary); font-size:1.02rem; margin:0;'>Memory learned from {proj_count} historical projects</p>
+        <p style='color:var(--muted); font-size:1.02rem; margin:0;'>Memory learned from {proj_count} historical projects</p>
     </div>
-    """,
-    unsafe_allow_html=True,
+    """
 )
 
 # 2. Four KPI Cards
 if overview:
     render_memory_overview(overview)
 
-st.markdown("<div style='height: 1.5rem;'></div>", unsafe_allow_html=True)
-
 # 3. Two-Column Dashboard Grid
 left_col, right_col = st.columns([3, 2])
 
 with left_col:
     # Search & Direct Retrieval
-    st.markdown("<div class='dp-card'>", unsafe_allow_html=True)
+    render_html("<div></div>")
     st.markdown("### Search Architectural Decisions")
     st.caption("Search across past ADRs, architecture docs, and meeting records:")
 
@@ -103,7 +101,6 @@ with left_col:
                 render_decision_card(dec)
         elif results is not None:
             st.info(f"No decisions found matching '{active_query}'.")
-    st.markdown("</div>", unsafe_allow_html=True)
 
     # Document Ingest Expander (Demo Step preserved)
     with st.expander("📥 Ingest New Project Document into Memory", expanded=False):
@@ -178,7 +175,6 @@ with right_col:
             st.info("Navigate to 'Ask DecisionPrint' to inspect the Kafka brief.")
 
     # Quick Actions Panel
-    st.markdown("<div class='dp-card' style='margin-top: 1rem;'>", unsafe_allow_html=True)
     st.markdown("#### Quick Intelligence Actions")
     st.caption("Common architectural audit workflows:")
     if st.button("🔍 Query Memory: 'Should Nova use Kafka?'", use_container_width=True):
@@ -198,4 +194,3 @@ with right_col:
             st.switch_page("pages/6_Outcome_Chain.py")
         except Exception:  # noqa: BLE001, S110
             pass
-    st.markdown("</div>", unsafe_allow_html=True)

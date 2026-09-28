@@ -10,6 +10,7 @@ from contracts import EpistemicType
 from ui.adapters import get_backend
 from ui.components import (
     inject_custom_css,
+    render_html,
     render_sidebar_chrome,
     render_top_bar,
 )
@@ -35,17 +36,15 @@ backend = get_backend()
 role = st.session_state.get("role") or "admin"
 project_id = st.session_state.get("project_id") or "nova"
 
-st.markdown("<h1 style='margin-bottom: 0.25rem;'>Ask your organization's memory</h1>", unsafe_allow_html=True)
-st.markdown(
-    "<p style='color:var(--dp-text-secondary); font-size:1.02rem; margin-bottom:1.5rem;'>Each question is answered from memory independently.</p>",
-    unsafe_allow_html=True,
+render_html("<h1 style='margin-bottom: 0.25rem;'>Ask your organization's memory</h1>")
+render_html(
+    "<p style='color:var(--dp-text-secondary); font-size:1.02rem; margin-bottom:1.5rem;'>Each question is answered from memory independently.</p>"
 )
 
 
 if not st.session_state.chat_turns:
-    st.markdown(
-        "<div style='margin-bottom:1rem; color:var(--dp-text-primary); font-weight:600;'>Suggested questions</div>",
-        unsafe_allow_html=True,
+    render_html(
+        "<div style='margin-bottom:1rem; color:var(--dp-text-primary); font-weight:600;'>Suggested questions</div>"
     )
     cols = st.columns(4)
     if cols[0].button("Should Nova use Kafka?", use_container_width=True):
@@ -97,9 +96,8 @@ for i, turn in enumerate(st.session_state.chat_turns):
                 else len(brief.drift.delta.items)
             )
 
-            st.markdown(
-                f"{c_badge} <span style='font-size:0.85rem; color:var(--dp-text-muted); margin-left:8px;'>{n_changed} of {n_total} premises changed</span>",
-                unsafe_allow_html=True,
+            render_html(
+                f"{c_badge} <span style='font-size:0.85rem; color:var(--dp-text-muted); margin-left:8px;'>{n_changed} of {n_total} premises changed</span>"
             )
 
         # Then vs Now
@@ -114,7 +112,7 @@ for i, turn in enumerate(st.session_state.chat_turns):
                         if item.is_reason_linked
                         else ""
                     )
-                    st.markdown(f"**{html.escape(item.key)}**{rl}", unsafe_allow_html=True)
+                    render_html(f"<strong>{html.escape(item.key)}</strong>{rl}")
                 with col2:
                     if item.old_value in ["true", "false"] and item.new_value in ["true", "false"]:
                         st.markdown(f"`{item.old_value}` → `{item.new_value}`")

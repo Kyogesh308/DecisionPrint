@@ -12,6 +12,7 @@ from ui.components import (
     badge_html,
     inject_custom_css,
     render_drift_card,
+    render_html,
     render_sidebar_chrome,
     render_top_bar,
 )
@@ -34,7 +35,7 @@ check_and_render_evidence_dialog(backend, role)
 # 1. Header with New Project CTA
 c_title, c_cta = st.columns([4, 1])
 with c_title:
-    st.markdown(
+    render_html(
         """
         <div style='margin-bottom: 1.25rem;'>
             <h1 style='margin-bottom: 0.25rem;'>Current Projects</h1>
@@ -42,8 +43,7 @@ with c_title:
                 Active projects and their decision context, constraints, and architectural drift status.
             </p>
         </div>
-        """,
-        unsafe_allow_html=True,
+        """
     )
 with c_cta:
     if st.button("➕ New Project", key="btn_new_project", use_container_width=True):
@@ -52,56 +52,49 @@ with c_cta:
 # 2. KPI Metrics Row (4 Cards)
 kp1, kp2, kp3, kp4 = st.columns(4)
 with kp1:
-    st.markdown(
+    render_html(
         """
     <div class='dp-kpi-card'>
         <div class='dp-kpi-label'>Total Projects</div>
         <div class='dp-kpi-value'>5</div>
         <div class='dp-kpi-trend-pos'>Monitored in memory</div>
     </div>
-    """,
-        unsafe_allow_html=True,
+    """
     )
 with kp2:
-    st.markdown(
+    render_html(
         """
     <div class='dp-kpi-card'>
         <div class='dp-kpi-label'>Active</div>
         <div class='dp-kpi-value' style='color:var(--dp-success);'>3</div>
         <div class='dp-kpi-trend-pos'>Under continuous recall</div>
     </div>
-    """,
-        unsafe_allow_html=True,
+    """
     )
 with kp3:
-    st.markdown(
+    render_html(
         """
     <div class='dp-kpi-card'>
         <div class='dp-kpi-label'>On Hold</div>
         <div class='dp-kpi-value' style='color:var(--dp-warning);'>1</div>
         <div class='dp-kpi-trend-neg'>Constraint evaluation pending</div>
     </div>
-    """,
-        unsafe_allow_html=True,
+    """
     )
 with kp4:
-    st.markdown(
+    render_html(
         """
     <div class='dp-kpi-card'>
         <div class='dp-kpi-label'>Completed</div>
         <div class='dp-kpi-value' style='color:var(--dp-primary);'>1</div>
         <div class='dp-kpi-trend-pos'>Archived with gold history</div>
     </div>
-    """,
-        unsafe_allow_html=True,
+    """
     )
 
-st.markdown("<div style='height: 1.5rem;'></div>", unsafe_allow_html=True)
+render_html("<div style='height: 1.5rem;'></div>")
 
 # 3. Project Overview Table (Screen 3 Reference Table)
-st.markdown("<div class='dp-card'>", unsafe_allow_html=True)
-st.markdown("### Active Project Directory")
-
 nova_status = badge_html("status", "active")
 nova_drift = badge_html("drift", "high")
 orion_status = badge_html("status", "active")
@@ -113,75 +106,76 @@ zenith_drift = badge_html("drift", "medium")
 atlas_status = badge_html("status", "completed")
 atlas_drift = badge_html("drift", "low")
 
-st.markdown(
+render_html(
     f"""
-    <table class='dp-table'>
-        <thead>
-            <tr>
-                <th>Project</th>
-                <th>Status</th>
-                <th>Constraints</th>
-                <th>Drift Risk</th>
-                <th>Last Evaluated</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>
-                    <div style='font-weight:700; color:var(--dp-text-primary);'>Project Nova</div>
-                    <div style='font-size:0.75rem; color:var(--dp-text-muted);'>Event Streaming Platform</div>
-                </td>
-                <td>{nova_status}</td>
-                <td><code style='color:var(--dp-primary);'>15</code></td>
-                <td>{nova_drift}</td>
-                <td style='color:var(--dp-text-muted); font-size:0.82rem;'>2h ago</td>
-            </tr>
-            <tr>
-                <td>
-                    <div style='font-weight:700; color:var(--dp-text-primary);'>Project Orion (Delta)</div>
-                    <div style='font-size:0.75rem; color:var(--dp-text-muted);'>Data Platform Migration</div>
-                </td>
-                <td>{orion_status}</td>
-                <td><code style='color:var(--dp-primary);'>12</code></td>
-                <td>{orion_drift}</td>
-                <td style='color:var(--dp-text-muted); font-size:0.82rem;'>5h ago</td>
-            </tr>
-            <tr>
-                <td>
-                    <div style='font-weight:700; color:var(--dp-text-primary);'>Project Helios (Beta)</div>
-                    <div style='font-size:0.75rem; color:var(--dp-text-muted);'>ML Platform Gateway</div>
-                </td>
-                <td>{helios_status}</td>
-                <td><code style='color:var(--dp-primary);'>8</code></td>
-                <td>{helios_drift}</td>
-                <td style='color:var(--dp-text-muted); font-size:0.82rem;'>1d ago</td>
-            </tr>
-            <tr>
-                <td>
-                    <div style='font-weight:700; color:var(--dp-text-primary);'>Project Zenith (Gamma)</div>
-                    <div style='font-size:0.75rem; color:var(--dp-text-muted);'>Analytics Platform</div>
-                </td>
-                <td>{zenith_status}</td>
-                <td><code style='color:var(--dp-primary);'>14</code></td>
-                <td>{zenith_drift}</td>
-                <td style='color:var(--dp-text-muted); font-size:0.82rem;'>1d ago</td>
-            </tr>
-            <tr>
-                <td>
-                    <div style='font-weight:700; color:var(--dp-text-primary);'>Project Atlas (Alpha)</div>
-                    <div style='font-size:0.75rem; color:var(--dp-text-muted);'>Infrastructure Upgrade Baseline</div>
-                </td>
-                <td>{atlas_status}</td>
-                <td><code style='color:var(--dp-primary);'>6</code></td>
-                <td>{atlas_drift}</td>
-                <td style='color:var(--dp-text-muted); font-size:0.82rem;'>3d ago</td>
-            </tr>
-        </tbody>
-    </table>
-    """,
-    unsafe_allow_html=True,
+    <div class='dp-card'>
+        <h3>Active Project Directory</h3>
+        <table class='dp-table'>
+            <thead>
+                <tr>
+                    <th>Project</th>
+                    <th>Status</th>
+                    <th>Constraints</th>
+                    <th>Drift Risk</th>
+                    <th>Last Evaluated</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <div style='font-weight:700; color:var(--dp-text-primary);'>Project Nova</div>
+                        <div style='font-size:0.75rem; color:var(--dp-text-muted);'>Event Streaming Platform</div>
+                    </td>
+                    <td>{nova_status}</td>
+                    <td><code style='color:var(--dp-primary);'>15</code></td>
+                    <td>{nova_drift}</td>
+                    <td style='color:var(--dp-text-muted); font-size:0.82rem;'>2h ago</td>
+                </tr>
+                <tr>
+                    <td>
+                        <div style='font-weight:700; color:var(--dp-text-primary);'>Project Orion (Delta)</div>
+                        <div style='font-size:0.75rem; color:var(--dp-text-muted);'>Data Platform Migration</div>
+                    </td>
+                    <td>{orion_status}</td>
+                    <td><code style='color:var(--dp-primary);'>12</code></td>
+                    <td>{orion_drift}</td>
+                    <td style='color:var(--dp-text-muted); font-size:0.82rem;'>5h ago</td>
+                </tr>
+                <tr>
+                    <td>
+                        <div style='font-weight:700; color:var(--dp-text-primary);'>Project Helios (Beta)</div>
+                        <div style='font-size:0.75rem; color:var(--dp-text-muted);'>ML Platform Gateway</div>
+                    </td>
+                    <td>{helios_status}</td>
+                    <td><code style='color:var(--dp-primary);'>8</code></td>
+                    <td>{helios_drift}</td>
+                    <td style='color:var(--dp-text-muted); font-size:0.82rem;'>1d ago</td>
+                </tr>
+                <tr>
+                    <td>
+                        <div style='font-weight:700; color:var(--dp-text-primary);'>Project Zenith (Gamma)</div>
+                        <div style='font-size:0.75rem; color:var(--dp-text-muted);'>Analytics Platform</div>
+                    </td>
+                    <td>{zenith_status}</td>
+                    <td><code style='color:var(--dp-primary);'>14</code></td>
+                    <td>{zenith_drift}</td>
+                    <td style='color:var(--dp-text-muted); font-size:0.82rem;'>1d ago</td>
+                </tr>
+                <tr>
+                    <td>
+                        <div style='font-weight:700; color:var(--dp-text-primary);'>Project Atlas (Alpha)</div>
+                        <div style='font-size:0.75rem; color:var(--dp-text-muted);'>Infrastructure Upgrade Baseline</div>
+                    </td>
+                    <td>{atlas_status}</td>
+                    <td><code style='color:var(--dp-primary);'>6</code></td>
+                    <td>{atlas_drift}</td>
+                    <td style='color:var(--dp-text-muted); font-size:0.82rem;'>3d ago</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    """
 )
-st.markdown("</div>", unsafe_allow_html=True)
 
 # 4. Project Drilldown & Real Backend Integration
 st.markdown("### Inspect Project Context Constraints")
@@ -218,19 +212,26 @@ else:
 # Context Constraints Table & Live Edit Form
 c_const, c_edit = st.columns([3, 2])
 with c_const:
-    st.markdown("<div class='dp-card'>", unsafe_allow_html=True)
-    st.markdown(f"**Operational Constraints for {context.project_name}:**")
-
     html_chips = " ".join([_chip(f"{k}: {v}") for k, v in context.constraints.items()])
-    if html_chips:
-        st.markdown(
-            f"<div style='display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px;'>{html_chips}</div>",
-            unsafe_allow_html=True,
-        )
-
-    if context.updated_at:
-        st.caption(f"Last updated: {context.updated_at.strftime('%Y-%m-%d %H:%M')}")
-    st.markdown("</div>", unsafe_allow_html=True)
+    chips_block = (
+        f"<div style='display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;'>{html_chips}</div>"
+        if html_chips
+        else ""
+    )
+    updated_str = (
+        f"<div style='font-size:0.8rem; color:var(--muted); margin-top:8px;'>Last updated: {context.updated_at.strftime('%Y-%m-%d %H:%M')}</div>"
+        if context.updated_at
+        else ""
+    )
+    render_html(
+        f"""
+        <div class='dp-card'>
+            <strong>Operational Constraints for {context.project_name}:</strong>
+            {chips_block}
+            {updated_str}
+        </div>
+        """
+    )
 
 with c_edit, st.expander("✏️ Update / Add Constraint", expanded=False):
     key_name = st.text_input("Constraint Key", placeholder="e.g. consumer_count, ops_capacity")

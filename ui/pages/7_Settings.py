@@ -9,6 +9,7 @@ import streamlit as st
 from ui.adapters import get_backend
 from ui.components import (
     inject_custom_css,
+    render_html,
     render_sidebar_chrome,
     render_top_bar,
 )
@@ -28,7 +29,7 @@ role = st.session_state.get("role") or "admin"
 check_and_render_evidence_dialog(backend, role)
 
 # 1. Header
-st.markdown(
+render_html(
     """
     <div style='margin-bottom: 1.25rem;'>
         <h1 style='margin-bottom: 0.25rem;'>Settings</h1>
@@ -36,8 +37,7 @@ st.markdown(
             Configure your enterprise workspace, role permissions, and backend integration preferences.
         </p>
     </div>
-    """,
-    unsafe_allow_html=True,
+    """
 )
 
 # 2. Four Settings Tabs matching Screen 8
@@ -46,7 +46,6 @@ tab_general, tab_role, tab_backend, tab_appearance = st.tabs(
 )
 
 with tab_general:
-    st.markdown("<div class='dp-card'>", unsafe_allow_html=True)
     st.markdown("### General Workspace Settings")
     st.caption("Manage enterprise workspace identifiers and localization defaults:")
 
@@ -64,10 +63,8 @@ with tab_general:
 
     if st.button("Save General Preferences", type="primary"):
         st.success("General preferences updated successfully.")
-    st.markdown("</div>", unsafe_allow_html=True)
 
 with tab_role:
-    st.markdown("<div class='dp-card'>", unsafe_allow_html=True)
     st.markdown("### Role & Access Control (RBAC)")
     st.caption("Manage active session authorization and inspect permission boundaries:")
 
@@ -90,14 +87,13 @@ with tab_role:
         "project_lead": "Access to active project constraints, briefs, and team architectural evolution.",
         "engineer": "Access to standard engineering decisions. Confidential records (e.g. Project Delta) require elevated permissions.",
     }
-    st.markdown(
-        f"<div style='color:var(--dp-primary); font-size:0.9rem; margin-top:0.4rem; font-weight:500;'>{role_descriptions.get(role, '')}</div>",
-        unsafe_allow_html=True,
+    render_html(
+        f"<div style='color:var(--dp-primary); font-size:0.9rem; margin-top:0.4rem; font-weight:500;'>{role_descriptions.get(role, '')}</div>"
     )
 
-    st.markdown("<div style='height: 1rem;'></div>", unsafe_allow_html=True)
+    render_html("<div style='height: 1rem;'></div>")
     st.markdown("#### RBAC Permission Scope Matrix")
-    st.markdown(
+    render_html(
         """
         <table class='dp-table'>
             <thead>
@@ -140,13 +136,10 @@ with tab_role:
                 </tr>
             </tbody>
         </table>
-        """,
-        unsafe_allow_html=True,
+        """
     )
-    st.markdown("</div>", unsafe_allow_html=True)
 
 with tab_backend:
-    st.markdown("<div class='dp-card'>", unsafe_allow_html=True)
     st.markdown("### Backend & Infrastructure Services")
     # ponytail: hardcoded for demo, wire to health endpoint later
     st.caption("Active connection health and protocol adapters:")
@@ -155,7 +148,7 @@ with tab_backend:
 
     c_b1, c_b2 = st.columns(2)
     with c_b1:
-        st.markdown(
+        render_html(
             """
             <div style='padding:0.75rem 0;'>
                 <div style='font-size:0.85rem; color:var(--dp-text-muted);'>Database</div>
@@ -164,10 +157,9 @@ with tab_backend:
                     <span class='dp-badge' style='background:rgba(34,197,94,0.15); color:var(--dp-success); border:1px solid rgba(74,222,128,0.4);'>CONNECTED</span>
                 </div>
             </div>
-            """,
-            unsafe_allow_html=True,
+            """
         )
-        st.markdown(
+        render_html(
             """
             <div style='padding:0.75rem 0;'>
                 <div style='font-size:0.85rem; color:var(--dp-text-muted);'>LLM Reasoning & Synthesis</div>
@@ -176,12 +168,11 @@ with tab_backend:
                     <span class='dp-badge' style='background:rgba(34,197,94,0.15); color:var(--dp-success); border:1px solid rgba(74,222,128,0.4);'>CONNECTED</span>
                 </div>
             </div>
-            """,
-            unsafe_allow_html=True,
+            """
         )
 
     with c_b2:
-        st.markdown(
+        render_html(
             f"""
             <div style='padding:0.75rem 0;'>
                 <div style='font-size:0.85rem; color:var(--dp-text-muted);'>Active Adapter Protocol</div>
@@ -190,10 +181,9 @@ with tab_backend:
                     <span class='dp-badge' style='background:rgba(99,102,241,0.15); color:var(--dp-primary); border:1px solid var(--dp-primary);'>OPERATIONAL</span>
                 </div>
             </div>
-            """,
-            unsafe_allow_html=True,
+            """
         )
-        st.markdown(
+        render_html(
             """
             <div style='padding:0.75rem 0;'>
                 <div style='font-size:0.85rem; color:var(--dp-text-muted);'>Vector Memory Index</div>
@@ -202,13 +192,10 @@ with tab_backend:
                     <span class='dp-badge' style='background:rgba(34,197,94,0.15); color:var(--dp-success); border:1px solid rgba(74,222,128,0.4);'>SYNCHRONIZED</span>
                 </div>
             </div>
-            """,
-            unsafe_allow_html=True,
+            """
         )
-    st.markdown("</div>", unsafe_allow_html=True)
 
 with tab_appearance:
-    st.markdown("<div class='dp-card'>", unsafe_allow_html=True)
     st.markdown("### Interface Theme & Mode")
     st.caption("Select your preferred visual appearance across all DecisionPrint dashboards:")
 
@@ -232,11 +219,11 @@ with tab_appearance:
         set_theme(theme_choice)
         st.rerun()
 
-    st.markdown("<div style='height: 1rem;'></div>", unsafe_allow_html=True)
+    render_html("<div style='height: 1rem;'></div>")
     st.markdown("#### Enterprise Design Tokens")
     st.caption("Active tokens configured for the enterprise design system:")
 
-    st.markdown(
+    render_html(
         """
         <div style='display:flex; gap:1rem; flex-wrap:wrap; margin: 1rem 0;'>
             <div style='display:flex; align-items:center; gap:0.5rem;'>
@@ -260,7 +247,5 @@ with tab_appearance:
                 <span style='font-size:0.8rem; font-family:"JetBrains Mono", monospace;'>Critical (var(--dp-danger))</span>
             </div>
         </div>
-        """,
-        unsafe_allow_html=True,
+        """
     )
-    st.markdown("</div>", unsafe_allow_html=True)

@@ -7,6 +7,7 @@ import streamlit as st
 from ui.adapters import get_backend
 from ui.components import (
     inject_custom_css,
+    render_html,
     render_mental_models_grid,
     render_observation_card,
     render_sidebar_chrome,
@@ -27,7 +28,7 @@ role = st.session_state.get("role") or "admin"
 check_and_render_evidence_dialog(backend, role)
 
 # 1. Header
-st.markdown(
+render_html(
     """
     <div style='margin-bottom: 1.25rem;'>
         <h1 style='margin-bottom: 0.25rem;'>Memory Evolution</h1>
@@ -35,8 +36,7 @@ st.markdown(
             How your organization's architecture decisions, assumptions, and context evolve over time.
         </p>
     </div>
-    """,
-    unsafe_allow_html=True,
+    """
 )
 
 # 2. KPI Metrics Row (3 Cards matching Screen 6)
@@ -44,42 +44,39 @@ try:
     overview = run_guarded(backend.get_memory_overview, role)
     k1, k2, k3 = st.columns(3)
     with k1:
-        st.markdown(
+        render_html(
             f"""
         <div class='dp-kpi-card'>
             <div class='dp-kpi-label'>Total Observations</div>
             <div class='dp-kpi-value'>{overview.total_observations}</div>
             <div class='dp-kpi-trend-pos'>+4 this month</div>
         </div>
-        """,
-            unsafe_allow_html=True,
+        """
         )
     with k2:
-        st.markdown(
+        render_html(
             f"""
         <div class='dp-kpi-card'>
             <div class='dp-kpi-label'>Mental Models</div>
             <div class='dp-kpi-value' style='color:var(--dp-primary);'>{overview.total_mental_models}</div>
             <div class='dp-kpi-trend-pos'>+1 this month</div>
         </div>
-        """,
-            unsafe_allow_html=True,
+        """
         )
     with k3:
-        st.markdown(
+        render_html(
             f"""
         <div class='dp-kpi-card'>
             <div class='dp-kpi-label'>Total Facts</div>
             <div class='dp-kpi-value' style='color:var(--dp-primary);'>{overview.total_facts}</div>
             <div class='dp-kpi-trend-pos'>+12 this month</div>
         </div>
-        """,
-            unsafe_allow_html=True,
+        """
         )
 except Exception as e:  # noqa: BLE001
     st.error(f"Failed to load metrics: {e}")
 
-st.markdown("<div style='height: 1.25rem;'></div>", unsafe_allow_html=True)
+render_html("<div style='height: 1.25rem;'></div>")
 
 # 3. Higher-Order Mental Models Grid matching Screen 6
 try:
@@ -88,7 +85,7 @@ try:
 except Exception as e:  # noqa: BLE001
     st.error(f"Failed to fetch mental models: {e}")
 
-st.markdown("<div style='height: 1.25rem;'></div>", unsafe_allow_html=True)
+render_html("<div style='height: 1.25rem;'></div>")
 
 # 4. Synthesized Observations with Topic Filter
 st.markdown("### 🔭 Synthesized Observations & Evolutionary Trajectories")

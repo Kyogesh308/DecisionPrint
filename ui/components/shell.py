@@ -6,6 +6,7 @@ import os
 
 import streamlit as st
 
+from ui.components._theme import render_html
 from ui.components.icons import get_icon_svg
 
 
@@ -44,7 +45,7 @@ def render_top_bar(
         col_brand, col_search, col_bread, col_actions = st.columns([3.2, 3.4, 2.2, 1.2], vertical_alignment="center")
 
         with col_brand:
-            st.markdown(
+            render_html(
                 f"""
                 <div class='dp-topbar-brand'>
                     {logo_icon}
@@ -53,8 +54,7 @@ def render_top_bar(
                         <span class='dp-topbar-tagline'>Memory for Decisions</span>
                     </div>
                 </div>
-                """,
-                unsafe_allow_html=True,
+                """
             )
 
         with col_search:
@@ -69,13 +69,12 @@ def render_top_bar(
                 st.session_state.global_search = search_query
 
         with col_bread:
-            st.markdown(
+            render_html(
                 f"""
                 <div class='dp-breadcrumbs-wrapper'>
                     {breadcrumbs_html}
                 </div>
-                """,
-                unsafe_allow_html=True,
+                """
             )
 
         with col_actions:
@@ -90,13 +89,12 @@ def render_top_bar(
                     set_theme(next_theme)
                     st.rerun()
             with act_col2:
-                st.markdown(
+                render_html(
                     """
                     <div style='display:flex; justify-content:center; align-items:center; height:100%;'>
                         <div class='dp-user-avatar' title='John Doe (Product Manager)'>JD</div>
                     </div>
-                    """,
-                    unsafe_allow_html=True,
+                    """
                 )
 
 
@@ -106,7 +104,7 @@ def render_sidebar_chrome() -> None:
         return
     logo_icon = get_icon_svg("logo_bubble", size=26, color="var(--dp-primary, #2563EB)")
 
-    st.sidebar.markdown(
+    render_html(
         f"""
     <div class='dp-sidebar-header'>
         <div class='dp-sidebar-logo-group'>
@@ -118,7 +116,7 @@ def render_sidebar_chrome() -> None:
         </div>
     </div>
     """,
-        unsafe_allow_html=True,
+        target=st.sidebar,
     )
 
     # Role selector
@@ -126,7 +124,7 @@ def render_sidebar_chrome() -> None:
     roles = ["engineer", "project_lead", "executive", "admin"]
     default_role_idx = roles.index(current_role) if current_role in roles else 3
 
-    st.sidebar.markdown("<div class='dp-sidebar-divider'></div>", unsafe_allow_html=True)
+    render_html("<div class='dp-sidebar-divider'></div>", target=st.sidebar)
     selected_role = st.sidebar.selectbox(
         "Active Role",
         roles,
@@ -164,7 +162,7 @@ def render_sidebar_chrome() -> None:
     backend_status = "Connected"
     shield_icon = get_icon_svg("shield", size=13, color="var(--dp-success, #16A34A)")
 
-    st.sidebar.markdown(
+    render_html(
         f"""
     <div class='dp-sidebar-status-card'>
         <div class='dp-sidebar-status-pill'>
@@ -174,13 +172,13 @@ def render_sidebar_chrome() -> None:
         <div class='dp-sidebar-status-detail'>{shield_icon} <span>Database & Memory {backend_status}</span></div>
     </div>
     """,
-        unsafe_allow_html=True,
+        target=st.sidebar,
     )
 
-    st.sidebar.markdown("<div class='dp-sidebar-spacer'></div>", unsafe_allow_html=True)
+    render_html("<div class='dp-sidebar-spacer'></div>", target=st.sidebar)
 
     # User Profile at bottom
-    st.sidebar.markdown(
+    render_html(
         """
     <div class='dp-sidebar-user-card'>
         <div class='dp-user-avatar-lg'>JD</div>
@@ -191,7 +189,7 @@ def render_sidebar_chrome() -> None:
     </div>
     <div class='dp-sidebar-version'>v3.2.0-enterprise · Austin, TX</div>
     """,
-        unsafe_allow_html=True,
+        target=st.sidebar,
     )
 
 
@@ -299,7 +297,7 @@ def render_nav_context_bar(backend: object = None) -> None:
                 st.rerun()
 
         with cols[2]:
-            st.markdown(
+            render_html(
                 f"""
                 <div style='display:flex; align-items:center; height:100%;'>
                     <span class='dp-badge' style='background:var(--dp-surface-card); color:var(--dp-text-primary);
@@ -308,21 +306,19 @@ def render_nav_context_bar(backend: object = None) -> None:
                         ⚡ {current_backend}
                     </span>
                 </div>
-                """,
-                unsafe_allow_html=True,
+                """
             )
 
         with cols[3]:
-            st.markdown(
+            render_html(
                 f"""
                 <div style='display:flex; align-items:center; justify-content:flex-end; height:100%;'>
-                    <span style='font-size:0.78rem; font-weight:600; color:var(--dp-text-muted);
-                          font-family:"JetBrains Mono", monospace; white-space:nowrap;'>
+                    <span style='font-size:12px; font-weight:500; color:var(--muted);
+                          font-family:"Poppins", sans-serif; white-space:nowrap;'>
                         Updated: {last_updated_str}
                     </span>
                 </div>
-                """,
-                unsafe_allow_html=True,
+                """
             )
 
         with cols[4]:
@@ -346,4 +342,4 @@ def render_nav_context_bar(backend: object = None) -> None:
                     set_theme(next_t)
                     st.rerun()
 
-    st.markdown("<div style='height: 0.5rem;'></div>", unsafe_allow_html=True)
+    render_html("<div style='height: 0.5rem;'></div>")

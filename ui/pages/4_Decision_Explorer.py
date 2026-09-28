@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import html
+
 import streamlit as st
 
 from contracts import DecisionFilter, DecisionStatus
@@ -11,6 +13,7 @@ from ui.components import (
     inject_custom_css,
     render_confidence_breakdown,
     render_decision_card,
+    render_html,
     render_sidebar_chrome,
     render_top_bar,
 )
@@ -29,16 +32,15 @@ role = st.session_state.get("role") or "admin"
 check_and_render_evidence_dialog(backend, role)
 
 # 1. Header
-st.markdown(
+render_html(
     """
     <div style='margin-bottom: 1.25rem;'>
         <h1 style='margin-bottom: 0.25rem;'>Decision Explorer</h1>
-        <p style='color:var(--dp-text-secondary); font-size:1.02rem; margin:0;'>
+        <p style='color:var(--muted); font-size:1.02rem; margin:0;'>
             Search and filter architectural decisions, historical context, and verification status.
         </p>
     </div>
-    """,
-    unsafe_allow_html=True,
+    """
 )
 
 tab_decisions, tab_review = st.tabs(["📚 All Decisions Repository", "⚠️ Low-Confidence Review Queue (G2)"])
@@ -55,7 +57,6 @@ with tab_decisions:
     with f3:
         status_filter = st.selectbox("Status", ["All Statuses", "active", "superseded", "reconsidered"], index=0)
     with f4:
-        st.markdown("<div style='height: 1.7rem;'></div>", unsafe_allow_html=True)
         if st.button("Reset", use_container_width=True):
             st.rerun()
 
@@ -84,48 +85,47 @@ with tab_decisions:
     try:
         decisions = run_guarded(backend.search_decisions, d_filter, role)
 
-        # Structured Table View matching Screen 5
-        st.markdown("<div class='dp-card'>", unsafe_allow_html=True)
-        st.markdown(f"**Indexed Decision Records ({len(decisions)})**")
-
-        rows_html = []
+        # Build entire card + table as ONE compact string
+        rows_parts = []
         for dec in decisions:
-            tech_chips = " ".join([f"<code>{t}</code>" for t in dec.technologies]) or "<code>general</code>"
+            tech_chips = " ".join([f"<code>{html.escape(t)}</code>" for t in dec.technologies]) or "<code>general</code>"
             st_badge = badge_html("status", dec.status.value)
             date_s = dec.date.strftime("%Y-%m-%d") if dec.date else "2026-05-12"
-            rows_html.append(
+            rows_parts.append(
                 f"""
                 <tr>
-                    <td><strong>{dec.title}</strong><div style='font-size:0.75rem; color:var(--dp-primary);'>{dec.decision_id}</div></td>
-                    <td><strong style='color:var(--dp-text-primary);'>{dec.project_id.upper()}</strong></td>
+                    <td><strong>{html.escape(dec.title)}</strong><div class='dp-id-text'>{html.escape(dec.decision_id)}</div></td>
+                    <td><strong>{html.escape(dec.project_id.upper())}</strong></td>
                     <td>{tech_chips}</td>
-                    <td style='font-family:"JetBrains Mono", monospace; font-size:0.82rem;'>{date_s}</td>
+                    <td><span class='dp-id-text'>{date_s}</span></td>
                     <td>{st_badge}</td>
                 </tr>
                 """
             )
 
-        table_body = "".join(rows_html)
-        st.markdown(
-            f"""
-            <table class='dp-table'>
-                <thead>
-                    <tr>
-                        <th>Decision</th>
-                        <th>Project</th>
-                        <th>Tech</th>
-                        <th>Date</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {table_body}
-                </tbody>
-            </table>
-            """,
-            unsafe_allow_html=True,
-        )
-        st.markdown("</div>", unsafe_allow_html=True)
+        rows_html = "".join(rows_parts)
+        card_table_fragment = f"""
+        <div class='dp-card'>
+            <h3>Indexed Decision Records ({len(decisions)})</h3>
+            <div class='dp-table-container'>
+                <table class='dp-table'>
+                    <thead>
+                        <tr>
+                            <th>Decision</th>
+                            <th>Project</th>
+                            <th>Tech</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {rows_html}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        """
+        render_html(card_table_fragment)
 
         # Detailed cards expandable list
         st.markdown("### Decision Inspection Cards")
@@ -145,10 +145,13 @@ with tab_review:
         review_items = run_guarded(backend.list_review_queue, role)
         if review_items:
             for item in review_items:
-                st.markdown("<div class='dp-card'>", unsafe_allow_html=True)
-                st.markdown(f"#### <code>{item.decision_id}</code>: {item.title}")
-                st.markdown(
-                    f"**Flagged Reason:** <span style='color:#fbbf24;'>{item.reason}</span>", unsafe_allow_html=True
+                render_html(
+                    f"""
+                    <div class='dp-card'>
+                        <h4><code>{html.escape(item.decision_id)}</code>: {html.escape(item.title)}</h4>
+                        <p><strong>Flagged Reason:</strong> <span style='color:var(--yellow);'>{html.escape(item.reason)}</span></p>
+                    </div>
+                    """
                 )
 
                 if item.confidence:
@@ -163,7 +166,6 @@ with tab_review:
                     # ponytail: hardcoded for demo, wire to reject endpoint later
                     if st.button("❌ Reject Extraction", key=f"rej_{item.decision_id}"):
                         st.info(f"Decision {item.decision_id} queued for manual correction.")
-                st.markdown("</div>", unsafe_allow_html=True)
         else:
             st.success("✅ The review queue is clear! All extractions meet high confidence thresholds.")
     except Exception as e:  # noqa: BLE001

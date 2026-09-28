@@ -11,6 +11,7 @@ from ui.components import (
     render_decision_card,
     render_decision_detail_panel,
     render_decision_timeline,
+    render_html,
     render_sidebar_chrome,
     render_top_bar,
 )
@@ -32,7 +33,7 @@ check_and_render_evidence_dialog(backend, role)
 # 1. Header with View Toggle
 c_head, c_toggle = st.columns([4, 1])
 with c_head:
-    st.markdown(
+    render_html(
         """
         <div style='margin-bottom: 1.25rem;'>
             <h1 style='margin-bottom: 0.25rem;'>Decision Timeline</h1>
@@ -40,8 +41,7 @@ with c_head:
                 Chronological view of architectural decisions, lifecycle milestones, and key evolution events.
             </p>
         </div>
-        """,
-        unsafe_allow_html=True,
+        """
     )
 with c_toggle:
     view_mode = st.radio("View", ["Timeline", "List"], horizontal=True, label_visibility="collapsed")
@@ -66,7 +66,7 @@ if preselected:
 selected_option = st.selectbox("Select Decision Lifecycle to Audit", dec_options, index=default_idx)
 selected_did = id_map.get(selected_option, "DEC-ALPHA-001")
 
-st.markdown("<div style='height: 1rem;'></div>", unsafe_allow_html=True)
+render_html("<div style='height: 1rem;'></div>")
 
 # 3. Decision Timeline & Detail Panel
 decision = run_guarded(lambda: backend.get_decision(selected_did, role))
@@ -84,7 +84,7 @@ if decision and events is not None:
     else:
         st.markdown("### Decision Milestones List")
         for ev in events:
-            st.markdown(
+            render_html(
                 f"""
             <div class='dp-card' style='padding:0.9rem 1.2rem; margin-bottom:0.6rem; border-left: 3px solid var(--dp-primary);'>
                 <div style='display:flex; justify-content:space-between; align-items:center;'>
@@ -93,8 +93,7 @@ if decision and events is not None:
                 </div>
                 <div style='font-size:0.85rem; color:var(--dp-text-secondary); margin-top:0.3rem;'>{ev.summary}</div>
             </div>
-            """,
-                unsafe_allow_html=True,
+            """
             )
 
     # Bottom Decision Detail Panel matching Mockup Screen 4

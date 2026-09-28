@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import re
 from string import Template
-from typing import Literal
+from textwrap import dedent
+from typing import Any, Literal
 
 import streamlit as st
 
@@ -15,6 +16,7 @@ _SHARED = {
     "blue": "#5B8DEF",
     "yellow": "#FFC43D",
     "teal": "#52C4C0",
+    "orange": "#FF9F6B",
     "ink": "#111111",  # text on pastel tiles, in BOTH modes
     "on_coral": "#111111",  # text on coral, in BOTH modes (contrast ~6.5:1)
 }
@@ -56,10 +58,10 @@ EPISTEMIC_COLORS = {
 }
 
 DRIFT_COLORS = {
-    "none": {"label": "NO DRIFT", "bg": "var(--teal)", "text": "var(--ink)", "border": "var(--edge)"},
-    "low": {"label": "LOW DRIFT", "bg": "var(--yellow)", "text": "var(--ink)", "border": "var(--edge)"},
-    "medium": {"label": "MEDIUM DRIFT", "bg": "var(--coral)", "text": "var(--on_coral)", "border": "var(--edge)"},
-    "high": {"label": "HIGH DRIFT", "bg": "var(--coral)", "text": "var(--on_coral)", "border": "var(--edge)"},
+    "none": {"label": "NONE", "bg": "var(--teal)", "text": "var(--ink)", "border": "var(--edge)"},
+    "low": {"label": "LOW", "bg": "var(--yellow)", "text": "var(--ink)", "border": "var(--edge)"},
+    "medium": {"label": "MEDIUM", "bg": "var(--orange)", "text": "var(--ink)", "border": "var(--edge)"},
+    "high": {"label": "HIGH", "bg": "var(--coral)", "text": "var(--ink)", "border": "var(--edge)"},
 }
 
 COMPARISON_COLORS = {
@@ -142,16 +144,17 @@ _CSS = Template("""
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 :root{color-scheme:$mode;--bg:$bg;--surface:$surface;--surface2:$surface2;--text:$text;
 --muted:$muted;--line:$line;--edge:$edge;--coral:$coral;--blue:$blue;--yellow:$yellow;
---teal:$teal;--ink:$ink;--on-coral:$on_coral;--dp-bg-app:$bg;--dp-bg-main:$bg;
---dp-surface-page:$bg;--dp-surface-card:$surface;--dp-surface-secondary:$surface2;
---dp-sidebar-bg:$surface;--dp-sidebar-surface:$surface2;--dp-sidebar-text:$text;
---dp-sidebar-border:$line;--dp-text-primary:$text;--dp-text-secondary:$muted;
---dp-text-muted:$muted;--dp-primary:$coral;--dp-primary-hover:$coral;
---dp-primary-light:$surface2;--dp-border:$edge;--dp-border-strong:$edge;
---dp-card-shadow:none;--dp-input-bg:$surface;--dp-input-border:$edge;
---dp-input-text:$text;--dp-success:$teal;--dp-error:$coral;--dp-warning:$yellow;
---dp-info:$blue;--radius-card:18px;--radius-tile:16px;--radius-pill:999px;
---outline:1.5px;--edge:4px;}
+--teal:$teal;--orange:$orange;--ink:$ink;--on-coral:$on_coral;--on_coral:$on_coral;
+--card:$surface;--dp-bg-app:$bg;--dp-bg-main:$bg;--dp-surface-page:$bg;
+--dp-surface-card:$surface;--dp-surface-secondary:$surface2;--dp-sidebar-bg:$surface;
+--dp-sidebar-surface:$surface2;--dp-sidebar-text:$text;--dp-sidebar-border:$line;
+--dp-text-primary:$text;--dp-text-secondary:$muted;--dp-text-muted:$muted;
+--dp-primary:$coral;--dp-primary-hover:$coral;--dp-primary-light:$surface2;
+--dp-border:$edge;--dp-border-strong:$edge;--dp-card-shadow:none;--dp-input-bg:$surface;
+--dp-input-border:$edge;--dp-input-text:$text;--dp-success:$teal;--dp-error:$coral;--dp-danger:$coral;
+--dp-warning:$yellow;--dp-info:$blue;--radius-card:18px;--radius-tile:16px;
+--radius-pill:999px;--outline:1.5px;}
+
 html,body,.stApp,[data-testid="stAppViewContainer"],[data-testid="stMain"]{
 font-family:Poppins,system-ui,"Segoe UI",Roboto,Arial,sans-serif;background:$bg!important;color:$text!important;}
 
@@ -164,36 +167,28 @@ font-family:Poppins,system-ui,"Segoe UI",Roboto,Arial,sans-serif;background:$bg!
 /* ---- top navigation / header ---- */
 [data-testid="stHeader"],.stAppHeader,header,div[data-testid="stHeader"]{background:$bg!important;
 border-bottom:1.5px solid $line!important;color:$text!important;}
-[data-testid="stHeader"] *{color:$text!important;}
+[data-testid="stHeader"] a,[data-testid="stHeader"] button,[data-testid="stHeader"] span,
+[data-testid="stHeader"] p{color:$text!important;}
+[data-testid="stHeader"] a[aria-current="page"],
+[data-testid="stTopNavLink"][aria-current="page"]{background:$coral!important;color:$on_coral!important;
+border-radius:999px!important;}
+[data-testid="stHeader"] a[aria-current="page"] *{color:$on_coral!important;}
 [data-testid="stDecoration"]{display:none!important;}
-[data-testid="stTopNav"],header nav{display:flex!important;justify-content:center!important;
-align-items:center!important;margin:0 auto!important;background:$bg!important;}
-[data-testid="stTopNav"] ul,header nav ul{display:flex!important;justify-content:center!important;
-align-items:center!important;gap:6px!important;margin:0 auto!important;padding:4px 0!important;
-list-style:none!important;background:$bg!important;}
-[data-testid="stTopNav"] a,[data-testid="stTopNav"] button,header nav a,header nav button{
-display:inline-flex!important;align-items:center!important;justify-content:center!important;
-padding:6px 16px!important;border-radius:999px!important;font-family:'Poppins',sans-serif!important;
-font-weight:600!important;font-size:0.88rem!important;text-decoration:none!important;
-color:$text!important;-webkit-text-fill-color:$text!important;border:1.5px solid $line!important;
-background:$surface!important;transition:all 0.2s ease!important;}
-[data-testid="stTopNav"] a:hover,header nav a:hover{border-color:$coral!important;
-color:$coral!important;-webkit-text-fill-color:$coral!important;background:$surface2!important;}
-[data-testid="stTopNav"] a[aria-current="page"],[data-testid="stTopNav"] a[data-selected="true"],
-header nav a[aria-current="page"]{background:$coral!important;color:$on_coral!important;
--webkit-text-fill-color:$on_coral!important;border:1.5px solid $edge!important;
-border-bottom:3.5px solid $edge!important;font-weight:700!important;}
-[data-testid="stTopNav"] a[aria-current="page"] *,header nav a[aria-current="page"] *{
-color:$on_coral!important;-webkit-text-fill-color:$on_coral!important;}
 
 /* ---- inputs, selects, text areas ---- */
-.stApp [data-baseweb="select"]>div,.stApp [data-baseweb="input"],
-.stApp [data-baseweb="base-input"],.stApp [data-baseweb="textarea"],
-.stApp input,.stApp textarea{background:$surface!important;color:$text!important;
--webkit-text-fill-color:$text!important;border:1.5px solid $edge!important;
+.stApp [data-baseweb="select"]{background:transparent!important;}
+.stApp [data-baseweb="select"]>div{background:$surface!important;border:1.5px solid $edge!important;
 border-bottom:4px solid $edge!important;border-radius:16px!important;}
-.stApp [data-baseweb="select"] *{color:$text!important;-webkit-text-fill-color:$text!important;}
-.stApp [data-baseweb="select"] svg{fill:$text!important;color:$text!important;}
+.stApp [data-baseweb="select"]>div *{background:transparent!important;border:0!important;box-shadow:none!important;color:$text!important;}
+.stApp [data-baseweb="input"]{background:$surface!important;border:1.5px solid $edge!important;
+border-bottom:4px solid $edge!important;border-radius:16px!important;}
+.stApp [data-baseweb="input"] *,.stApp [data-baseweb="base-input"]{background:transparent!important;
+border:0!important;box-shadow:none!important;color:$text!important;}
+.stApp [data-baseweb="textarea"]{background:$surface!important;border:1.5px solid $edge!important;
+border-bottom:4px solid $edge!important;border-radius:16px!important;}
+.stApp [data-baseweb="textarea"] *{background:transparent!important;border:0!important;box-shadow:none!important;color:$text!important;}
+.stApp input,.stApp textarea{background:transparent!important;color:$text!important;
+-webkit-text-fill-color:$text!important;}
 .stApp input::placeholder,.stApp textarea::placeholder{color:$muted!important;
 -webkit-text-fill-color:$muted!important;opacity:1!important;}
 
@@ -217,11 +212,11 @@ border-bottom:4px solid $edge!important;border-radius:18px!important;}
 [data-testid="stBottomBlockContainer"]{background:$bg!important;}
 [data-testid="stChatInput"]{background:$surface!important;border:1.5px solid $edge!important;
 border-bottom:4px solid $edge!important;border-radius:16px!important;}
-[data-testid="stChatInput"] textarea{background:transparent!important;color:$text!important;
--webkit-text-fill-color:$text!important;}
-[data-testid="stChatInput"] button{background:$coral!important;color:$on_coral!important;
-border-radius:12px!important;}
-[data-testid="stChatInput"] button svg{fill:$on_coral!important;}
+[data-testid="stChatInput"] :is(div,section,textarea){background:transparent!important;
+color:$text!important;box-shadow:none!important;border:0!important;}
+[data-testid="stChatInput"] textarea::placeholder{color:$muted!important;opacity:1!important;}
+[data-testid="stChatInput"] button{background:$coral!important;color:$on_coral!important;border-radius:12px!important;}
+[data-testid="stChatInput"] button :is(svg,path){fill:$on_coral!important;color:$on_coral!important;}
 [data-testid="stChatMessage"]{background:transparent!important;}
 
 /* ---- buttons ---- */
@@ -251,15 +246,63 @@ border-bottom:4px solid $edge!important;border-radius:18px!important;padding:16p
 .stApp .dp-tile,.stApp .dp-tile *{color:$ink!important;}
 .stApp .dp-tile.blue{background:$blue!important;}.stApp .dp-tile.yellow{background:$yellow!important;}
 .stApp .dp-tile.teal{background:$teal!important;}.stApp .dp-tile.coral{background:$coral!important;}
-.stApp .dp-pill{display:inline-block!important;border-radius:999px!important;padding:2px 10px!important;
-font-size:12px!important;font-weight:600!important;border:1.5px solid $edge!important;color:$ink!important;}
-.stApp .dp-pill.fact{background:$blue!important;}.stApp .dp-pill.observation{background:$teal!important;}
+.stApp .dp-pill,.stApp .dp-badge,.stApp .dp-level,.stApp .dp-verdict{display:inline-flex!important;
+align-items:center!important;gap:6px!important;white-space:nowrap!important;line-height:1.2!important;
+border-radius:999px!important;font-weight:600!important;}
+.stApp .dp-pill,.stApp .dp-badge{padding:2px 10px!important;font-size:12px!important;
+border:1.5px solid $edge!important;color:$ink!important;}
+.stApp .dp-level{padding:2px 14px!important;border:1.5px solid $edge!important;font-weight:700!important;
+letter-spacing:.06em!important;color:$ink!important;}
+.stApp .dp-level.none{background:$teal!important;}
+.stApp .dp-level.low{background:$yellow!important;}
+.stApp .dp-level.medium{background:$orange!important;}
+.stApp .dp-level.high{background:$coral!important;}
+.stApp .dp-verdict{padding:4px 12px!important;border:1.5px solid $edge!important;font-size:12px!important;
+font-weight:600!important;color:$ink!important;}
+.stApp .dp-verdict.holds{background:$teal!important;}
+.stApp .dp-verdict.warranted{background:$coral!important;}
+.stApp .dp-drift{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;
+gap:12px 24px!important;align-items:center!important;}
+.stApp .dp-drift__head{grid-column:1/-1!important;display:flex!important;flex-wrap:wrap!important;
+align-items:center!important;gap:8px 12px!important;}
+.stApp .dp-eyebrow{font-size:12px!important;font-weight:600!important;letter-spacing:.08em!important;
+text-transform:uppercase!important;color:$muted!important;}
+.stApp .dp-drift__summary{margin:0!important;color:$text!important;}
+.stApp .dp-pill.fact{background:$blue!important;}
+.stApp .dp-pill.observation{background:$teal!important;}
 .stApp .dp-pill.inference{background:$yellow!important;}
 .stApp .dp-pill.recommendation{background:$text!important;color:$bg!important;}
 .stApp .dp-pill.changed,.stApp .dp-pill.high{background:$coral!important;}
 .stApp .dp-pill.same{background:$surface2!important;color:$text!important;}
+
+/* ---- Data Table Styling ---- */
+.stApp .dp-table-container{width:100%!important;overflow-x:auto!important;}
+.stApp table.dp-table{width:100%!important;border-collapse:collapse!important;margin:1rem 0!important;font-size:0.88rem!important;}
+.stApp table.dp-table th{text-align:left!important;padding:0.75rem 1rem!important;color:$text!important;font-weight:700!important;font-size:0.8rem!important;text-transform:uppercase!important;letter-spacing:0.05em!important;background:$surface2!important;border-bottom:2px solid $edge!important;}
+.stApp table.dp-table td{padding:0.85rem 1rem!important;border-bottom:1px solid $line!important;color:$text!important;}
+.stApp table.dp-table tr:hover td{background:$surface2!important;}
+.stApp .dp-id-text{font-family:'Poppins',sans-serif!important;font-size:0.82rem!important;color:$muted!important;font-weight:500!important;}
+
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;}}
 """)
+
+
+
+def html_compact(fragment: str) -> str:
+    """Collapse an HTML fragment to one line so Markdown cannot treat it as a code block."""
+    one_line = re.sub(r"\s*\n\s*", " ", dedent(fragment)).strip()
+    return re.sub(r">\s+<", "><", one_line)
+
+
+def render_html(fragment: str, target: Any = st) -> None:
+    """Render an HTML fragment safely through a single Markdown call."""
+    target.markdown(html_compact(fragment), unsafe_allow_html=True)
+
+
+def build_css(mode: ThemeMode) -> str:
+    """Return the generated minified CSS string for a given theme mode."""
+    css = re.sub(r"/\*.*?\*/", "", _CSS.substitute(TOKENS[mode], mode=mode), flags=re.DOTALL)
+    return re.sub(r"\s+", " ", css).strip()
 
 
 def resolve_mode() -> ThemeMode:
@@ -327,7 +370,7 @@ def badge_html(category: str, value: str) -> str:
     text_dec = f"text-decoration: {colors['text_decoration']};" if "text_decoration" in colors else ""
 
     return (
-        f'<span class="dp-badge" style="background:{bg}; color:{text_c}; '
+        f'<span class="dp-pill dp-badge" style="background:{bg}; color:{text_c}; '
         f'border: 1.5px {border_style} {border_c}; {text_dec}">{label}</span>'
     )
 
@@ -335,8 +378,7 @@ def badge_html(category: str, value: str) -> str:
 def inject_theme(mode: ThemeMode | None = None) -> ThemeMode:
     """Inject minified theme CSS for the given mode and return the mode used."""
     active = mode or resolve_mode()
-    css = re.sub(r"/\*.*?\*/", "", _CSS.substitute(TOKENS[active], mode=active), flags=re.DOTALL)
-    minified_css = re.sub(r"\s+", " ", css).strip()
+    minified_css = build_css(active)
     st.markdown(f"<style>{minified_css}</style>", unsafe_allow_html=True)
     return active
 
@@ -353,9 +395,12 @@ __all__ = [
     "TOKENS",
     "ThemeMode",
     "badge_html",
+    "build_css",
     "get_current_theme",
+    "html_compact",
     "inject_custom_css",
     "inject_theme",
+    "render_html",
     "resolve_mode",
     "set_current_theme",
 ]

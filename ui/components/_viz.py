@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import html
 
-import streamlit as st
+from ui.components._theme import render_html
 
 # =========================================================================
 # Pure SVG / HTML string primitives (Private, accessible to UI components)
@@ -343,18 +343,18 @@ def _svg_timeline_axis(events: list[dict[str, str]], width: int = 500, height: i
 
 def render_stat_tile(title: str, value: str | int, subtitle: str = "", bg: str = "var(--surface2)") -> None:
     """Render a soft neo-brutalist stat tile component."""
-    st.markdown(_tile(title, value, subtitle, bg), unsafe_allow_html=True)
+    render_html(_tile(title, value, subtitle, bg))
 
 
 def render_drift_gauge(drift_score: float, level: str) -> None:
     """Render the prominent drift gauge."""
-    st.markdown(_svg_gauge(drift_score, level=level), unsafe_allow_html=True)
+    render_html(_svg_gauge(drift_score, level=level))
 
 
 def render_traceability_meter(claims_count: int, sourced_claims_count: int) -> None:
     """Render the PRD 100% traceability meter."""
     pct = int((sourced_claims_count / max(1, claims_count)) * 100)
-    st.markdown(
+    render_html(
         f"""
         <div style='display:flex; align-items:center; gap:0.75rem; background:var(--surface);
                     border:1.5px solid var(--edge); border-bottom:3px solid var(--edge);
@@ -369,6 +369,5 @@ def render_traceability_meter(claims_count: int, sourced_claims_count: int) -> N
                 </div>
             </div>
         </div>
-        """,
-        unsafe_allow_html=True,
+        """
     )

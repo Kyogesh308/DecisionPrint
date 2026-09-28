@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from ui.components._theme import badge_html, inject_custom_css, inject_theme
+from ui.components._theme import badge_html, html_compact, inject_custom_css, inject_theme, render_html
 from ui.components._viz import (
     render_drift_gauge,
     render_stat_tile,
@@ -37,6 +37,7 @@ __all__ = [
     "badge_html",
     "get_icon_svg",
     "get_nav_badges",
+    "html_compact",
     "inject_custom_css",
     "inject_theme",
     "render_brief",
@@ -50,6 +51,7 @@ __all__ = [
     "render_drift_gauge",
     "render_epistemic_section",
     "render_evidence_panel",
+    "render_html",
     "render_ingest_result",
     "render_memory_overview",
     "render_memory_trace_drawer",
