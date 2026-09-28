@@ -1197,18 +1197,22 @@ textarea::placeholder,
 }}
 
 /* Dropdown Menu & Popovers */
+div[data-testid="stSelectbox"] > div > div,
 [data-baseweb="select"],
 [data-baseweb="select"] > div,
+[data-baseweb="select"] [role="combobox"],
 [data-baseweb="select"] [data-aria-hidden="true"],
-[data-baseweb="select"] div {{
+[data-baseweb="select"] input,
+[data-baseweb="select"] div,
+[data-baseweb="select"] span {{
     background-color: var(--card) !important;
     color: var(--ink) !important;
     -webkit-text-fill-color: var(--ink) !important;
 }}
 
 [data-baseweb="select"] * {{
-    color: var(--dp-text-primary) !important;
-    -webkit-text-fill-color: var(--dp-text-primary) !important;
+    color: var(--ink) !important;
+    -webkit-text-fill-color: var(--ink) !important;
 }}
 
 div[data-baseweb="popover"],
@@ -1234,12 +1238,35 @@ li[role="option"][aria-selected="true"] * {{
 }}
 
 /* Header & App Top Bar Background Alignment */
+html, body, .stApp, header, [data-testid="stHeader"], .stAppHeader, [data-testid="stTopNav"], [data-testid="stToolbar"] {{
+    background-color: var(--bg) !important;
+    color: var(--ink) !important;
+}}
+
 header[data-testid="stHeader"],
+header.stAppHeader,
 .stAppHeader,
+[data-testid="stHeader"],
 div[data-testid="stHeader"] {{
     background-color: var(--bg) !important;
     background: var(--bg) !important;
+    color: var(--ink) !important;
     border-bottom: 1.5px solid var(--line) !important;
+}}
+
+[data-testid="stDecoration"] {{
+    display: none !important;
+}}
+
+/* Force text inside top navigation links to inherit ink color */
+div[data-testid="stTopNav"] *,
+header nav *,
+[data-testid="stHeader"] nav *,
+[data-testid="stHeader"] a,
+[data-testid="stHeader"] span,
+[data-testid="stHeader"] p {{
+    color: var(--ink) !important;
+    -webkit-text-fill-color: var(--ink) !important;
 }}
 
 /* Streamlit Top Navigation Bar Container Centering & Button Styling */
@@ -1250,7 +1277,7 @@ header nav,
     justify-content: center !important;
     align-items: center !important;
     margin: 0 auto !important;
-    background: var(--bg) !important;
+    background-color: var(--bg) !important;
     padding: 4px 12px !important;
 }}
 
@@ -1264,6 +1291,7 @@ header nav ul,
     margin: 0 auto !important;
     padding: 0 !important;
     list-style: none !important;
+    background-color: var(--bg) !important;
 }}
 
 /* Top Navigation Link Buttons */
@@ -1282,8 +1310,9 @@ header nav button,
     font-size: 0.88rem !important;
     text-decoration: none !important;
     color: var(--ink) !important;
+    -webkit-text-fill-color: var(--ink) !important;
     border: 1.5px solid var(--line) !important;
-    background: var(--card) !important;
+    background-color: var(--card) !important;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
     box-shadow: none !important;
 }}
@@ -1292,25 +1321,50 @@ div[data-testid="stTopNav"] a:hover,
 header nav a:hover {{
     border-color: var(--coral) !important;
     color: var(--coral) !important;
-    transform: translateY(-1px) !important;
+    -webkit-text-fill-color: var(--coral) !important;
+    background-color: var(--dp-surface-secondary) !important;
 }}
 
 /* Active Navigation Page Button */
 div[data-testid="stTopNav"] a[aria-current="page"],
 div[data-testid="stTopNav"] a[data-selected="true"],
 header nav a[aria-current="page"] {{
-    background: var(--coral, #F26F55) !important;
+    background-color: var(--coral, #F26F55) !important;
     color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
     border: 1.5px solid var(--ink, #111111) !important;
     border-bottom: 3.5px solid var(--ink, #111111) !important;
     font-weight: 700 !important;
-    transform: translateY(-1px) !important;
 }}
 
-div[data-testid="stTopNav"] a[aria-current="page"] span,
-header nav a[aria-current="page"] span {{
+div[data-testid="stTopNav"] a[aria-current="page"] *,
+header nav a[aria-current="page"] * {{
     color: #FFFFFF !important;
     -webkit-text-fill-color: #FFFFFF !important;
+}}
+
+/* ST.CHAT_INPUT AT BOTTOM OF PAGE */
+[data-testid="stChatInput"],
+[data-testid="stChatInput"] > div,
+[data-testid="stChatInput"] div[data-baseweb="textarea"],
+[data-testid="stChatInput"] [data-baseweb="base-input"] {{
+    background-color: var(--card) !important;
+    border: 1.5px solid var(--ink) !important;
+    border-bottom: 4px solid var(--ink) !important;
+    border-radius: 18px !important;
+    color: var(--ink) !important;
+}}
+
+[data-testid="stChatInput"] textarea {{
+    background-color: transparent !important;
+    color: var(--ink) !important;
+    -webkit-text-fill-color: var(--ink) !important;
+    caret-color: var(--coral) !important;
+}}
+
+[data-testid="stChatInput"] textarea::placeholder {{
+    color: var(--muted) !important;
+    -webkit-text-fill-color: var(--muted) !important;
 }}
 
 /* Sidebar Select & Input styling */
