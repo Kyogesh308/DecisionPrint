@@ -1,0 +1,68 @@
+[
+  {
+    "scenario": "kafka_alpha_to_nova",
+    "decision_id": "DEC-ALPHA-001",
+    "from_project": "alpha",
+    "to_project": "nova",
+    "expected_level": "high",
+    "reconsideration_warranted": true,
+    "changed_constraints": [
+      "consumer_count",
+      "replay_required",
+      "traffic_volume",
+      "ops_capacity",
+      "async_workflows"
+    ]
+  },
+  {
+    "scenario": "redis_alpha_to_nova",
+    "decision_id": "DEC-ALPHA-002",
+    "from_project": "alpha",
+    "to_project": "nova",
+    "expected_level": "medium",
+    "reconsideration_warranted": true,
+    "changed_constraints": [
+      "instance_count",
+      "cache_hit_ratio",
+      "session_persistence"
+    ]
+  },
+  {
+    "scenario": "graphql_beta_to_nova",
+    "decision_id": "DEC-BETA-001",
+    "from_project": "beta",
+    "to_project": "nova",
+    "expected_level": "medium",
+    "reconsideration_warranted": false,
+    "changed_constraints": [
+      "client_count",
+      "client_diversity"
+    ],
+    "note": "schema_complexity still high \u2014 key rejection reason unchanged"
+  },
+  {
+    "scenario": "tracing_alpha_to_nova",
+    "decision_id": "DEC-ALPHA-003",
+    "from_project": "alpha",
+    "to_project": "nova",
+    "expected_level": "high",
+    "reconsideration_warranted": true,
+    "changed_constraints": [
+      "observability_maturity",
+      "debugging_frequency",
+      "incident_mttr"
+    ]
+  },
+  {
+    "scenario": "redis_gamma_to_nova",
+    "decision_id": "DEC-GAMMA-001",
+    "from_project": "gamma",
+    "to_project": "nova",
+    "expected_level": "low",
+    "reconsideration_warranted": false,
+    "changed_constraints": [
+      "instance_count"
+    ],
+    "note": "Same pattern, just more instances"
+  }
+]

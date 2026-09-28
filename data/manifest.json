@@ -1,0 +1,266 @@
+[
+  {
+    "source_id": "SRC-ALPHA-006",
+    "project_id": "alpha",
+    "source_type": "adr",
+    "title": "Primary Database Selection - PostgreSQL",
+    "file_path": "historical/alpha/SRC-ALPHA-006_database_selection.md",
+    "date": "2024-03-20T00:00:00Z",
+    "tags": [
+      "database",
+      "postgres"
+    ],
+    "sensitivity": "internal",
+    "is_current": false
+  },
+  {
+    "source_id": "SRC-ALPHA-001",
+    "project_id": "alpha",
+    "source_type": "architecture_doc",
+    "title": "Platform v2 Messaging Architecture",
+    "file_path": "historical/alpha/SRC-ALPHA-001_messaging_architecture.md",
+    "date": "2024-04-15T00:00:00Z",
+    "tags": [
+      "messaging",
+      "rabbitmq",
+      "kafka",
+      "architecture"
+    ],
+    "sensitivity": "internal",
+    "is_current": false
+  },
+  {
+    "source_id": "SRC-ALPHA-004",
+    "project_id": "alpha",
+    "source_type": "architecture_doc",
+    "title": "Platform v2 Caching Architecture",
+    "file_path": "historical/alpha/SRC-ALPHA-004_redis_architecture.md",
+    "date": "2024-04-20T00:00:00Z",
+    "tags": [
+      "caching",
+      "redis"
+    ],
+    "sensitivity": "internal",
+    "is_current": false
+  },
+  {
+    "source_id": "SRC-ALPHA-002",
+    "project_id": "alpha",
+    "source_type": "adr",
+    "title": "ADR-007: Message Broker Selection",
+    "file_path": "historical/alpha/SRC-ALPHA-002_adr_message_broker.md",
+    "date": "2024-05-02T00:00:00Z",
+    "tags": [
+      "adr",
+      "messaging",
+      "rabbitmq",
+      "decision"
+    ],
+    "sensitivity": "internal",
+    "is_current": false
+  },
+  {
+    "source_id": "SRC-ALPHA-003",
+    "project_id": "alpha",
+    "source_type": "meeting_transcript",
+    "title": "Architecture Review Board - Messaging Decision",
+    "file_path": "historical/alpha/SRC-ALPHA-003_arb_meeting_messaging.md",
+    "date": "2024-05-10T00:00:00Z",
+    "tags": [
+      "meeting",
+      "review-board",
+      "messaging"
+    ],
+    "sensitivity": "internal",
+    "is_current": false
+  },
+  {
+    "source_id": "SRC-ALPHA-005",
+    "project_id": "alpha",
+    "source_type": "architecture_doc",
+    "title": "Platform Observability Strategy",
+    "file_path": "historical/alpha/SRC-ALPHA-005_observability.md",
+    "date": "2024-05-15T00:00:00Z",
+    "tags": [
+      "observability",
+      "logging"
+    ],
+    "sensitivity": "internal",
+    "is_current": false
+  },
+  {
+    "source_id": "SRC-BETA-004",
+    "project_id": "beta",
+    "source_type": "architecture_doc",
+    "title": "Authentication Architecture - OAuth2/OIDC",
+    "file_path": "historical/beta/SRC-BETA-004_auth_architecture.md",
+    "date": "2024-07-15T00:00:00Z",
+    "tags": [
+      "auth",
+      "oauth2"
+    ],
+    "sensitivity": "internal",
+    "is_current": false
+  },
+  {
+    "source_id": "SRC-BETA-002",
+    "project_id": "beta",
+    "source_type": "architecture_doc",
+    "title": "API Gateway Architecture - GraphQL Evaluation",
+    "file_path": "historical/beta/SRC-BETA-002_api_architecture.md",
+    "date": "2024-08-05T00:00:00Z",
+    "tags": [
+      "api",
+      "graphql",
+      "rest"
+    ],
+    "sensitivity": "internal",
+    "is_current": false
+  },
+  {
+    "source_id": "SRC-BETA-001",
+    "project_id": "beta",
+    "source_type": "implementation_note",
+    "title": "Async Job Queue Workaround - Implementation Note",
+    "file_path": "historical/beta/SRC-BETA-001_async_job_queue.md",
+    "date": "2024-11-20T00:00:00Z",
+    "tags": [
+      "queue",
+      "async",
+      "workaround"
+    ],
+    "sensitivity": "internal",
+    "is_current": false
+  },
+  {
+    "source_id": "SRC-BETA-003",
+    "project_id": "beta",
+    "source_type": "implementation_note",
+    "title": "API Gateway Tracing - Implementation Note",
+    "file_path": "historical/beta/SRC-BETA-003_partial_tracing.md",
+    "date": "2024-12-10T00:00:00Z",
+    "tags": [
+      "observability",
+      "tracing"
+    ],
+    "sensitivity": "internal",
+    "is_current": false
+  },
+  {
+    "source_id": "SRC-GAMMA-001",
+    "project_id": "gamma",
+    "source_type": "architecture_doc",
+    "title": "Redis Cluster Migration - Gamma Project",
+    "file_path": "historical/gamma/SRC-GAMMA-001_redis_scaling.md",
+    "date": "2025-02-10T00:00:00Z",
+    "tags": [
+      "caching",
+      "redis",
+      "cluster"
+    ],
+    "sensitivity": "internal",
+    "is_current": false
+  },
+  {
+    "source_id": "SRC-GAMMA-002",
+    "project_id": "gamma",
+    "source_type": "design_doc",
+    "title": "CDN Strategy for Static Assets",
+    "file_path": "historical/gamma/SRC-GAMMA-002_cdn_strategy.md",
+    "date": "2025-03-01T00:00:00Z",
+    "tags": [
+      "cdn",
+      "performance"
+    ],
+    "sensitivity": "internal",
+    "is_current": false
+  },
+  {
+    "source_id": "SRC-DELTA-001",
+    "project_id": "delta",
+    "source_type": "architecture_doc",
+    "title": "Infrastructure Cost Optimization Plan - Q2 2025",
+    "file_path": "historical/delta/SRC-DELTA-001_cost_optimization_plan.md",
+    "date": "2025-03-15T00:00:00Z",
+    "tags": [
+      "cost",
+      "infrastructure",
+      "backup"
+    ],
+    "sensitivity": "confidential",
+    "is_current": false
+  },
+  {
+    "source_id": "SRC-DELTA-002",
+    "project_id": "delta",
+    "source_type": "implementation_note",
+    "title": "Backup Removal - Implementation Note",
+    "file_path": "historical/delta/SRC-DELTA-002_backup_removal.md",
+    "date": "2025-04-15T00:00:00Z",
+    "tags": [
+      "backup",
+      "implementation"
+    ],
+    "sensitivity": "internal",
+    "is_current": false
+  },
+  {
+    "source_id": "SRC-DELTA-003",
+    "project_id": "delta",
+    "source_type": "postmortem",
+    "title": "Database Incident Postmortem - July 22, 2025",
+    "file_path": "historical/delta/SRC-DELTA-003_db_incident_postmortem.md",
+    "date": "2025-08-01T00:00:00Z",
+    "tags": [
+      "incident",
+      "postmortem",
+      "backup"
+    ],
+    "sensitivity": "internal",
+    "is_current": false
+  },
+  {
+    "source_id": "SRC-DELTA-004",
+    "project_id": "delta",
+    "source_type": "retro",
+    "title": "Q3 2025 Infrastructure Retrospective",
+    "file_path": "historical/delta/SRC-DELTA-004_monitoring_retro.md",
+    "date": "2025-10-01T00:00:00Z",
+    "tags": [
+      "retro",
+      "infrastructure"
+    ],
+    "sensitivity": "internal",
+    "is_current": false
+  },
+  {
+    "source_id": "SRC-NOVA-001",
+    "project_id": "nova",
+    "source_type": "meeting_transcript",
+    "title": "Nova Kickoff - Event Architecture Planning",
+    "file_path": "current/nova/SRC-NOVA-001_kickoff_event_architecture.md",
+    "date": "2026-02-03T00:00:00Z",
+    "tags": [
+      "event-platform",
+      "kafka",
+      "requirements"
+    ],
+    "sensitivity": "internal",
+    "is_current": true
+  },
+  {
+    "source_id": "SRC-NOVA-002",
+    "project_id": "nova",
+    "source_type": "design_doc",
+    "title": "Nova Event Platform - Technical Requirements",
+    "file_path": "current/nova/SRC-NOVA-002_event_platform_requirements.md",
+    "date": "2026-02-15T00:00:00Z",
+    "tags": [
+      "design",
+      "event-platform",
+      "kafka"
+    ],
+    "sensitivity": "internal",
+    "is_current": true
+  }
+]

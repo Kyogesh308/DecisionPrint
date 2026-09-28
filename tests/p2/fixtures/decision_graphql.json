@@ -1,0 +1,31 @@
+{
+  "id": "DEC-CEDAR-GRAPHQL-001",
+  "project_id": "cedar",
+  "title": "Adopt GraphQL for the Cedar API layer",
+  "decision_statement": "Use GraphQL instead of REST for the Cedar external API.",
+  "occurred_at": "2025-06-01T00:00:00Z",
+  "participants": ["api-lead"],
+  "context_summary": "Cedar has a small set of known partner clients. REST was serving them well but GraphQL was chosen for query flexibility.",
+  "constraints": [
+    {"key": "consumer_count",   "value": 3,              "is_reason_linked": true,  "source_memory_id": "mem-cedar-gql-001"},
+    {"key": "replay_required",  "value": false,          "is_reason_linked": true,  "source_memory_id": "mem-cedar-gql-002"},
+    {"key": "traffic_volume",   "value": "low",          "is_reason_linked": true,  "source_memory_id": "mem-cedar-gql-003"},
+    {"key": "client_diversity", "value": "few_known",    "is_reason_linked": false, "source_memory_id": "mem-cedar-gql-004"}
+  ],
+  "assumptions": [],
+  "alternatives": [
+    {"option": "REST", "disposition": "rejected", "reason": "Limited query flexibility for client needs.", "source_memory_id": "mem-cedar-gql-005"}
+  ],
+  "selected_option": "GraphQL",
+  "reasons": [
+    {"statement": "GraphQL allows clients to request exactly the fields they need, reducing over-fetching.", "source_memory_id": "mem-cedar-gql-001"}
+  ],
+  "technologies": ["graphql", "rest"],
+  "source_refs": [{"source_id": "SRC-CEDAR-002"}],
+  "extraction_confidence": 0.88,
+  "outcome_refs": [],
+  "status": "active",
+  "superseded_by": null,
+  "related_decisions": [],
+  "needs_review": false
+}

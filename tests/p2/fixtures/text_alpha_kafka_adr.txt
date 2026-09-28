@@ -1,0 +1,4 @@
+Decision: reject Kafka for the Alpha messaging layer
+Constraints: 2 consumers, no replay, moderate traffic, small ops team
+Alternatives: Kafka (rejected), RabbitMQ (deferred), Redis Streams (selected)
+Reasons: low consumer count, operational overhead, no replay requirement

@@ -1,0 +1,48 @@
+# project docs / planning kept locally
+DecisionPrint_PRD.md
+DecisionPrint_PRD.docx
+P1_Memory_Platform_Engineer.md
+P2_Intelligence_Engineer.md
+plan.md
+
+# local environment
+.venv/
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# Python cache / tooling
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# generated runtime data
+var/
+*.db
+*.sqlite3
+
+# local data / demo artifacts
+data/
+
+# editor / OS noise
+.DS_Store
+.idea/
+.vscode/
+
+# Python packaging
+*.egg-info/
+dist/
+build/
+*.egg
+venv/
+env/
+
+# OS
+Thumbs.db
+
+# Streamlit
+.streamlit/

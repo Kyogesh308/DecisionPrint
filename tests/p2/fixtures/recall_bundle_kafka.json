@@ -1,0 +1,37 @@
+{
+  "query": "Should we use Kafka for the Nova event bus given our historical messaging decisions?",
+  "memories": [
+    {
+      "memory_id": "mem-alpha-001",
+      "kind": "experience",
+      "text": "Alpha project rejected Kafka in March 2025 because of only two consumers and no replay requirement.",
+      "occurred_at": "2025-03-15T10:00:00Z",
+      "entities": ["kafka", "alpha", "redis-streams"],
+      "tags": ["project:alpha", "source:architecture_doc", "org:northstar-systems"],
+      "source_refs": [{"source_id": "SRC-ALPHA-001", "document_id": "doc-alpha-arch-001"}],
+      "relevance": 0.95
+    },
+    {
+      "memory_id": "mem-alpha-002",
+      "kind": "experience",
+      "text": "The Alpha architecture decision explicitly noted that with no replay requirement, Kafka's primary differentiating value did not apply.",
+      "occurred_at": "2025-03-15T10:00:00Z",
+      "entities": ["kafka", "alpha"],
+      "tags": ["project:alpha", "source:architecture_doc"],
+      "source_refs": [{"source_id": "SRC-ALPHA-001"}],
+      "relevance": 0.91
+    },
+    {
+      "memory_id": "mem-nova-001",
+      "kind": "observation",
+      "text": "Nova project (2026) has 15 consumers, mandatory replay for compliance, and high traffic volume.",
+      "occurred_at": "2026-09-01T00:00:00Z",
+      "entities": ["kafka", "nova"],
+      "tags": ["project:nova", "source:meeting_transcript"],
+      "source_refs": [{"source_id": "SRC-NOVA-001"}],
+      "relevance": 0.88
+    }
+  ],
+  "decision_ids": ["DEC-ALPHA-001"],
+  "retrieval_confidence": 0.89
+}

@@ -1,0 +1,11 @@
+{
+  "source_id": "SRC-CEDAR-002",
+  "project_id": "cedar",
+  "source_type": "postmortem",
+  "title": "Cedar Project — Storage Incident Postmortem",
+  "occurred_at": "2025-11-03T09:00:00Z",
+  "path": "historical/cedar/SRC-CEDAR-002_postmortem.md",
+  "sensitivity": "internal",
+  "tags": ["org:northstar-systems", "project:cedar", "source:postmortem"],
+  "is_current": false
+}
