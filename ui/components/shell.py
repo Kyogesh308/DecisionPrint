@@ -277,7 +277,7 @@ def render_nav_context_bar(backend: object = None) -> None:
                 "Project",
                 project_ids,
                 index=p_idx,
-                format_func=lambda x: f"📁 Project {x.capitalize()}",
+                format_func=lambda x: f"Project {x.capitalize()}",
                 key="_ctx_project_selector",
                 label_visibility="collapsed",
             )
@@ -290,7 +290,7 @@ def render_nav_context_bar(backend: object = None) -> None:
                 "Role",
                 roles,
                 index=r_idx,
-                format_func=lambda x: f"👤 {x.replace('_', ' ').capitalize()}",
+                format_func=lambda x: f"Role: {x.replace('_', ' ').capitalize()}",
                 key="_ctx_role_selector",
                 label_visibility="collapsed",
             )
@@ -301,11 +301,13 @@ def render_nav_context_bar(backend: object = None) -> None:
         with cols[2]:
             st.markdown(
                 f"""
-                <span class='dp-badge' style='background:var(--card, #FFFFFF); color:var(--ink, #111111);
-                      border:1.5px solid var(--ink, #111111); border-bottom:3px solid var(--ink, #111111);
-                      border-radius:999px; padding:4px 10px; font-weight:700; font-size:0.75rem; letter-spacing:0.04em;'>
-                    ⚡ {current_backend}
-                </span>
+                <div style='display:flex; align-items:center; height:100%;'>
+                    <span class='dp-badge' style='background:var(--dp-surface-card); color:var(--dp-text-primary);
+                          border:1.5px solid var(--dp-border); border-bottom:3px solid var(--dp-border);
+                          border-radius:999px; padding:5px 12px; font-weight:700; font-size:0.75rem; letter-spacing:0.04em;'>
+                        ⚡ {current_backend}
+                    </span>
+                </div>
                 """,
                 unsafe_allow_html=True,
             )
@@ -313,10 +315,12 @@ def render_nav_context_bar(backend: object = None) -> None:
         with cols[3]:
             st.markdown(
                 f"""
-                <span style='font-size:0.78rem; font-weight:600; color:var(--muted, #8A8A8A);
-                      font-family:"JetBrains Mono", monospace;'>
-                    🕒 Memory updated: {last_updated_str}
-                </span>
+                <div style='display:flex; align-items:center; justify-content:flex-end; height:100%;'>
+                    <span style='font-size:0.78rem; font-weight:600; color:var(--dp-text-muted);
+                          font-family:"JetBrains Mono", monospace; white-space:nowrap;'>
+                        Updated: {last_updated_str}
+                    </span>
+                </div>
                 """,
                 unsafe_allow_html=True,
             )
@@ -338,7 +342,6 @@ def render_nav_context_bar(backend: object = None) -> None:
                 if st.button(
                     t_icon,
                     key="_btn_theme_toggle_ctx",
-                    help=f"Switch to {next_t.capitalize()} Mode",
                 ):
                     set_theme(next_t)
                     st.rerun()

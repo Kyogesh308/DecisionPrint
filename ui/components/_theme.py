@@ -1197,24 +1197,120 @@ textarea::placeholder,
 }}
 
 /* Dropdown Menu & Popovers */
+[data-baseweb="select"],
+[data-baseweb="select"] > div,
+[data-baseweb="select"] [data-aria-hidden="true"],
+[data-baseweb="select"] div {{
+    background-color: var(--card) !important;
+    color: var(--ink) !important;
+    -webkit-text-fill-color: var(--ink) !important;
+}}
+
 [data-baseweb="select"] * {{
     color: var(--dp-text-primary) !important;
     -webkit-text-fill-color: var(--dp-text-primary) !important;
 }}
 
 div[data-baseweb="popover"],
+div[data-baseweb="popover"] *,
 div[data-baseweb="menu"],
+div[data-baseweb="menu"] *,
 ul[role="listbox"],
-li[role="option"] {{
-    background-color: var(--dp-surface-card) !important;
-    border-color: var(--dp-border) !important;
-    color: var(--dp-text-primary) !important;
+ul[role="listbox"] *,
+li[role="option"],
+li[role="option"] * {{
+    background-color: var(--card) !important;
+    color: var(--ink) !important;
+    -webkit-text-fill-color: var(--ink) !important;
 }}
 
 li[role="option"]:hover,
-li[role="option"][aria-selected="true"] {{
-    background-color: var(--dp-primary-light) !important;
-    color: var(--dp-primary) !important;
+li[role="option"]:hover *,
+li[role="option"][aria-selected="true"],
+li[role="option"][aria-selected="true"] * {{
+    background-color: var(--coral-tint) !important;
+    color: var(--coral) !important;
+    -webkit-text-fill-color: var(--coral) !important;
+}}
+
+/* Header & App Top Bar Background Alignment */
+header[data-testid="stHeader"],
+.stAppHeader,
+div[data-testid="stHeader"] {{
+    background-color: var(--bg) !important;
+    background: var(--bg) !important;
+    border-bottom: 1.5px solid var(--line) !important;
+}}
+
+/* Streamlit Top Navigation Bar Container Centering & Button Styling */
+div[data-testid="stTopNav"],
+header nav,
+[data-testid="stHeader"] nav {{
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    margin: 0 auto !important;
+    background: var(--bg) !important;
+    padding: 4px 12px !important;
+}}
+
+div[data-testid="stTopNav"] ul,
+header nav ul,
+[data-testid="stHeader"] nav ul {{
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 6px !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    list-style: none !important;
+}}
+
+/* Top Navigation Link Buttons */
+div[data-testid="stTopNav"] a,
+div[data-testid="stTopNav"] button,
+header nav a,
+header nav button,
+[data-testid="stHeader"] a {{
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 6px 16px !important;
+    border-radius: 999px !important;
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 600 !important;
+    font-size: 0.88rem !important;
+    text-decoration: none !important;
+    color: var(--ink) !important;
+    border: 1.5px solid var(--line) !important;
+    background: var(--card) !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-shadow: none !important;
+}}
+
+div[data-testid="stTopNav"] a:hover,
+header nav a:hover {{
+    border-color: var(--coral) !important;
+    color: var(--coral) !important;
+    transform: translateY(-1px) !important;
+}}
+
+/* Active Navigation Page Button */
+div[data-testid="stTopNav"] a[aria-current="page"],
+div[data-testid="stTopNav"] a[data-selected="true"],
+header nav a[aria-current="page"] {{
+    background: var(--coral, #F26F55) !important;
+    color: #FFFFFF !important;
+    border: 1.5px solid var(--ink, #111111) !important;
+    border-bottom: 3.5px solid var(--ink, #111111) !important;
+    font-weight: 700 !important;
+    transform: translateY(-1px) !important;
+}}
+
+div[data-testid="stTopNav"] a[aria-current="page"] span,
+header nav a[aria-current="page"] span {{
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
 }}
 
 /* Sidebar Select & Input styling */

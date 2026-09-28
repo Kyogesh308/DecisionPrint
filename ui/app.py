@@ -41,14 +41,14 @@ def main() -> None:
 
     # 3. Dynamic Navigation using top bar position
     pages = [
-        st.Page("pages/0_Overview.py", title=overview_title, icon="📊", default=True),
-        st.Page("pages/1_Ask.py", title="Ask", icon="💬"),
-        st.Page("pages/2_Current_Projects.py", title=projects_title, icon="📁"),
-        st.Page("pages/3_Timeline.py", title="Timeline", icon="⏱️"),
-        st.Page("pages/4_Decision_Explorer.py", title=explorer_title, icon="🔍"),
-        st.Page("pages/5_Memory_Evolution.py", title="Evolution", icon="🧬"),
-        st.Page("pages/6_Outcome_Chain.py", title="Outcome Chain", icon="⛓️"),
-        st.Page("pages/7_Settings.py", title="Settings", icon="⚙️"),
+        st.Page("pages/0_Overview.py", title=overview_title, default=True),
+        st.Page("pages/1_Ask.py", title="Ask"),
+        st.Page("pages/2_Current_Projects.py", title=projects_title),
+        st.Page("pages/3_Timeline.py", title="Timeline"),
+        st.Page("pages/4_Decision_Explorer.py", title=explorer_title),
+        st.Page("pages/5_Memory_Evolution.py", title="Evolution"),
+        st.Page("pages/6_Outcome_Chain.py", title="Outcome Chain"),
+        st.Page("pages/7_Settings.py", title="Settings"),
     ]
 
     pg = st.navigation(pages, position="top")
