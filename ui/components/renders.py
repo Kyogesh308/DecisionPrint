@@ -29,14 +29,14 @@ from ui.components.icons import get_icon_svg
 
 def render_memory_overview(overview: MemoryOverview) -> None:
     """Render enterprise KPI cards matching Screen 1 in the design reference."""
-    c1, c2, c3, c4 = st.columns(4)
+    c1, c2, c3, c4, c5, c6 = st.columns(6)
     with c1:
         st.markdown(
             f"""
         <div class='dp-kpi-card'>
-            <div class='dp-kpi-label'>Historical Projects</div>
+            <div class='dp-kpi-label'>Projects</div>
             <div class='dp-kpi-value'>{overview.project_count}</div>
-            <div class='dp-kpi-trend-pos'>+1 this month</div>
+            <div class='dp-kpi-trend-pos'>+1 active</div>
         </div>
         """,
             unsafe_allow_html=True,
@@ -45,9 +45,9 @@ def render_memory_overview(overview: MemoryOverview) -> None:
         st.markdown(
             f"""
         <div class='dp-kpi-card'>
-            <div class='dp-kpi-label'>Grounded Sources</div>
+            <div class='dp-kpi-label'>Sources</div>
             <div class='dp-kpi-value'>{overview.source_count}</div>
-            <div class='dp-kpi-trend-pos'>+2 this week</div>
+            <div class='dp-kpi-trend-pos'>18 grounded</div>
         </div>
         """,
             unsafe_allow_html=True,
@@ -56,9 +56,9 @@ def render_memory_overview(overview: MemoryOverview) -> None:
         st.markdown(
             f"""
         <div class='dp-kpi-card'>
-            <div class='dp-kpi-label'>Indexed Decisions</div>
+            <div class='dp-kpi-label'>Decisions</div>
             <div class='dp-kpi-value'>{overview.decision_count}</div>
-            <div class='dp-kpi-trend-pos'>-2 this week</div>
+            <div class='dp-kpi-trend-pos'>6 indexed</div>
         </div>
         """,
             unsafe_allow_html=True,
@@ -67,9 +67,31 @@ def render_memory_overview(overview: MemoryOverview) -> None:
         st.markdown(
             f"""
         <div class='dp-kpi-card'>
-            <div class='dp-kpi-label'>Consolidated Models</div>
+            <div class='dp-kpi-label'>Facts</div>
+            <div class='dp-kpi-value'>{overview.fact_count}</div>
+            <div class='dp-kpi-trend-pos'>42 verified</div>
+        </div>
+        """,
+            unsafe_allow_html=True,
+        )
+    with c5:
+        st.markdown(
+            f"""
+        <div class='dp-kpi-card'>
+            <div class='dp-kpi-label'>Observations</div>
+            <div class='dp-kpi-value'>{overview.observation_count}</div>
+            <div class='dp-kpi-trend-pos'>12 synthesized</div>
+        </div>
+        """,
+            unsafe_allow_html=True,
+        )
+    with c6:
+        st.markdown(
+            f"""
+        <div class='dp-kpi-card'>
+            <div class='dp-kpi-label'>Mental Models</div>
             <div class='dp-kpi-value'>{overview.mental_model_count}</div>
-            <div class='dp-kpi-trend-pos'>+1 this month</div>
+            <div class='dp-kpi-trend-pos'>3 consolidated</div>
         </div>
         """,
             unsafe_allow_html=True,
@@ -232,30 +254,35 @@ def render_decision_detail_panel(decision: Decision) -> None:
     status_badge = badge_html("status", decision.status.value)
     date_str = decision.date.strftime("%Y-%m-%d") if decision.date else ""
 
-    st.markdown("<div class='dp-card' style='border-top: 3px solid #6366F1;'>", unsafe_allow_html=True)
+    st.markdown(
+        "<div class='dp-card' style='border-top: 3px solid var(--dp-primary, #315EDE);'>", unsafe_allow_html=True
+    )
     st.markdown(
         f"""
         <div style='display:flex; justify-content:space-between; align-items:center;'>
-            <div style='font-size:0.8rem; color:#818CF8; font-family:"JetBrains Mono", monospace;'>{decision.decision_id}</div>
+            <div style='font-size:0.8rem; color:var(--dp-primary, #315EDE); font-family:"JetBrains Mono", monospace;'>{decision.decision_id}</div>
             <div>{status_badge}</div>
         </div>
         <h3 style='margin: 0.3rem 0 0.8rem 0;'>{decision.title}</h3>
-        <div style='display:flex; gap:2rem; font-size:0.85rem; color:#94A3B8; margin-bottom:0.8rem;'>
-            <div>Project: <strong style='color:#F1F5F9;'>{decision.project_id.upper()}</strong></div>
-            <div>Decision Date: <strong style='color:#F1F5F9;'>{date_str}</strong></div>
-            <div>Selected: <strong style='color:#38BDF8;'>{decision.selected_option}</strong></div>
+        <div style='display:flex; gap:2rem; font-size:0.85rem; color:var(--dp-text-muted, #68778D); margin-bottom:0.8rem;'>
+            <div>Project: <strong style='color:var(--dp-text-primary, #17243B);'>{decision.project_id.upper()}</strong></div>
+            <div>Decision Date: <strong style='color:var(--dp-text-primary, #17243B);'>{date_str}</strong></div>
+            <div>Selected: <strong style='color:var(--dp-primary, #315EDE);'>{decision.selected_option}</strong></div>
         </div>
-        <p style='color:#CBD5E1; font-size:0.9rem;'>{decision.statement}</p>
+        <p style='color:var(--dp-text-secondary, #52627A); font-size:0.9rem;'>{decision.statement}</p>
         """,
         unsafe_allow_html=True,
     )
     if decision.reasons:
         st.markdown(
-            "<div style='font-size:0.82rem; color:#94A3B8; font-weight:600;'>Core Rationale:</div>",
+            "<div style='font-size:0.82rem; color:var(--dp-text-muted, #68778D); font-weight:600;'>Core Rationale:</div>",
             unsafe_allow_html=True,
         )
         for r in decision.reasons:
-            st.markdown(f"- <span style='font-size:0.85rem; color:#E2E8F0;'>{r}</span>", unsafe_allow_html=True)
+            st.markdown(
+                f"- <span style='font-size:0.85rem; color:var(--dp-text-primary, #17243B);'>{r}</span>",
+                unsafe_allow_html=True,
+            )
     st.markdown("</div>", unsafe_allow_html=True)
 
 
@@ -304,19 +331,23 @@ def render_drift_card(drift: DriftResult) -> None:
     """Render a prominent banner showing context drift severity."""
     lvl = drift.level.value.lower()
     colors = DRIFT_COLORS.get(lvl, DRIFT_COLORS["low"])
-    bg_color = colors["bg"]
-    text_color = colors["text"]
+    theme = st.session_state.get("theme", "light")
+    is_dark = theme == "dark"
+
+    bg_color = colors.get("dark_bg" if is_dark else "light_bg", colors.get("bg", "#FDECEE"))
+    text_color = colors.get("dark_text" if is_dark else "light_text", colors.get("text", "#B42332"))
+    border_color = colors.get("dark_border" if is_dark else "light_border", colors.get("border", "#F9CCD1"))
 
     border_pulse = (
-        "box-shadow: 0 0 20px rgba(239, 68, 68, 0.35); border: 1.5px solid #EF4444;"
+        f"box-shadow: 0 0 20px rgba(239, 68, 68, 0.25); border: 1.5px solid {border_color};"
         if lvl == "high"
-        else f"border: 1px solid {text_color};"
+        else f"border: 1px solid {border_color};"
     )
 
     rec_badge = (
-        "<span style='background: rgba(239, 68, 68, 0.2); color:#F87171; border: 1px solid rgba(239, 68, 68, 0.4); padding:4px 12px; border-radius:9999px; font-weight:700; font-size:0.8rem; letter-spacing:0.04em;'>⚠️ RECONSIDERATION WARRANTED</span>"
+        "<span style='background: var(--dp-error-bg, rgba(239, 68, 68, 0.15)); color:var(--dp-error, #B42332); border: 1px solid #F9CCD1; padding:4px 12px; border-radius:9999px; font-weight:700; font-size:0.8rem; letter-spacing:0.04em;'>⚠️ RECONSIDERATION WARRANTED</span>"
         if drift.reconsideration_warranted
-        else "<span style='background: rgba(34, 197, 94, 0.2); color:#4ADE80; border: 1px solid rgba(34, 197, 94, 0.4); padding:4px 12px; border-radius:9999px; font-weight:700; font-size:0.8rem; letter-spacing:0.04em;'>✅ ORIGINAL DECISION HOLDS</span>"
+        else "<span style='background: var(--dp-success-bg, rgba(34, 197, 94, 0.15)); color:var(--dp-success, #18794E); border: 1px solid #C2EBD4; padding:4px 12px; border-radius:9999px; font-weight:700; font-size:0.8rem; letter-spacing:0.04em;'>✅ ORIGINAL DECISION HOLDS</span>"
     )
 
     st.markdown(
@@ -329,7 +360,7 @@ def render_drift_card(drift: DriftResult) -> None:
         <p style='font-size: 1.4em; margin: 0.5rem 0; font-weight: 700; color:{text_color};'>
             Drift Score: {drift.score * 100:.1f}%
         </p>
-        <p style='margin-bottom:0; color:#E2E8F0; font-size:1.05rem;'>{drift.summary}</p>
+        <p style='margin-bottom:0; color:var(--dp-text-primary, #17243B); font-size:1.02rem;'>{drift.summary}</p>
     </div>
     """,
         unsafe_allow_html=True,
@@ -382,28 +413,28 @@ def render_confidence_breakdown(confidence: ConfidenceBreakdown) -> None:
 def render_brief(brief: DecisionBrief) -> None:
     """Render the master Decision Brief view matching Screen 2 in the design reference."""
     # 1. Answer & Evidence Highlight Card
-    check_svg = get_icon_svg("check_circle", size=24, color="#34D399")
+    check_svg = get_icon_svg("check_circle", size=24, color="var(--dp-success, #18794E)")
     st.markdown(
         f"""
-    <div class='dp-card' style='border-left: 4px solid #10B981; background: rgba(16, 185, 129, 0.06); margin-bottom: 1.5rem;'>
+    <div class='dp-card' style='border-left: 4px solid var(--dp-success, #18794E); background: var(--dp-success-bg, rgba(24, 121, 78, 0.08)); margin-bottom: 1.5rem;'>
         <div style='display:flex; justify-content:space-between; align-items:center;'>
             <div style='display:flex; align-items:center; gap: 0.6rem;'>
                 {check_svg}
-                <h3 style='margin:0; color:#34D399 !important;'>Recommended Choice Identified</h3>
+                <h3 style='margin:0; color:var(--dp-success, #18794E) !important;'>Recommended Choice Identified</h3>
             </div>
-            <span style='color:#818CF8; font-size:0.8rem; font-weight:600;'>View full context &rarr;</span>
+            <span style='color:var(--dp-primary, #315EDE); font-size:0.8rem; font-weight:600;'>View full context &rarr;</span>
         </div>
-        <p style='color:#E2E8F0; font-size:1.02rem; margin: 0.75rem 0 1rem 0; line-height: 1.6;'>
+        <p style='color:var(--dp-text-primary, #17243B); font-size:1.02rem; margin: 0.75rem 0 1rem 0; line-height: 1.6;'>
             Based on historical precedents from <strong>Project Alpha</strong> and the current scale of <strong>Project Nova</strong>,
             the operational constraints that previously justified RabbitMQ (2 consumers, small ops team) have lapsed.
             Kafka provides superior scalability, stream auditability, and replay capability for high-throughput streaming.
         </p>
         <div style='display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;'>
-            <span style='font-size:0.8rem; color:#94A3B8; font-weight:600;'>Evidence Grounding:</span>
-            <span class='dp-badge' style='background:rgba(99,102,241,0.15); color:#818CF8; border:1px solid rgba(99,102,241,0.3);'>Project Nova</span>
-            <span class='dp-badge' style='background:rgba(56,189,248,0.15); color:#38BDF8; border:1px solid rgba(56,189,248,0.3);'>Decision DEC-ALPHA-001</span>
-            <span class='dp-badge' style='background:rgba(52,211,153,0.15); color:#34D399; border:1px solid rgba(52,211,153,0.3);'>Memory Trace</span>
-            <span class='dp-badge' style='background:rgba(168,85,247,0.15); color:#C084FC; border:1px solid rgba(168,85,247,0.3);'>Outcome Chain</span>
+            <span style='font-size:0.8rem; color:var(--dp-text-muted, #68778D); font-weight:600;'>Evidence Grounding:</span>
+            <span class='dp-badge' style='background:rgba(49,94,222,0.12); color:var(--dp-primary, #315EDE); border:1px solid rgba(49,94,222,0.25);'>Project Nova</span>
+            <span class='dp-badge' style='background:rgba(8,127,140,0.12); color:#087F8C; border:1px solid rgba(8,127,140,0.25);'>Decision DEC-ALPHA-001</span>
+            <span class='dp-badge' style='background:rgba(24,121,78,0.12); color:#18794E; border:1px solid rgba(24,121,78,0.25);'>Memory Trace</span>
+            <span class='dp-badge' style='background:rgba(121,88,216,0.12); color:#7958D8; border:1px solid rgba(121,88,216,0.25);'>Outcome Chain</span>
         </div>
     </div>
     """,

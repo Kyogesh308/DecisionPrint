@@ -35,6 +35,7 @@ def init_session_state() -> None:
     """Initialize all session state keys with defaults."""
     defaults = {
         "role": "admin",
+        "theme": "light",
         "project_id": None,
         "last_query_id": None,
         "last_brief": None,

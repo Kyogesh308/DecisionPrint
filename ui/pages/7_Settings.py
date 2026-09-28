@@ -204,31 +204,57 @@ with tab_backend:
 
 with tab_appearance:
     st.markdown("<div class='dp-card'>", unsafe_allow_html=True)
-    st.markdown("### Enterprise Theme & Tokens")
-    st.caption("Modern Dark (Cinema Mobile / Pro Dev SaaS) design system tokens:")
+    st.markdown("### Interface Theme & Mode")
+    st.caption("Select your preferred visual appearance across all DecisionPrint dashboards:")
+
+    current_theme = st.session_state.get("theme", "light")
+    theme_options = ["light", "dark", "system"]
+    theme_choice = st.radio(
+        "Theme Mode",
+        theme_options,
+        format_func=lambda x: {
+            "light": "☀️ Light Theme (Enterprise SaaS Default)",
+            "dark": "🌙 Dark Theme (Midnight Slate)",
+            "system": "💻 System Preference",
+        }[x],
+        index=theme_options.index(current_theme) if current_theme in theme_options else 0,
+        horizontal=True,
+        key="settings_theme_radio",
+    )
+    if theme_choice != st.session_state.get("theme"):
+        st.session_state.theme = theme_choice
+        st.rerun()
+
+    st.markdown("<div style='height: 1rem;'></div>", unsafe_allow_html=True)
+    st.markdown("#### Enterprise Design Tokens")
+    st.caption("Active tokens configured for the enterprise design system:")
 
     st.markdown(
         """
         <div style='display:flex; gap:1rem; flex-wrap:wrap; margin: 1rem 0;'>
             <div style='display:flex; align-items:center; gap:0.5rem;'>
-                <div style='width:24px; height:24px; border-radius:6px; background:#080D1A; border:1px solid #334155;'></div>
-                <span style='font-size:0.8rem; font-family:"JetBrains Mono", monospace;'>Canvas #080D1A</span>
+                <div style='width:24px; height:24px; border-radius:6px; background:#F5F7FB; border:1px solid #DCE3ED;'></div>
+                <span style='font-size:0.8rem; font-family:"JetBrains Mono", monospace;'>Canvas #F5F7FB</span>
             </div>
             <div style='display:flex; align-items:center; gap:0.5rem;'>
-                <div style='width:24px; height:24px; border-radius:6px; background:#111827; border:1px solid #334155;'></div>
-                <span style='font-size:0.8rem; font-family:"JetBrains Mono", monospace;'>Slate Panel #111827</span>
+                <div style='width:24px; height:24px; border-radius:6px; background:#FFFFFF; border:1px solid #DCE3ED;'></div>
+                <span style='font-size:0.8rem; font-family:"JetBrains Mono", monospace;'>Surface #FFFFFF</span>
             </div>
             <div style='display:flex; align-items:center; gap:0.5rem;'>
-                <div style='width:24px; height:24px; border-radius:6px; background:#6366F1;'></div>
-                <span style='font-size:0.8rem; font-family:"JetBrains Mono", monospace;'>Indigo Accent #6366F1</span>
+                <div style='width:24px; height:24px; border-radius:6px; background:#111D32;'></div>
+                <span style='font-size:0.8rem; font-family:"JetBrains Mono", monospace;'>Sidebar #111D32</span>
             </div>
             <div style='display:flex; align-items:center; gap:0.5rem;'>
-                <div style='width:24px; height:24px; border-radius:6px; background:#38BDF8;'></div>
-                <span style='font-size:0.8rem; font-family:"JetBrains Mono", monospace;'>Cyan Highlight #38BDF8</span>
+                <div style='width:24px; height:24px; border-radius:6px; background:#315EDE;'></div>
+                <span style='font-size:0.8rem; font-family:"JetBrains Mono", monospace;'>Primary Blue #315EDE</span>
             </div>
             <div style='display:flex; align-items:center; gap:0.5rem;'>
-                <div style='width:24px; height:24px; border-radius:6px; background:#10B981;'></div>
-                <span style='font-size:0.8rem; font-family:"JetBrains Mono", monospace;'>Emerald Success #10B981</span>
+                <div style='width:24px; height:24px; border-radius:6px; background:#18794E;'></div>
+                <span style='font-size:0.8rem; font-family:"JetBrains Mono", monospace;'>Success #18794E</span>
+            </div>
+            <div style='display:flex; align-items:center; gap:0.5rem;'>
+                <div style='width:24px; height:24px; border-radius:6px; background:#B42332;'></div>
+                <span style='font-size:0.8rem; font-family:"JetBrains Mono", monospace;'>Critical #B42332</span>
             </div>
         </div>
         """,

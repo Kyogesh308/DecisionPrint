@@ -23,9 +23,12 @@ def render_top_bar(
     breadcrumbs_html = " <span class='dp-breadcrumb-sep'>/</span> ".join(breadcrumb_parts)
 
     search_icon = get_icon_svg("search", size=16, color="#94A3B8")
-    bell_icon = get_icon_svg("bell", size=17, color="#CBD5E1")
-    moon_icon = get_icon_svg("moon", size=17, color="#CBD5E1")
-    logo_icon = get_icon_svg("logo_bubble", size=22, color="#818CF8")
+    bell_icon = get_icon_svg("bell", size=17, color="#94A3B8")
+    current_theme = st.session_state.get("theme", "light")
+    theme_icon_name = "sun" if current_theme == "dark" else "moon"
+    theme_title = f"Theme: {current_theme.capitalize()}"
+    theme_icon = get_icon_svg(theme_icon_name, size=17, color="#94A3B8")
+    logo_icon = get_icon_svg("logo_bubble", size=22, color="#315EDE")
 
     st.markdown(
         f"""
@@ -49,7 +52,7 @@ def render_top_bar(
             </div>
             <div class='dp-topbar-actions'>
                 <div class='dp-icon-btn' title='Notifications'>{bell_icon}</div>
-                <div class='dp-icon-btn' title='Theme: Dark'>{moon_icon}</div>
+                <div class='dp-icon-btn' title='{theme_title}'>{theme_icon}</div>
                 <div class='dp-user-avatar' title='John Doe (Product Manager)'>JD</div>
             </div>
         </div>
@@ -93,6 +96,24 @@ def render_sidebar_chrome() -> None:
     )
     if selected_role != st.session_state.get("role"):
         st.session_state.role = selected_role
+        st.rerun()
+
+    # Theme selector
+    current_theme = st.session_state.get("theme", "light")
+    theme_options = ["light", "dark", "system"]
+    theme_labels = {"light": "☀️ Light Theme (Default)", "dark": "🌙 Dark Theme", "system": "💻 System Follow"}
+    default_theme_idx = theme_options.index(current_theme) if current_theme in theme_options else 0
+    selected_theme = st.sidebar.selectbox(
+        "Theme Preference",
+        theme_options,
+        index=default_theme_idx,
+        format_func=lambda x: theme_labels.get(x, x),
+        key="app_theme_selector",
+        help="Switch between Light (Enterprise SaaS), Dark, or System mode.",
+    )
+    if selected_theme != st.session_state.get("theme"):
+        st.session_state.theme = selected_theme
+        st.rerun()
 
     backend = os.getenv("DP_BACKEND", "fixture")
     backend_status = "Connected"

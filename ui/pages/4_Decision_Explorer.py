@@ -90,8 +90,8 @@ with tab_decisions:
             rows_html.append(
                 f"""
                 <tr>
-                    <td><strong>{dec.title}</strong><div style='font-size:0.75rem; color:#818CF8;'>{dec.decision_id}</div></td>
-                    <td><strong style='color:#F1F5F9;'>{dec.project_id.upper()}</strong></td>
+                    <td><strong>{dec.title}</strong><div style='font-size:0.75rem; color:var(--dp-primary, #315EDE);'>{dec.decision_id}</div></td>
+                    <td><strong style='color:var(--dp-text-primary, #17243B);'>{dec.project_id.upper()}</strong></td>
                     <td>{tech_chips}</td>
                     <td style='font-family:"JetBrains Mono", monospace; font-size:0.82rem;'>{date_s}</td>
                     <td>{st_badge}</td>

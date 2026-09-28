@@ -38,7 +38,7 @@ st.markdown(
 # 2. Query Composer Card
 st.markdown("<div class='dp-card'>", unsafe_allow_html=True)
 st.markdown(
-    "<div style='font-size:0.9rem; font-weight:600; color:#F8FAFC; margin-bottom:0.5rem;'>Ask a question</div>",
+    "<div style='font-size:0.9rem; font-weight:600; color:var(--dp-text-primary, #17243B); margin-bottom:0.5rem;'>Ask a question</div>",
     unsafe_allow_html=True,
 )
 
@@ -71,7 +71,7 @@ with col_btn:
 
 # Suggested Questions Row
 st.markdown(
-    "<div style='font-size:0.78rem; color:#94A3B8; font-weight:600; margin-top:0.8rem;'>Suggested questions:</div>",
+    "<div style='font-size:0.78rem; color:var(--dp-text-muted, #68778D); font-weight:600; margin-top:0.8rem;'>Suggested questions:</div>",
     unsafe_allow_html=True,
 )
 sq_cols = st.columns(4)
@@ -108,8 +108,8 @@ if brief:
     c_left, c_right = st.columns([3, 1])
     with c_left:
         st.markdown(
-            f"<div style='font-size:0.82rem; color:#94A3B8; margin-bottom:0.5rem;'>"
-            f"Query ID: <code style='color:#818CF8;'>{brief.query_id}</code> &middot; Evaluated under role: <strong>{role}</strong>"
+            f"<div style='font-size:0.82rem; color:var(--dp-text-muted, #68778D); margin-bottom:0.5rem;'>"
+            f"Query ID: <code style='color:var(--dp-primary, #315EDE);'>{brief.query_id}</code> &middot; Evaluated under role: <strong>{role}</strong>"
             f"</div>",
             unsafe_allow_html=True,
         )

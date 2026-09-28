@@ -10,6 +10,7 @@ from contracts import CurrentProjectContext
 from contracts.errors import ScopeError
 from ui.adapters import get_backend
 from ui.components import (
+    badge_html,
     inject_custom_css,
     render_drift_card,
     render_sidebar_chrome,
@@ -62,7 +63,7 @@ with kp2:
         """
     <div class='dp-kpi-card'>
         <div class='dp-kpi-label'>Active</div>
-        <div class='dp-kpi-value' style='color:#34D399;'>3</div>
+        <div class='dp-kpi-value' style='color:var(--dp-success, #18794E);'>3</div>
         <div class='dp-kpi-trend-pos'>Under continuous recall</div>
     </div>
     """,
@@ -73,7 +74,7 @@ with kp3:
         """
     <div class='dp-kpi-card'>
         <div class='dp-kpi-label'>On Hold</div>
-        <div class='dp-kpi-value' style='color:#FBBF24;'>1</div>
+        <div class='dp-kpi-value' style='color:var(--dp-warning, #A85B08);'>1</div>
         <div class='dp-kpi-trend-neg'>Constraint evaluation pending</div>
     </div>
     """,
@@ -84,7 +85,7 @@ with kp4:
         """
     <div class='dp-kpi-card'>
         <div class='dp-kpi-label'>Completed</div>
-        <div class='dp-kpi-value' style='color:#38BDF8;'>1</div>
+        <div class='dp-kpi-value' style='color:var(--dp-primary, #315EDE);'>1</div>
         <div class='dp-kpi-trend-pos'>Archived with gold history</div>
     </div>
     """,
@@ -97,8 +98,19 @@ st.markdown("<div style='height: 1.5rem;'></div>", unsafe_allow_html=True)
 st.markdown("<div class='dp-card'>", unsafe_allow_html=True)
 st.markdown("### Active Project Directory")
 
+nova_status = badge_html("status", "active")
+nova_drift = badge_html("drift", "high")
+orion_status = badge_html("status", "active")
+orion_drift = badge_html("drift", "medium")
+helios_status = badge_html("status", "on_hold")
+helios_drift = badge_html("drift", "low")
+zenith_status = badge_html("status", "active")
+zenith_drift = badge_html("drift", "medium")
+atlas_status = badge_html("status", "completed")
+atlas_drift = badge_html("drift", "low")
+
 st.markdown(
-    """
+    f"""
     <table class='dp-table'>
         <thead>
             <tr>
@@ -112,53 +124,53 @@ st.markdown(
         <tbody>
             <tr>
                 <td>
-                    <div style='font-weight:700; color:#F8FAFC;'>Project Nova</div>
-                    <div style='font-size:0.75rem; color:#94A3B8;'>Event Streaming Platform</div>
+                    <div style='font-weight:700; color:var(--dp-text-primary, #17243B);'>Project Nova</div>
+                    <div style='font-size:0.75rem; color:var(--dp-text-muted, #68778D);'>Event Streaming Platform</div>
                 </td>
-                <td><span class='dp-badge' style='background:rgba(34,197,94,0.15); color:#4ADE80; border:1px solid rgba(74,222,128,0.35);'>ACTIVE</span></td>
-                <td><code style='color:#818CF8;'>15</code></td>
-                <td><span class='dp-badge' style='background:rgba(239,68,68,0.18); color:#F87171; border:1px solid rgba(248,113,113,0.5);'>HIGH</span></td>
-                <td style='color:#94A3B8; font-size:0.82rem;'>2h ago</td>
+                <td>{nova_status}</td>
+                <td><code style='color:var(--dp-primary, #315EDE);'>15</code></td>
+                <td>{nova_drift}</td>
+                <td style='color:var(--dp-text-muted, #68778D); font-size:0.82rem;'>2h ago</td>
             </tr>
             <tr>
                 <td>
-                    <div style='font-weight:700; color:#F8FAFC;'>Project Orion (Delta)</div>
-                    <div style='font-size:0.75rem; color:#94A3B8;'>Data Platform Migration</div>
+                    <div style='font-weight:700; color:var(--dp-text-primary, #17243B);'>Project Orion (Delta)</div>
+                    <div style='font-size:0.75rem; color:var(--dp-text-muted, #68778D);'>Data Platform Migration</div>
                 </td>
-                <td><span class='dp-badge' style='background:rgba(34,197,94,0.15); color:#4ADE80; border:1px solid rgba(74,222,128,0.35);'>ACTIVE</span></td>
-                <td><code style='color:#818CF8;'>12</code></td>
-                <td><span class='dp-badge' style='background:rgba(249,115,22,0.15); color:#FB923C; border:1px solid rgba(251,146,60,0.4);'>MEDIUM</span></td>
-                <td style='color:#94A3B8; font-size:0.82rem;'>5h ago</td>
+                <td>{orion_status}</td>
+                <td><code style='color:var(--dp-primary, #315EDE);'>12</code></td>
+                <td>{orion_drift}</td>
+                <td style='color:var(--dp-text-muted, #68778D); font-size:0.82rem;'>5h ago</td>
             </tr>
             <tr>
                 <td>
-                    <div style='font-weight:700; color:#F8FAFC;'>Project Helios (Beta)</div>
-                    <div style='font-size:0.75rem; color:#94A3B8;'>ML Platform Gateway</div>
+                    <div style='font-weight:700; color:var(--dp-text-primary, #17243B);'>Project Helios (Beta)</div>
+                    <div style='font-size:0.75rem; color:var(--dp-text-muted, #68778D);'>ML Platform Gateway</div>
                 </td>
-                <td><span class='dp-badge' style='background:rgba(245,158,11,0.15); color:#FBBF24; border:1px solid rgba(251,191,36,0.35);'>ON HOLD</span></td>
-                <td><code style='color:#818CF8;'>8</code></td>
-                <td><span class='dp-badge' style='background:rgba(34,197,94,0.15); color:#4ADE80; border:1px solid rgba(74,222,128,0.35);'>LOW</span></td>
-                <td style='color:#94A3B8; font-size:0.82rem;'>1d ago</td>
+                <td>{helios_status}</td>
+                <td><code style='color:var(--dp-primary, #315EDE);'>8</code></td>
+                <td>{helios_drift}</td>
+                <td style='color:var(--dp-text-muted, #68778D); font-size:0.82rem;'>1d ago</td>
             </tr>
             <tr>
                 <td>
-                    <div style='font-weight:700; color:#F8FAFC;'>Project Zenith (Gamma)</div>
-                    <div style='font-size:0.75rem; color:#94A3B8;'>Analytics Platform</div>
+                    <div style='font-weight:700; color:var(--dp-text-primary, #17243B);'>Project Zenith (Gamma)</div>
+                    <div style='font-size:0.75rem; color:var(--dp-text-muted, #68778D);'>Analytics Platform</div>
                 </td>
-                <td><span class='dp-badge' style='background:rgba(34,197,94,0.15); color:#4ADE80; border:1px solid rgba(74,222,128,0.35);'>ACTIVE</span></td>
-                <td><code style='color:#818CF8;'>14</code></td>
-                <td><span class='dp-badge' style='background:rgba(249,115,22,0.15); color:#FB923C; border:1px solid rgba(251,146,60,0.4);'>MEDIUM</span></td>
-                <td style='color:#94A3B8; font-size:0.82rem;'>1d ago</td>
+                <td>{zenith_status}</td>
+                <td><code style='color:var(--dp-primary, #315EDE);'>14</code></td>
+                <td>{zenith_drift}</td>
+                <td style='color:var(--dp-text-muted, #68778D); font-size:0.82rem;'>1d ago</td>
             </tr>
             <tr>
                 <td>
-                    <div style='font-weight:700; color:#F8FAFC;'>Project Atlas (Alpha)</div>
-                    <div style='font-size:0.75rem; color:#94A3B8;'>Infrastructure Upgrade Baseline</div>
+                    <div style='font-weight:700; color:var(--dp-text-primary, #17243B);'>Project Atlas (Alpha)</div>
+                    <div style='font-size:0.75rem; color:var(--dp-text-muted, #68778D);'>Infrastructure Upgrade Baseline</div>
                 </td>
-                <td><span class='dp-badge' style='background:rgba(20,184,166,0.15); color:#5EEAD4; border:1px solid rgba(94,234,212,0.35);'>COMPLETED</span></td>
-                <td><code style='color:#818CF8;'>6</code></td>
-                <td><span class='dp-badge' style='background:rgba(34,197,94,0.15); color:#4ADE80; border:1px solid rgba(74,222,128,0.35);'>LOW</span></td>
-                <td style='color:#94A3B8; font-size:0.82rem;'>3d ago</td>
+                <td>{atlas_status}</td>
+                <td><code style='color:var(--dp-primary, #315EDE);'>6</code></td>
+                <td>{atlas_drift}</td>
+                <td style='color:var(--dp-text-muted, #68778D); font-size:0.82rem;'>3d ago</td>
             </tr>
         </tbody>
     </table>

@@ -8,6 +8,7 @@ from contracts import DecisionFilter
 from contracts.errors import ScopeError
 from ui.adapters import get_backend
 from ui.components import (
+    badge_html,
     inject_custom_css,
     render_outcome_chain,
     render_sidebar_chrome,
@@ -68,15 +69,16 @@ try:
 
     st.markdown("<div class='dp-card' style='margin-top: 1rem;'>", unsafe_allow_html=True)
     st.markdown("### 🔍 Causal Audit Explanation")
+    causal_badge = badge_html("causal", "explicit_causal_link")
     if selected_did == "DEC-DELTA-001":
         st.markdown(
-            """
-            <p style='color:#E2E8F0; font-size:0.95rem; line-height: 1.6;'>
+            f"""
+            <p style='color:var(--dp-text-primary, #17243B); font-size:0.95rem; line-height: 1.6;'>
                 <strong>The Cedar Chain:</strong> In Q2 2025, Project Delta disabled automated database backups
                 (<code>SRC-DELTA-001</code>, <code>SRC-DELTA-002</code>) to save $4,200/month under cost-reduction directives.
                 On July 22, 2025, an infrastructure outage struck (<code>SRC-DELTA-003</code>). The postmortem explicitly cited
                 <code>DEC-DELTA-001</code> as a direct root-cause contributor to data loss and an extended 6-hour MTTR, earning an
-                <span class='dp-badge' style='background:rgba(99,102,241,0.22); color:#818CF8; border:1px solid #6366F1;'>EXPLICIT CAUSAL LINK</span>
+                {causal_badge}
                 rather than speculative correlation.
             </p>
             """,
@@ -84,11 +86,11 @@ try:
         )
     else:
         st.markdown(
-            """
-            <p style='color:#E2E8F0; font-size:0.95rem; line-height: 1.6;'>
+            f"""
+            <p style='color:var(--dp-text-primary, #17243B); font-size:0.95rem; line-height: 1.6;'>
                 Downstream consequences are audited using evidence-backed causal inference. When an official postmortem names a decision
                 or when concrete latency/throughput metrics correlate with an architectural milestone, an
-                <span class='dp-badge' style='background:rgba(99,102,241,0.22); color:#818CF8; border:1px solid #6366F1;'>EXPLICIT CAUSAL LINK</span>
+                {causal_badge}
                 is formed.
             </p>
             """,
