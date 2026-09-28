@@ -7,7 +7,7 @@ from datetime import UTC, datetime
 
 import pytest
 
-from contracts import DecisionFilter, SourceManifestEntry, SourceType
+from contracts import Constraint, CurrentProjectContext, DecisionFilter, SourceManifestEntry, SourceType
 from contracts.errors import ScopeError
 from contracts.interfaces import FacadeProtocol
 from ui.adapters import get_backend
@@ -30,6 +30,115 @@ def test_get_backend_reads_env(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("DP_BACKEND", "invalid_mode")
     with pytest.raises(ValueError, match="Unknown DP_BACKEND"):
         get_backend()
+
+
+def test_live_backend_connects_ui_calls_to_sqlite_and_hindsight(tmp_path, monkeypatch: pytest.MonkeyPatch) -> None:
+    from types import SimpleNamespace
+
+    import memory
+
+    class FakeHindsight:
+        def __init__(self, base_url: str, api_key: str | None = None):
+            assert base_url == "https://memory.example"
+            assert api_key == "test-key"
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc_value, traceback):
+            return False
+
+        def retain(self, **kwargs):
+            return SimpleNamespace(operation_ids=["op-1"])
+
+        def recall(self, **kwargs):
+            return SimpleNamespace(
+                results=[
+                    SimpleNamespace(
+                        id="memory-1",
+                        text="Kafka was rejected because the project had two consumers.",
+                        document_id="SRC-NOVA-901",
+                        metadata={"source_id": "SRC-NOVA-901"},
+                        tags=["decision"],
+                        scores=SimpleNamespace(final=0.9),
+                    )
+                ]
+            )
+
+        def reflect(self, **kwargs):
+            return SimpleNamespace(text="The previous Kafka decision depended on different constraints.")
+
+        def list_mental_models(self, **kwargs):
+            return SimpleNamespace(items=[])
+
+    monkeypatch.setenv("DP_BACKEND", "live")
+    monkeypatch.setenv("DP_DB_PATH", str(tmp_path / "decisionprint.db"))
+    monkeypatch.setenv("DP_HINDSIGHT_BASE_URL", "https://memory.example")
+    monkeypatch.setenv("DP_HINDSIGHT_API_KEY", "test-key")
+    monkeypatch.setenv("DP_HINDSIGHT_BANK_ID", "test-bank")
+    monkeypatch.setattr(memory, "Hindsight", FakeHindsight)
+
+    backend = get_backend()
+    assert isinstance(backend, LiveBackend)
+
+    entry = SourceManifestEntry(
+        source_id="SRC-NOVA-901",
+        project_id="nova",
+        source_type=SourceType.adr,
+        title="Kafka decision",
+        date=datetime.now(tz=UTC),
+        is_current=True,
+    )
+    ingested = backend.ingest_source(entry, "Kafka was rejected because there were two consumers.", "admin")
+    overview = backend.get_memory_overview("admin")
+    projects = backend.list_projects("admin")
+    updated_context = backend.update_project_context(
+        CurrentProjectContext(project_id="nova", constraints=[Constraint(key="consumer_count", value=15)]), "admin"
+    )
+    from store import save_causal_link, save_decision, save_outcome
+
+    save_decision(
+        "DEC-NOVA-901",
+        "nova",
+        title="Kafka selection",
+        decision_statement="Kafka was reconsidered for Nova.",
+        occurred_at="2026-02-01T00:00:00Z",
+    )
+    save_outcome("OUT-NOVA-901", "nova", decision_id="DEC-NOVA-901", title="Review", summary="Review completed")
+    save_causal_link(
+        "LINK-NOVA-901",
+        decision_id="DEC-NOVA-901",
+        outcome_id="OUT-NOVA-901",
+        relation="explicit_causal_link",
+        evidence_ids=[entry.source_id],
+    )
+    decisions = backend.search_decisions(DecisionFilter(text="Kafka"), "admin")
+    decision = backend.get_decision("DEC-NOVA-901", "admin")
+    timeline = backend.get_decision_timeline("DEC-NOVA-901", "admin")
+    brief = backend.ask_question("Should Nova use Kafka?", "nova", "admin")
+    trace = backend.get_memory_trace(brief.query_id, "admin")
+    evidence = backend.get_evidence(entry.source_id, "admin")
+    outcome_chain = backend.get_outcome_chain("DEC-NOVA-901", "admin")
+    drift_cards = backend.list_drift_cards("nova", "admin")
+    observations = backend.list_observations("admin")
+    mental_models = backend.list_mental_models("admin")
+    review_queue = backend.list_review_queue("admin")
+
+    assert ingested.source_id == entry.source_id
+    assert ingested.memories_created == 1
+    assert overview.source_count == 1
+    assert projects[0].project_id == "nova"
+    assert updated_context.constraints["consumer_count"] == "15"
+    assert decisions[0].decision_id == "DEC-NOVA-901"
+    assert decision.title == "Kafka selection"
+    assert len(timeline) == 2
+    assert brief.answer_summary.startswith("The previous Kafka decision")
+    assert brief.source_ids == [entry.source_id]
+    assert trace.recalled[0].memory_id == "memory-1"
+    assert evidence.source_id == entry.source_id
+    assert outcome_chain.links[0].evidence_ids == [entry.source_id]
+    assert drift_cards == []
+    assert observations == mental_models == review_queue == []
 
 
 def test_live_backend_lazy_import(monkeypatch: pytest.MonkeyPatch) -> None:

@@ -37,7 +37,7 @@ def run_guarded(fn: Callable[..., T], *args, **kwargs) -> T | None:
         st.info("🔍 Nothing found — try a different search or selection.")
     except MemoryUnavailableError:
         st.error(
-            "⚠️ Memory backend is unreachable. Switch to **fixture** mode using `DP_BACKEND=fixture` in your `.env` file."
+            "⚠️ Hindsight is unavailable. Check `DP_HINDSIGHT_BASE_URL` and service credentials, or switch to fixture mode with `DP_BACKEND=fixture`."
         )
     except Exception as e:  # noqa: BLE001 — intentional UI error boundary
         st.error(f"❌ Unexpected error: {e}")

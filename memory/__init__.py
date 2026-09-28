@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from typing import Any, Iterable
 
 from dotenv import load_dotenv
+from contracts.errors import MemoryUnavailableError
 
 load_dotenv()
 
@@ -15,14 +16,11 @@ except ImportError:  # pragma: no cover - exercised in environments without the 
     Hindsight = None
 
 
-class MemoryUnavailableError(RuntimeError):
-    """Raised when the Hindsight memory layer cannot supply a valid response."""
-
-
 @dataclass
 class RecalledMemory:
     text: str
     source_id: str | None = None
+    memory_id: str | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
     retrieval_confidence: float = 0.0
     tags: list[str] = field(default_factory=list)
@@ -109,7 +107,25 @@ def _effective_tags(tags: Iterable[str] | str | None, scope: Any = None) -> list
 def _client():
     if Hindsight is None:
         raise MemoryUnavailableError("hindsight_client is not installed")
-    return Hindsight(base_url=_base_url())
+    return Hindsight(base_url=_base_url(), api_key=os.getenv("DP_HINDSIGHT_API_KEY") or None)
+
+
+def _response_value(response: Any, key: str, default: Any = None) -> Any:
+    if isinstance(response, dict):
+        return response.get(key, default)
+    return getattr(response, key, default)
+
+
+def _call_hindsight(method: str, **kwargs: Any) -> Any:
+    try:
+        with _client() as client:
+            return getattr(client, method)(**kwargs)
+    except MemoryUnavailableError:
+        raise
+    except Exception as exc:
+        raise MemoryUnavailableError(
+            f"Hindsight {method} request failed; check the service endpoint and credentials"
+        ) from exc
 
 
 def init_memory_bank() -> None:
@@ -153,16 +169,18 @@ def retain_source(
             if value is not None:
                 merged_metadata[key] = value
 
-    with _client() as client:
-        response = client.retain(
-            bank_id=_bank_id(),
-            document_id=str(source),
-            content=sanitized_text,
-            metadata=merged_metadata,
-            tags=normalized_tags,
-        )
+    response = _call_hindsight(
+        "retain",
+        bank_id=_bank_id(),
+        document_id=str(source),
+        content=sanitized_text,
+        metadata=merged_metadata,
+        tags=normalized_tags,
+    )
 
-    memory_ids = response.get("memory_ids", []) if isinstance(response, dict) else []
+    memory_ids = _response_value(response, "memory_ids")
+    if memory_ids is None:
+        memory_ids = _response_value(response, "operation_ids", [])
     if isinstance(memory_ids, str):
         memory_ids = [memory_ids]
     if not isinstance(memory_ids, list):
@@ -188,43 +206,51 @@ def recall_memories(
     allowed_tags = _scope_allowed_tags(scope)
     kwargs: dict[str, Any] = {}
     if limit is not None:
-        kwargs["limit"] = limit
+        kwargs["max_tokens"] = max(512, min(limit * 512, 16384))
     if occurred_before is not None:
-        kwargs["occurred_before"] = occurred_before
+        kwargs["query_timestamp"] = occurred_before
     if allowed_tags:
         kwargs["tags"] = allowed_tags
 
     response: Any = None
     for attempt in range(3):
-        try:
-            with _client() as client:
-                response = client.recall(bank_id=_bank_id(), query=query, **kwargs)
-        except TypeError:
-            with _client() as client:
-                response = client.recall(bank_id=_bank_id(), query=query)
-        rows = response.get("results", []) if isinstance(response, dict) else []
+        response = _call_hindsight("recall", bank_id=_bank_id(), query=query, **kwargs)
+        rows = _response_value(response, "results", [])
         if rows:
             break
         time.sleep(0.2 * (attempt + 1))
 
-    rows = response.get("results", []) if isinstance(response, dict) else []
+    rows = _response_value(response, "results", [])
     recalled: list[RecalledMemory] = []
     for item in rows:
-        if not isinstance(item, dict):
-            continue
-        text = item.get("text") or item.get("content") or ""
-        metadata = item.get("metadata") or {}
-        source_id = metadata.get("source_id") or metadata.get("sourceId")
+        text = _response_value(item, "text") or _response_value(item, "content") or ""
+        metadata = _response_value(item, "metadata") or {}
+        if not isinstance(metadata, dict):
+            metadata = {}
+        source_id = (
+            metadata.get("source_id")
+            or metadata.get("sourceId")
+            or _response_value(item, "document_id")
+        )
         tags: list[str] = []
-        if isinstance(metadata.get("tags"), list):
+        result_tags = _response_value(item, "tags") or metadata.get("tags")
+        if isinstance(result_tags, list):
+            tags = [str(tag) for tag in result_tags]
+        confidence = _response_value(item, "retrieval_confidence")
+        if confidence is None:
+            confidence = _response_value(item, "confidence")
+        if confidence is None:
+            scores = _response_value(item, "scores")
+            confidence = _response_value(scores, "final", 0.0)
+        if isinstance(metadata.get("tags"), list) and not tags:
             tags = [str(tag) for tag in metadata["tags"]]
-        confidence = float(item.get("retrieval_confidence", item.get("confidence", 0.0)) or 0.0)
         recalled.append(
             RecalledMemory(
                 text=str(text),
                 source_id=str(source_id) if source_id is not None else None,
+                memory_id=str(_response_value(item, "id")) if _response_value(item, "id") is not None else None,
                 metadata=dict(metadata),
-                retrieval_confidence=confidence,
+                retrieval_confidence=float(confidence or 0.0),
                 tags=tags,
             )
         )
@@ -247,15 +273,27 @@ def reflect_on_question(
     if allowed_tags:
         kwargs["tags"] = allowed_tags
 
-    with _client() as client:
-        response = client.reflect(bank_id=_bank_id(), query=question, **kwargs)
+    response = _call_hindsight("reflect", bank_id=_bank_id(), query=question, **kwargs)
 
-    text = response.get("text") if isinstance(response, dict) else str(response)
+    text = _response_value(response, "text", response)
     answer = (text or "").strip()
     if not answer:
         raise MemoryUnavailableError(f"No usable answer returned for question: {question!r}")
 
     return ReflectResult(question=question, text=answer, context=context)
+
+
+def list_mental_models(scope: Any = None) -> list[Any]:
+    """List Hindsight mental models visible to the supplied memory scope."""
+    tags = _scope_allowed_tags(scope)
+    response = _call_hindsight(
+        "list_mental_models",
+        bank_id=_bank_id(),
+        tags=tags or None,
+        detail="full",
+    )
+    items = _response_value(response, "items", response)
+    return items if isinstance(items, list) else []
 
 
 def list_observation_views(scope: Any = None, *, topic: str | None = None) -> list[dict[str, Any]]:

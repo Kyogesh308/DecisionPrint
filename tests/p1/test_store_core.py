@@ -12,9 +12,13 @@ from store import (
     get_project,
     get_project_context_record,
     get_source,
+    get_record_counts,
     init_database,
     list_audit_events,
+    list_decision_records,
+    list_outcome_records,
     list_projects_in_scope,
+    list_source_records,
     mark_decision_status,
     record_audit_event,
     resolve_scope,
@@ -27,8 +31,9 @@ from store import (
 )
 
 
-def test_database_round_trip_and_audit(tmp_path):
+def test_database_round_trip_and_audit(tmp_path, monkeypatch):
     db_path = tmp_path / "decisionprint.db"
+    monkeypatch.setenv("DP_DB_PATH", str(db_path))
     init_database(str(db_path))
 
     upsert_project("project-001", "Alpha", description="Kafka discussion")
@@ -82,14 +87,18 @@ def test_database_round_trip_and_audit(tmp_path):
 
     source = get_source("source-001")
     assert source["source_type"] == "architecture_doc"
+    assert list_source_records(project_id="project-001")[0]["source_id"] == "source-001"
 
     decision = get_decision_record("decision-001")
     assert decision["decision_statement"].startswith("Kafka was rejected")
+    assert list_decision_records(project_id="project-001")[0]["decision_id"] == "decision-001"
 
     context = get_project_context_record("project-001")
     assert context["consumer_count"] == 2
 
     assert list_audit_events(project_id="project-001")[0]["action"] == "ask_question"
+    assert list_outcome_records(decision_id="decision-001")[0]["outcome_id"] == "outcome-001"
+    assert get_record_counts()["decisions"] == 1
 
     mark_decision_status("decision-001", "superseded", superseded_by="decision-002")
     updated = get_decision_record("decision-001")
@@ -133,6 +142,13 @@ def test_resolve_scope_and_project_access_rules():
     assert public_scope.role == "viewer"
     assert public_scope.allowed_tags
     assert list_projects_in_scope(public_scope)
+
+    admin_scope = resolve_scope("admin")
+    assert_project_allowed(admin_scope, "nova")
+
+    engineer_scope = resolve_scope("engineer")
+    with pytest.raises(ScopeError):
+        assert_project_allowed(engineer_scope, "delta")
 
 
 def test_init_database_is_idempotent(tmp_path):

@@ -13,8 +13,9 @@ def test_ingest_source_and_ask_question_round_trip(tmp_path, monkeypatch):
     from facade import update_project_context
 
     class FakeHindsight:
-        def __init__(self, base_url: str):
+        def __init__(self, base_url: str, api_key: str | None = None):
             self.base_url = base_url
+            self.api_key = api_key
 
         def __enter__(self):
             return self
