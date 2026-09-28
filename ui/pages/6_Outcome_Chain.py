@@ -30,10 +30,11 @@ except Exception:  # noqa: BLE001
     options = ["DEC-DELTA-001: Remove automated backups", "DEC-ALPHA-001: Reject Kafka for messaging"]
     id_map = {"DEC-DELTA-001: Remove automated backups": "DEC-DELTA-001"}
 
-# Find index of DEC-DELTA-001 (Cedar chain)
+# Find index of DEC-DELTA-001 (Cedar chain) or preselected decision
+preselected = st.session_state.get("selected_decision_id") or "DEC-DELTA-001"
 default_idx = 0
 for idx, opt in enumerate(options):
-    if "DEC-DELTA-001" in opt:
+    if preselected and preselected in opt:
         default_idx = idx
         break
 

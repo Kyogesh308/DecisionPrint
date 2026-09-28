@@ -32,10 +32,10 @@ except Exception as e:  # noqa: BLE001
     id_map = {"DEC-ALPHA-001: Reject Kafka for messaging": "DEC-ALPHA-001"}
 
 # Check if pre-selected from another page
-preselected = st.session_state.get("selected_decision_id", "DEC-ALPHA-001")
+preselected = st.session_state.get("selected_decision_id") or "DEC-ALPHA-001"
 default_idx = 0
 for i, opt in enumerate(dec_options):
-    if preselected in opt:
+    if preselected and preselected in opt:
         default_idx = i
         break
 
