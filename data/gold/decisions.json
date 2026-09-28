@@ -1,0 +1,100 @@
+[
+  {
+    "decision_id": "DEC-ALPHA-001",
+    "project": "alpha",
+    "chain": "kafka",
+    "title": "Reject Kafka for messaging",
+    "selected_option": "RabbitMQ",
+    "status": "active",
+    "key_constraints": [
+      "consumer_count",
+      "replay_required",
+      "ops_capacity"
+    ],
+    "reason_linked_constraints": [
+      "consumer_count",
+      "ops_capacity",
+      "replay_required"
+    ]
+  },
+  {
+    "decision_id": "DEC-ALPHA-002",
+    "project": "alpha",
+    "chain": "redis",
+    "title": "Single Redis instance",
+    "selected_option": "Single Redis",
+    "status": "active",
+    "key_constraints": [
+      "instance_count",
+      "cache_hit_ratio"
+    ],
+    "reason_linked_constraints": [
+      "instance_count"
+    ]
+  },
+  {
+    "decision_id": "DEC-ALPHA-003",
+    "project": "alpha",
+    "chain": "tracing",
+    "title": "Structured logging over tracing",
+    "selected_option": "Structured logging (ELK)",
+    "status": "active",
+    "key_constraints": [
+      "observability_maturity",
+      "debugging_frequency"
+    ],
+    "reason_linked_constraints": [
+      "observability_maturity",
+      "debugging_frequency"
+    ]
+  },
+  {
+    "decision_id": "DEC-BETA-001",
+    "project": "beta",
+    "chain": "graphql",
+    "title": "Reject GraphQL for API layer",
+    "selected_option": "REST",
+    "status": "active",
+    "key_constraints": [
+      "client_count",
+      "client_diversity",
+      "schema_complexity"
+    ],
+    "reason_linked_constraints": [
+      "client_count",
+      "schema_complexity"
+    ]
+  },
+  {
+    "decision_id": "DEC-GAMMA-001",
+    "project": "gamma",
+    "chain": "redis",
+    "title": "Scale to Redis Cluster",
+    "selected_option": "Redis Cluster (4 nodes)",
+    "status": "active",
+    "key_constraints": [
+      "instance_count",
+      "cache_hit_ratio",
+      "session_persistence"
+    ],
+    "reason_linked_constraints": [
+      "cache_hit_ratio"
+    ]
+  },
+  {
+    "decision_id": "DEC-DELTA-001",
+    "project": "delta",
+    "chain": "cedar",
+    "title": "Remove automated backups",
+    "selected_option": "Disable automated backups",
+    "status": "superseded",
+    "key_constraints": [
+      "backup_policy",
+      "budget_pressure",
+      "data_criticality"
+    ],
+    "reason_linked_constraints": [
+      "budget_pressure"
+    ]
+  }
+]

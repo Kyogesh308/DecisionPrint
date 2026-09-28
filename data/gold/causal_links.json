@@ -1,0 +1,18 @@
+[
+  {
+    "chain": "cedar",
+    "decision_id": "DEC-DELTA-001",
+    "from_step": "Backup removal decision",
+    "to_step": "Database incident",
+    "expected_label": "explicit_causal_link",
+    "evidence": "SRC-DELTA-003 (postmortem explicitly names DEC-DELTA-001 as contributing factor)"
+  },
+  {
+    "chain": "cedar",
+    "decision_id": "DEC-DELTA-001",
+    "from_step": "Cost optimization plan",
+    "to_step": "Backup removal decision",
+    "expected_label": "fact",
+    "evidence": "SRC-DELTA-001 (cost plan documents the decision)"
+  }
+]

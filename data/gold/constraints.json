@@ -1,0 +1,51 @@
+{
+  "alpha": {
+    "consumer_count": "2",
+    "replay_required": "false",
+    "traffic_volume": "moderate",
+    "ops_capacity": "small",
+    "async_workflows": "false",
+    "instance_count": "1",
+    "cache_hit_ratio": "0.85",
+    "session_persistence": "false",
+    "observability_maturity": "logs_only",
+    "debugging_frequency": "weekly",
+    "incident_mttr": "4h"
+  },
+  "beta": {
+    "client_count": "3",
+    "client_diversity": "internal_only",
+    "schema_complexity": "low",
+    "consumer_count": "5",
+    "async_workflows": "limited",
+    "observability_maturity": "partial_tracing",
+    "debugging_frequency": "daily",
+    "incident_mttr": "2h"
+  },
+  "gamma": {
+    "instance_count": "4",
+    "cache_hit_ratio": "0.72",
+    "session_persistence": "true"
+  },
+  "delta": {
+    "backup_policy": "none",
+    "budget_pressure": "high",
+    "data_criticality": "medium"
+  },
+  "nova": {
+    "consumer_count": "15",
+    "replay_required": "true",
+    "traffic_volume": "high",
+    "ops_capacity": "medium",
+    "async_workflows": "true",
+    "instance_count": "20",
+    "cache_hit_ratio": "target 0.90",
+    "session_persistence": "true",
+    "client_count": "12",
+    "client_diversity": "partner_ecosystem",
+    "schema_complexity": "high",
+    "observability_maturity": "full_tracing",
+    "debugging_frequency": "continuous",
+    "incident_mttr": "<30m"
+  }
+}

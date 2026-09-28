@@ -161,3 +161,26 @@ Document the exact colour scheme from _theme.py:
 - Executive trends view
 - Manual correction UI
 - Interactive graph visualization
+
+---
+
+## 90-Second Demo Script & Judge Experience Walkthrough
+
+| Time | Screen | Action | What is Demonstrated | What Comes from Hindsight Memory |
+|---|---|---|---|---|
+| **0–15 s** | `0_Overview` | Open page, observe **"Memory learned from 5 historical projects"** hero metrics (42 facts, 12 observations, 3 mental models). Type "Kafka" into search bar. | Instant discovery of past precedents. | Long-term memory recall of project Alpha's decision `DEC-ALPHA-001` with grounded sources `SRC-ALPHA-001` and `SRC-ALPHA-002`. |
+| **15–30 s** | `0_Overview` / `Decision Card` | Expand `DEC-ALPHA-001` card. Click `📄 SRC-ALPHA-001`. | Modal dialog opens with verbatim excerpt proving original premise: *"consumer_count=2, ops team small, no replay needed"*. | Primary source evidence excerpt retrieved from disk archive. |
+| **30–45 s** | `0_Overview` | Click "📥 Ingest New Project Document" expander, hit "⚡ One-Click Demo: Load Nova Kickoff Transcript", click "🚀 Ingest Document into DecisionPrint". | Real-time memory update. Counter balloons fly; "Memory Updated: SUCCESS" banner appears with 8 new facts. | Ingest pipeline extracts new active constraints (`consumer_count=15`, `replay_required=true`, `traffic_volume=high`). |
+| **45–65 s** | `1_Ask` | Switch to Ask screen. Question pre-filled: *"Should Nova use Kafka for event streaming?"* Click "🧠 Query Memory". | **THE KILLER MOMENT:** Above the fold, two columns display: Historical Decision (`DEC-ALPHA-001`) vs. Constraint Delta table. **DRIFT: HIGH (92.0%)** banner states *"⚠️ RECONSIDERATION WARRANTED"*. Red badges flag `consumer_count: 2 ➔ 15`, `replay_required: false ➔ true`. Click **"🧬 Inspect Memory Trace"** to view modal drawer with Retained Sources, Recalled Memories, and Active Observations. | Temporal recall + premise invalidation + multi-dimensional confidence breakdown. |
+| **65–78 s** | `5_Memory_Evolution` | Switch to Memory Evolution. Show Mental Models on top (*"Technology adoption follows organizational readiness"*), filter by topic *"messaging"*. | Visual progression of observation evolution over time (reinforcement across independent projects). | Higher-order knowledge consolidation from individual memories into company heuristics. |
+| **78–90 s** | `6_Outcome_Chain` | Switch to Outcome Chain. Select `DEC-DELTA-001` (Cedar chain). Observe 5-step sequence with glowing **EXPLICIT CAUSAL LINK** badge. Click grounding source `SRC-DELTA-003`. | Direct causal audit: proves cost-cutting backup removal directly caused July 2025 outage and data loss. | Causal extraction from incident postmortems linking decisions to outcomes. |
+
+---
+
+## Verification & Test Status
+- **Pytest:** 29 passed in 2.53s (`tests/p3/`)
+- **Ruff:** All checks passed, formatting clean (54 files checked)
+- **Manifest:** 18 documents validated, 0 errors (`scripts/p3/manifest.py`)
+- **Frontend:** Streamlit 1.64.0 responsive on `http://localhost:8501`, HTTP 200 health check verified.
+- **Backend:** All 16 `FacadeProtocol` methods verified with real execution.
+
