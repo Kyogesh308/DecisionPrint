@@ -1,0 +1,108 @@
+"""Outcome Chain page — Trace causal links from decisions to real-world consequences matching Screen 7."""
+
+from __future__ import annotations
+
+import streamlit as st
+
+from contracts import DecisionFilter
+from contracts.errors import ScopeError
+from ui.adapters import get_backend
+from ui.components import (
+    badge_html,
+    inject_custom_css,
+    render_html,
+    render_outcome_chain,
+    render_sidebar_chrome,
+    render_top_bar,
+)
+from ui.components._state import init_session_state, run_guarded
+from ui.components.dialogs import check_and_render_evidence_dialog
+
+init_session_state()
+
+if not st.session_state.get("_top_nav_active"):
+    inject_custom_css()
+    render_top_bar(active_stage="DECIDE")
+    render_sidebar_chrome()
+
+backend = get_backend()
+role = st.session_state.get("role") or "admin"
+check_and_render_evidence_dialog(backend, role)
+
+# 1. Header with Project Selector
+c_head, c_sel = st.columns([3, 1.5])
+with c_head:
+    render_html(
+        """
+        <div style='margin-bottom: 1.25rem;'>
+            <h1 style='margin-bottom: 0.25rem;'>Outcome Chain</h1>
+            <p style='color:var(--dp-text-secondary); font-size:1.02rem; margin:0;'>
+                Trace how cost-cutting directives and architectural choices link directly to project outcomes and evidence.
+            </p>
+        </div>
+        """
+    )
+
+with c_sel:
+    # Decision Picker
+    try:
+        all_decisions = run_guarded(backend.search_decisions, DecisionFilter(), role)
+        options = [f"{d.decision_id}: {d.title}" for d in all_decisions]
+        id_map = {f"{d.decision_id}: {d.title}": d.decision_id for d in all_decisions}
+    except Exception:  # noqa: BLE001
+        options = ["DEC-DELTA-001: Remove automated backups", "DEC-ALPHA-001: Reject Kafka for messaging"]
+        id_map = {
+            "DEC-DELTA-001: Remove automated backups": "DEC-DELTA-001",
+            "DEC-ALPHA-001: Reject Kafka for messaging": "DEC-ALPHA-001",
+        }
+
+    preselected = st.session_state.get("selected_decision_id") or "DEC-DELTA-001"
+    default_idx = 0
+    for idx, opt in enumerate(options):
+        if preselected and preselected in opt:
+            default_idx = idx
+            break
+
+    selected_opt = st.selectbox("Audited Decision", options, index=default_idx)
+    selected_did = id_map.get(selected_opt, "DEC-DELTA-001")
+
+render_html("<div style='height: 0.5rem;'></div>")
+
+# 2. Render Outcome Chain (Horizontal Visual Flow + Evidence Table)
+try:
+    chain = run_guarded(backend.get_outcome_chain, selected_did, role)
+    render_outcome_chain(chain)
+
+    causal_badge = badge_html("causal", "explicit_causal_link")
+    if selected_did == "DEC-DELTA-001":
+        body_text = f"""
+            <strong>The Cedar Chain:</strong> In Q2 2025, Project Delta disabled automated database backups
+            (<code>SRC-DELTA-001</code>, <code>SRC-DELTA-002</code>) to save $4,200/month under cost-reduction directives.
+            On July 22, 2025, an infrastructure outage struck (<code>SRC-DELTA-003</code>). The postmortem explicitly cited
+            <code>DEC-DELTA-001</code> as a direct root-cause contributor to data loss and an extended 6-hour MTTR, earning an
+            {causal_badge}
+            rather than speculative correlation.
+        """
+    else:
+        body_text = f"""
+            Downstream consequences are audited using evidence-backed causal inference. When an official postmortem names a decision
+            or when concrete latency/throughput metrics correlate with an architectural milestone, an
+            {causal_badge}
+            is formed.
+        """
+
+    render_html(
+        f"""
+        <div class='dp-card' style='margin-top: 1rem;'>
+            <h3>🔍 Causal Audit Explanation</h3>
+            <p style='color:var(--dp-text-primary); font-size:0.95rem; line-height: 1.6;'>
+                {body_text}
+            </p>
+        </div>
+        """
+    )
+
+except ScopeError as se:
+    st.warning(f"🔒 {se}")
+except Exception as e:  # noqa: BLE001
+    st.error(f"Failed to load outcome chain for {selected_did}: {e}")

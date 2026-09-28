@@ -1,0 +1,123 @@
+[
+  {
+    "question": "Why did Northstar reject Kafka in 2024?",
+    "expected_decision_ids": [
+      "DEC-ALPHA-001"
+    ],
+    "expected_sources": [
+      "SRC-ALPHA-001",
+      "SRC-ALPHA-002"
+    ]
+  },
+  {
+    "question": "Should Nova use Kafka for event streaming?",
+    "expected_decision_ids": [
+      "DEC-ALPHA-001"
+    ],
+    "expected_drift": "high"
+  },
+  {
+    "question": "What happened after removing backups?",
+    "expected_decision_ids": [
+      "DEC-DELTA-001"
+    ],
+    "expected_sources": [
+      "SRC-DELTA-003"
+    ]
+  },
+  {
+    "question": "Has the Redis architecture changed over time?",
+    "expected_decision_ids": [
+      "DEC-ALPHA-002",
+      "DEC-GAMMA-001"
+    ],
+    "type": "pattern"
+  },
+  {
+    "question": "Why was GraphQL rejected?",
+    "expected_decision_ids": [
+      "DEC-BETA-001"
+    ],
+    "expected_sources": [
+      "SRC-BETA-002"
+    ]
+  },
+  {
+    "question": "Do the reasons for rejecting GraphQL still apply?",
+    "expected_decision_ids": [
+      "DEC-BETA-001"
+    ],
+    "expected_drift": "medium"
+  },
+  {
+    "question": "What is Northstar's approach to observability?",
+    "expected_decision_ids": [
+      "DEC-ALPHA-003"
+    ],
+    "type": "pattern"
+  },
+  {
+    "question": "Has the position on distributed tracing changed?",
+    "expected_decision_ids": [
+      "DEC-ALPHA-003"
+    ],
+    "expected_drift": "high"
+  },
+  {
+    "question": "What cost-cutting decisions were made in Delta?",
+    "expected_decision_ids": [
+      "DEC-DELTA-001"
+    ],
+    "expected_sources": [
+      "SRC-DELTA-001"
+    ]
+  },
+  {
+    "question": "Were there any incidents linked to architectural decisions?",
+    "expected_decision_ids": [
+      "DEC-DELTA-001"
+    ],
+    "type": "causal"
+  },
+  {
+    "question": "How many consumers does Nova's event platform need?",
+    "expected_decision_ids": [
+      "DEC-ALPHA-001"
+    ],
+    "expected_sources": [
+      "SRC-NOVA-001",
+      "SRC-NOVA-002"
+    ]
+  },
+  {
+    "question": "What messaging system does Northstar currently use?",
+    "expected_decision_ids": [
+      "DEC-ALPHA-001"
+    ],
+    "type": "current_state"
+  },
+  {
+    "question": "Has Redis scaling been a recurring concern?",
+    "expected_decision_ids": [
+      "DEC-ALPHA-002",
+      "DEC-GAMMA-001"
+    ],
+    "type": "pattern"
+  },
+  {
+    "question": "What lessons were learned from the database incident?",
+    "expected_decision_ids": [
+      "DEC-DELTA-001"
+    ],
+    "expected_sources": [
+      "SRC-DELTA-003"
+    ]
+  },
+  {
+    "question": "Should Nova adopt GraphQL given the partner ecosystem?",
+    "expected_decision_ids": [
+      "DEC-BETA-001"
+    ],
+    "expected_drift": "medium"
+  }
+]

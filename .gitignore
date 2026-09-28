@@ -30,3 +30,17 @@ data/
 .DS_Store
 .idea/
 .vscode/
+
+# Python packaging
+*.egg-info/
+dist/
+build/
+*.egg
+venv/
+env/
+
+# OS
+Thumbs.db
+
+# Streamlit
+.streamlit/
