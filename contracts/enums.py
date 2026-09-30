@@ -38,10 +38,6 @@ class DriftLevel(str, Enum):
     low = "low"
     medium = "medium"
     high = "high"
-    NONE = "none"
-    LOW = "low"
-    MEDIUM = "medium"
-    HIGH = "high"
 
 
 class EpistemicType(str, Enum):
@@ -64,10 +60,6 @@ class CausalLabel(str, Enum):
     possible_causal_link = "possible_causal_link"
     fact = "fact"
     none = "none"
-    NONE = "none"
-    POSSIBLE_CAUSAL_LINK = "possible_causal_link"
-    STRONG_EVIDENCE = "strong_evidence"
-    EXPLICIT_CAUSAL_LINK = "explicit_causal_link"
 
 
 class Comparison(str, Enum):
@@ -79,9 +71,12 @@ class Comparison(str, Enum):
 
 
 class Role(str, Enum):
-    ENGINEER = "engineer"
-    ARCHITECT = "architect"
-    MANAGER = "manager"
+    admin = "admin"
+    engineer = "engineer"
+    project_lead = "project_lead"
+    executive = "executive"
+    architect = "architect"
+    manager = "manager"
 
 
 class SourceType(str, Enum):

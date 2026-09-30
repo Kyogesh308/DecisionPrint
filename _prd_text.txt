@@ -1,0 +1,1259 @@
+DecisionPrint · Product Requirements Document 
+Hackathon PRD · Hindsight-centric organizational decision memory 
+DECISIONPRINT 
+Product Requirements Document 
+Living organizational decision memory powered by Hindsight 
+ 
+ 
+Core thesis: DecisionPrint remembers WHAT an organization decided, WHY it decided it, under 
+WHICH constraints, WHAT happened afterward, and WHETHER those assumptions still hold. 
+Document 
+Value 
+Product 
+DecisionPrint 
+Primary platform dependency 
+Hindsight by Vectorize — central long-term memory engine 
+Target 
+AI-agent hackathon MVP 
+Judging emphasis 
+Innovation 30% · Hindsight Memory 25% · Technical 20% · UX 15% · Impact 10% 
+PRD version 
+1.0 · September 2026 
+ 
+This PRD is implementation-oriented. It deliberately separates Hindsight-native memory capabilities from deterministic 
+application metadata and policy controls, so the hackathon build can be credible without recreating a second memory 
+system. 
+ 
+ 
+DecisionPrint · Product Requirements Document 
+Hackathon PRD · Hindsight-centric organizational decision memory 
+Executive Summary 
+DecisionPrint is an AI-powered organizational decision-memory system. It turns fragmented project artifacts into a 
+living record of decisions, their reasons, constraints, alternatives, assumptions, outcomes, exceptions, and later 
+consequences. Its purpose is not document search. Its purpose is to reconstruct how organizational reasoning evolved 
+over time and to make that history useful at the next decision point. 
+Hindsight is the product’s memory engine, not an accessory. Source documents and transcripts are retained into an 
+organizational memory bank. Hindsight extracts facts, temporal information, entities, and relationships; its recall 
+operation retrieves through semantic, keyword, graph, and temporal strategies; background observations consolidate 
+repeated evidence into evolving beliefs; reflect performs deeper reasoning over remembered material; and mental 
+models can maintain standing organizational summaries. DecisionPrint adds the smallest deterministic layer required 
+for canonical Decision objects, source permissions, comparison of old versus current constraints, drift flags, and 
+auditability. 
+The hackathon MVP proves one loop exceptionally well: ingest historical project evidence; ingest a new project 
+meeting; extract a decision and its context; retain that evidence in Hindsight; ask a new decision question; recall the 
+relevant historical decision; compare historical and current constraints; surface Decision Drift; produce a source-
+backed decision brief; then ingest a later outcome or incident and show that the organizational memory has changed. 
+The demo must make one fact visually undeniable: without persistent longitudinal memory, “Kafka 
+was rejected” looks like a rule; with Hindsight memory, it becomes “Kafka was rejected in 2025 
+because there were only two consumers and no replay requirement — conditions that no longer 
+match this project.” 
+Problem Statement 
+Organizations document outputs better than reasoning. PRDs record requirements, architecture documents record 
+chosen designs, tickets record work, meeting notes record fragments, and postmortems record failures. The 
+connective tissue — why an option was chosen, which assumptions were true then, what alternatives were rejected, 
+and what happened later — is scattered across time and tools. 
+This creates four recurring failures: institutional amnesia when people leave; cargo-cult reuse of old decisions after 
+their constraints have changed; repeated exploration of already-tested alternatives; and weak organizational learning 
+because downstream outcomes are not connected back to the decisions that preceded them. 
+Generic retrieval systems reduce search cost but do not solve the temporal reasoning problem. A similarity search can 
+find “Do not use Kafka,” yet still miss that the statement was contingent on two consumers, moderate traffic, and no 
+replay. DecisionPrint treats a decision as a time-bound claim embedded in a changing world. 
+Product Vision 
+Create an organizational memory that can answer not merely “What do our documents say?” but “What did we believe, 
+why did we believe it, what evidence changed, and what should be reconsidered now?” 
+Product Thesis 
+The most valuable organizational knowledge is often conditional and longitudinal. A technical choice is meaningful only 
+in relation to its constraints; an organizational principle is trustworthy only when its supporting evidence is visible; and a 
+past decision should influence a new one only to the extent that the contexts are comparable. 
+Therefore, DecisionPrint treats persistent memory, temporal context, evidence consolidation, and evolving 
+observations as first-class product primitives. Hindsight is uniquely central because the product’s core behavior 
+depends on retain → evolving memory → recall/reflect rather than one-shot retrieval. 
+DecisionPrint · Product Requirements Document 
+Hackathon PRD · Hindsight-centric organizational decision memory 
+Target Users 
+User 
+Primary need 
+DecisionPrint value 
+New employee 
+Understand why systems and practices 
+exist 
+Evidence-backed organizational context, exceptions, 
+mistakes, and historical rationale 
+Project / team lead 
+Make a new product or technical decision 
+Comparable prior decisions, old constraints, outcomes, 
+exceptions, and drift 
+Executive / strategy user 
+See cross-project patterns without reading 
+every project 
+Evidence-linked trends, recurring bottlenecks, capability 
+demand, outdated assumptions 
+ 
+User Personas 
+Persona A — New Engineer: “Explain the organization to me” 
+Needs answers grounded in the company’s actual history, not generic model knowledge. Typical questions: Why do 
+we use PostgreSQL here? Why was GraphQL rejected? What should I know before changing this subsystem? Which 
+exceptions exist? 
+Persona B — Project Lead: “Help me avoid repeating history” 
+Needs a concise decision brief before committing to an architecture or product choice. The system must separate 
+historical fact from inferred similarity and must explicitly compare old constraints with current constraints. 
+Persona C — CTO / COO: “Show me what the portfolio is teaching us” 
+Needs trends across projects: recurring operational failures, repeated capability gaps, technology adoption changes, 
+and assumptions that appear stale. The product surfaces evidence; the executive remains the decision-maker. 
+Jobs To Be Done 
+ 
+When I inherit a system, help me reconstruct why it looks this way so I do not undo a deliberate trade-off by 
+accident. 
+ 
+When I face a new decision, show me similar historical decisions and whether their constraints still match. 
+ 
+When a past choice produced a later incident or success, connect the outcome back to the original decision with 
+calibrated causal language. 
+ 
+When multiple projects reveal the same pattern, consolidate that evidence into an organizational observation 
+instead of making me rediscover it project by project. 
+ 
+When organizational assumptions stop matching reality, flag the mismatch for human reconsideration without 
+silently rewriting policy. 
+Core Use Cases 
+Use case 
+Input 
+Output 
+Historical rationale 
+“Why don’t we use Kafka?” 
+Decision timeline + original reasons + constraints + exceptions + 
+sources 
+New decision support 
+New project requirements + question 
+Comparable historical decisions + constraint delta + decision brief 
+Decision Drift 
+Old decision + new evidence 
+Drift explanation + changed assumptions + affected projects + 
+confidence 
+Downstream impact 
+Decision + later incident/postmortem 
+Decision → implementation → event → consequence chain with 
+causal confidence 
+Organizational learning 
+Many projects over time 
+Consolidated observations / mental models with supporting 
+evidence 
+Executive insight 
+Portfolio-level question 
+Evidence-linked trend statement, not autonomous strategy 
+ 
+DecisionPrint · Product Requirements Document 
+Hackathon PRD · Hindsight-centric organizational decision memory 
+Product Principles 
+1. Memory before generation. Retrieve organizational memory before allowing the answer model to reason about 
+company-specific history. 
+2. Conditional, not absolute. Store the circumstances around a decision so “rejected” never automatically means 
+“forbidden forever.” 
+3. Time is data. Preserve both when an event occurred and when the system learned it. 
+4. Evidence survives synthesis. Every high-impact claim must lead back to retained evidence and source artifacts. 
+5. Observations evolve; history remains inspectable. New evidence may refine an organizational belief but must not 
+erase the underlying facts. 
+6. Human authority stays explicit. Drift, causal links, capability gaps, and recommendations are prompts for review, 
+not automatic policy changes. 
+7. One memory engine. Do not introduce a second vector/graph memory stack merely to duplicate Hindsight. 
+Competitive Differentiation 
+Category 
+Typical behavior 
+DecisionPrint difference 
+Generic RAG 
+Finds semantically similar chunks 
+Reconstructs time-bound decisions, reasons, constraints, 
+and later outcomes 
+Enterprise search 
+Locates documents / passages 
+Builds an evolving organizational memory across 
+documents and time 
+Traditional knowledge 
+base 
+Human-maintained static pages 
+Observations and standing summaries can evolve as new 
+evidence is retained 
+Vector database 
+Similarity retrieval primitive 
+Hindsight adds temporal, graph, keyword, semantic 
+retrieval plus memory consolidation 
+Meeting assistant 
+Summarizes one meeting 
+Connects a meeting decision to older projects and later 
+consequences 
+Generic copilot 
+Answers from current context 
+Reasons over persistent organizational history 
+Architecture Decision 
+Records 
+Excellent explicit decision documents but 
+manually created and often isolated 
+Extracts decision context from broader evidence and 
+connects ADR-like decisions to outcomes and changing 
+assumptions 
+ 
+Differentiator: DecisionPrint remembers not only WHAT the organization decided, but WHY, under 
+WHICH constraints, WHAT happened afterward, and WHETHER those assumptions still hold. 
+Hindsight-Centric Memory Architecture 
+DecisionPrint uses one organization memory bank for the hackathon dataset, with strict tags/metadata for project, 
+source class, sensitivity, and lifecycle. This choice enables cross-project learning — essential to the product — while 
+allowing recall to be scoped to authorized projects. A production deployment can partition banks by tenant/business 
+boundary where isolation requirements demand it. 
+SOURCE ARTIFACTS 
+  PRD · architecture doc · transcript · postmortem · incident 
+        │ 
+        ▼ 
+INGESTION + ACCESS METADATA 
+  source_id · project_id · timestamp · sensitivity · ACL tags 
+        │ 
+        ▼ 
+HINDSIGHT RETAIN  ← retain mission: decisions, trade-offs, constraints, outcomes 
+  documents + extracted facts + time + entities + relationships 
+        │ 
+        ├──────────────► HINDSIGHT OBSERVATIONS 
+        │                 evolving evidence-grounded beliefs 
+        │ 
+        ├──────────────► MENTAL MODELS / KNOWLEDGE PAGES 
+        │                 standing organizational summaries 
+        │ 
+DecisionPrint · Product Requirements Document 
+Hackathon PRD · Hindsight-centric organizational decision memory 
+        ▼ 
+CANONICAL DECISION INDEX (small app DB) 
+  stable decision IDs · source refs · explicit fields · ACL pointers 
+        │ 
+USER QUESTION + CURRENT PROJECT CONTEXT 
+        │ 
+        ▼ 
+HINDSIGHT RECALL → candidate historical memories 
+        │ 
+        ├── deterministic constraint comparator → drift candidates 
+        │ 
+        ▼ 
+HINDSIGHT REFLECT / ANSWER ORCHESTRATOR 
+        │ 
+        ▼ 
+EVIDENCE-BACKED DECISION BRIEF + TIMELINE + DRIFT + SOURCES 
+Hindsight’s official model aligns directly with this architecture: retain extracts structured facts and links entities; recall 
+runs semantic, keyword, graph, and temporal retrieval; observations consolidate repeated evidence; and reflect can 
+reason over observations, mental models, and raw facts. DecisionPrint therefore does not need a separate vector 
+database or custom knowledge graph for the MVP. 
+Memory Model 
+Memory layers 
+Layer 
+Representation 
+Owner 
+Purpose 
+Raw source 
+Original document/transcript + source 
+identity 
+Source store + 
+Hindsight document 
+association 
+Audit, exact evidence, reprocessing 
+Atomic memory facts 
+World / experience facts with time, 
+context, tags, entities 
+Hindsight 
+What happened, who/what/when/why 
+Decision projection 
+Canonical Decision object pointing to 
+memory/source IDs 
+Application DB 
+Deterministic UI, lifecycle, dedupe, explicit 
+status 
+Observations 
+Consolidated evidence-grounded 
+beliefs 
+Hindsight 
+Patterns, repeated exceptions, durable 
+organizational learning 
+Mental models / 
+pages 
+Standing synthesized answers 
+Hindsight 
+Fast living summaries such as architecture 
+principles or recurring risks 
+Derived signals 
+Constraint delta, drift score, causal 
+confidence 
+Application logic 
+Deterministic, inspectable product features 
+ 
+Representing concepts 
+Concept 
+Hindsight representation 
+Application representation 
+Decision 
+Retained fact(s) tagged decision + entities + occurred time 
+Decision ID, normalized title/status, source 
+refs 
+Reason 
+Fact text preserving “why”; linked via shared source/entities 
+Structured reason field for 
+display/extraction QA 
+Constraint 
+Retained fact tagged constraint; project/technology entities 
+Normalized key/value where extractable for 
+comparison 
+Assumption 
+Retained fact tagged assumption 
+Assumption list + active/invalidated status 
+Alternative / rejection 
+Facts describing option and reason for rejection 
+Alternative rows linked to decision 
+Technology 
+Canonical entity + fact relationships 
+Technology label / filter 
+Project 
+Entity + project tag/metadata 
+Project record and ACL scope 
+Stakeholder 
+Entity when present in authorized source 
+Participant IDs/names only as needed; no 
+performance scoring 
+Outcome / incident 
+Later retained event with temporal and entity links 
+Outcome record / incident link 
+Evidence / source 
+Document/chunk association on recalled fact 
+Source table with page/meeting timestamp 
+if available 
+Confidence 
+Evidence/proof and retrieval information 
+Extraction confidence + inference 
+confidence, separately displayed 
+Current status 
+Newer facts/observations over time 
+active / reconsidered / superseded / 
+exception 
+DecisionPrint · Product Requirements Document 
+Hackathon PRD · Hindsight-centric organizational decision memory 
+ 
+Important implementation rule: Hindsight memory is the semantic/temporal truth substrate; the Decision object is a 
+projection optimized for UI and deterministic comparisons. The app database must never become a shadow 
+knowledge base containing all organizational memory. 
+Decision Model 
+Canonical Decision object 
+Decision { 
+  id: string 
+  project_id: string 
+  title: string 
+  decision_statement: string 
+  occurred_at: datetime 
+  participants: [entity_ref] 
+  context_summary: string 
+  constraints: [{name, value, unit?, source_memory_id}] 
+  assumptions: [{statement, status, source_memory_id}] 
+  alternatives: [{option, disposition, reason, source_memory_id}] 
+  selected_option: string 
+  reasons: [{statement, source_memory_id}] 
+  technologies: [entity_ref] 
+  source_refs: [{document_id, chunk_id?, locator?}] 
+  extraction_confidence: 0..1 
+  outcome_refs: [outcome_id] 
+  status: active | reconsidered | superseded | exception 
+  superseded_by: decision_id? 
+  related_decisions: [decision_id] 
+} 
+Application metadata: stable IDs, normalized fields, status, supersession pointers, source locators, and explicit 
+confidence. Hindsight memory: the underlying decision facts, reasons, temporal context, entities/relationships, 
+outcomes, observations, and learned organizational patterns. 
+Decision Lifecycle 
+PROPOSED / DISCUSSED 
+      ↓ evidence of commitment 
+DECIDED 
+      ↓ implementation / later events 
+OBSERVED OUTCOME 
+      ↓ new constraints or contradictory evidence 
+RECONSIDERATION CANDIDATE 
+      ├── no change → ACTIVE WITH NEW EVIDENCE 
+      ├── scoped exception → EXCEPTION 
+      └── changed decision → SUPERSEDED → NEW DECISION 
+Decisions are append-only historical events. A superseding decision does not overwrite the original memory. The 
+application updates lifecycle metadata while Hindsight retains both historical and newer evidence, enabling temporal 
+recall and inspection of evolution. 
+Decision Drift 
+Decision Drift identifies when the premises supporting an older decision appear materially different from current 
+evidence. It is a review signal, not an automated reversal. 
+Drift triggers 
+ 
+A historical constraint no longer holds. 
+DecisionPrint · Product Requirements Document 
+Hackathon PRD · Hindsight-centric organizational decision memory 
+ 
+Repeated exceptions accumulate against a broad rule. 
+ 
+A previously rejected technology increasingly appears in successful projects. 
+ 
+The same decision is repeatedly reopened. 
+ 
+Operational evidence contradicts an assumption that supported the original decision. 
+MVP drift algorithm 
+8. Recall historical decision memories relevant to the current question and entities. 
+9. Extract/normalize comparable constraints from the historical decision and current project context. 
+10. Classify each pair as same, changed, newly present, missing/unknown, or incomparable. 
+11. Compute an explainable drift score from material changed constraints, weighted by whether the historical reason 
+explicitly depended on them. 
+12. Ask Hindsight reflect to synthesize the organizational context using recalled evidence, but require the UI to show 
+the deterministic constraint delta beside the synthesis. 
+13. Label the result “reconsideration warranted” only when threshold conditions are met; never mutate the decision 
+automatically. 
+drift_score = weighted_changed_reason_constraints / weighted_known_reason_constraints 
+ 
+Example: 
+consumer_count: 2 → 15        CHANGED (material) 
+replay_required: no → yes     CHANGED (material) 
+traffic: moderate → high      CHANGED (material) 
+team_size: small → unknown    UNKNOWN 
+ 
+Signal: HIGH DRIFT · original premises materially differ 
+Causal / Downstream Impact Memory 
+DecisionPrint connects a decision to later outcomes only when evidence supports the link. The system must preserve 
+calibrated causal language. 
+Label 
+Use when 
+Example wording 
+FACT 
+The source explicitly states the decision/event 
+“Backups were disabled in the deployment 
+configuration.” 
+EXPLICIT CAUSAL LINK 
+A postmortem explicitly names the decision as 
+a cause/contributor 
+“The postmortem identifies missing automated backups 
+as a contributing factor.” 
+STRONG EVIDENCE 
+Multiple sources support a relationship but do 
+not explicitly declare causation 
+“Evidence strongly associates the recovery delay with 
+the backup decision.” 
+POSSIBLE CAUSAL 
+LINK 
+Temporal/entity connection exists but causal 
+support is incomplete 
+“This decision may be related; the available sources do 
+not establish causation.” 
+ 
+Decision → Constraint → Implementation → Event → Incident → Consequence 
+   │                                                   │ 
+   └──────────── source evidence + timestamps ─────────┘ 
+For the MVP, causal chains are assembled from recalled facts sharing decision/project/technology entities plus 
+temporal order, then classified by an LLM into the labels above. The classifier must return evidence IDs. If it cannot 
+cite evidence, the link is not displayed as causal. 
+Functional Requirements 
+ID 
+Requirement 
+MVP 
+priority 
+FR-01 
+Upload and ingest historical project documents and transcripts with project/date/source metadata. 
+P0 
+FR-02 
+Configure Hindsight retain mission to focus extraction on decisions, trade-offs, constraints, 
+assumptions, alternatives, outcomes, incidents, and exceptions. 
+P0 
+FR-03 
+Extract canonical Decision objects from retained source material and link every field to evidence. 
+P0 
+FR-04 
+Retain current-project meeting transcripts and make new evidence available to later recall. 
+P0 
+FR-05 
+Ask natural-language questions scoped to authorized organizational/project memory. 
+P0 
+FR-06 
+Recall relevant historical decisions with temporal/entity context. 
+P0 
+DecisionPrint · Product Requirements Document 
+Hackathon PRD · Hindsight-centric organizational decision memory 
+FR-07 
+Compare old and current constraints and surface Decision Drift. 
+P0 
+FR-08 
+Generate a decision brief separating fact, observation, inference, and recommendation. 
+P0 
+FR-09 
+Display source evidence for every important claim. 
+P0 
+FR-10 
+Show decision timeline and supersession/evolution. 
+P0 
+FR-11 
+Ingest a later outcome/postmortem and connect it to the decision when supported. 
+P0 demo 
+FR-12 
+Show organizational observations/trends from multiple projects. 
+P1 
+FR-13 
+Executive dashboard with evidence-linked trends. 
+P1 
+FR-14 
+Manual correction/supersession of extracted Decision projection. 
+P1 
+ 
+Non-Functional Requirements 
+Area 
+Requirement 
+Traceability 
+100% of displayed historical claims must include at least one source/memory reference. 
+Latency 
+Target <5 s for recall-based brief; <12 s for deep reflect in demo environment. 
+Reliability 
+Failed consolidation/reflect must not destroy retained source or canonical decision records. 
+Security 
+No cross-project disclosure outside authorized scope; ACL filters applied before answer generation. 
+Explainability 
+Constraint delta and confidence visible without opening raw logs. 
+Auditability 
+Log query, authorized scope, recalled memory IDs, decision IDs, generated inference, and source references. 
+Data integrity 
+Corrections append/supersede; do not silently rewrite historical evidence. 
+Usability 
+A judge must understand the old decision, changed constraint, and drift signal in <20 seconds. 
+ 
+User Journeys 
+New employee journey 
+14. Ask “Why do we use REST instead of GraphQL in Billing?” 
+15. System recalls Billing and related API decisions, prioritizing authorized evidence. 
+16. Answer shows original decision, constraints, later exceptions, and source excerpts. 
+17. User opens timeline to see whether the organization’s position changed. 
+Project lead journey 
+18. Create/select current project and enter current constraints. 
+19. Ask “Should we use Kafka?” 
+20. DecisionPrint recalls prior Kafka decisions and observations. 
+21. Constraint comparator shows old vs new context. 
+22. Drift card explains which original premises changed. 
+23. Decision brief provides evidence, inference, confidence, and source links; lead decides. 
+Executive journey 
+24. Open Organizational Trends. 
+25. See “real-time processing demand appears in 6 of last 8 projects” with evidence count. 
+26. Open evidence panel to inspect supporting projects and constraints. 
+27. Treat “potential streaming capability gap” as a review prompt, not an automated hiring recommendation. 
+MVP Scope 
+Build one polished longitudinal decision loop. Everything else is secondary. 
+ 
+One fictional company memory bank with 20–50 coherent historical projects and 5 current projects. 
+ 
+Historical ingestion for text/Markdown/PDF-extracted text or prepared synthetic documents. 
+ 
+Current meeting transcript ingestion. 
+ 
+Decision extraction into canonical Decision objects with source references. 
+ 
+Hindsight retain with timestamps, project/source tags, context, and retain mission. 
+DecisionPrint · Product Requirements Document 
+Hackathon PRD · Hindsight-centric organizational decision memory 
+ 
+Hindsight recall for historical candidates and reflect for deeper synthesis. 
+ 
+Automatic observations allowed to consolidate organizational patterns; 2–4 curated mental models for standing 
+summaries. 
+ 
+Deterministic old-vs-current constraint comparison and Decision Drift card. 
+ 
+Evidence-backed decision brief. 
+ 
+Decision timeline showing evolution/supersession. 
+ 
+One downstream incident/postmortem chain demonstrating outcome memory. 
+ 
+Streamlit UI optimized for the killer demo. 
+Explicitly Out of Scope 
+ 
+Autonomous architecture approval or policy mutation. 
+ 
+Autonomous hiring, firing, employee ranking, or performance surveillance. 
+ 
+Production Slack/Teams/Jira/GitHub/Confluence integrations. 
+ 
+Real-time meeting bot. 
+ 
+General-purpose enterprise search replacement. 
+ 
+Full causal inference engine. 
+ 
+Decision impact prediction. 
+ 
+Fine-grained production IAM integration beyond demo RBAC/ACL tags. 
+ 
+A second vector database or graph database duplicating Hindsight memory. 
+Technical Architecture 
+Component 
+Responsibility 
+Suggested MVP technology 
+Streamlit UI 
+Upload, project context, ask, timeline, drift, evidence 
+Python + Streamlit 
+Application service 
+Orchestration, auth scope, Decision CRUD, comparison, audit 
+Python/FastAPI or in-process Streamlit 
+service 
+Hindsight client 
+retain / recall / reflect / observations / mental models 
+Official Hindsight Python client 
+Extraction model 
+Structured Decision projection from source/retained evidence 
+LLM with JSON schema / Pydantic 
+validation 
+App DB 
+Projects, canonical decisions, source ACLs, supersession, 
+audit 
+SQLite for hackathon 
+Source store 
+Original synthetic files and stable source IDs 
+Local filesystem 
+Analytics 
+Simple counts/trends over Decision projection + Hindsight 
+observations 
+Python/pandas 
+LLM provider 
+Extraction and answer orchestration where Hindsight config 
+requires 
+Hackathon-supported model/provider 
+ 
+Architecture rule: SQLite is not a memory system. It exists for deterministic application state and UI joins. 
+Organizational facts and longitudinal learning live in Hindsight. 
+Data Architecture 
+Application tables 
+Table 
+Minimal fields 
+projects 
+project_id, name, status, start_date, end_date, acl_scope 
+sources 
+source_id, project_id, type, title, occurred_at, path, sensitivity, hindsight_document_id 
+decisions 
+decision_id, project_id, statement, occurred_at, status, confidence, superseded_by 
+decision_constraints 
+decision_id, key, value, normalized_value, evidence_memory_id 
+decision_evidence 
+decision_id, source_id, memory_id, chunk_id, locator, evidence_role 
+outcomes 
+outcome_id, project_id, occurred_at, statement, causal_label, confidence 
+audit_events 
+query_id, user_role, scope, recalled_memory_ids, output_hash, timestamp 
+ 
+DecisionPrint · Product Requirements Document 
+Hackathon PRD · Hindsight-centric organizational decision memory 
+Tag / metadata convention 
+tags: [ 
+  "org:acme-labs", 
+  "project:alpha", 
+  "source:architecture-decision", 
+  "domain:streaming", 
+  "visibility:engineering" 
+] 
+metadata: { 
+  source_id: "SRC-ALPHA-014", 
+  project_id: "alpha", 
+  source_type: "meeting_transcript", 
+  sensitivity: "internal" 
+} 
+Hindsight Integration 
+Bank strategy 
+MVP: one organization bank to enable cross-project recall, with project and visibility tags. Production: one bank per 
+tenant or hard isolation boundary; use tags only inside a boundary where cross-project learning is authorized. 
+Hindsight banks are isolated memory stores, so bank boundaries should align with real disclosure boundaries rather 
+than arbitrary UI organization. 
+Retain 
+Every source is retained with source context, project tags/metadata, and an event timestamp where known. The bank 
+retain mission should explicitly prioritize technical/product decisions, alternatives, constraints, assumptions, reasons, 
+outcomes, incidents, exceptions, and downstream consequences while ignoring meeting logistics. 
+retain_mission: 
+"Extract durable organizational decision memory. Preserve what was decided, why, 
+constraints and assumptions at the time, alternatives considered/rejected, relevant 
+technologies and stakeholders, dates, dependencies, outcomes, incidents, exceptions, 
+and explicit causal claims. Ignore greetings, scheduling, and low-value chatter." 
+Use verbose extraction for high-value decision/postmortem sources if hackathon latency permits; use concise for bulk 
+background material. Store stable source IDs so recalled facts can be traced to their document/chunk associations. 
+Recall 
+For decision questions, recall across world, experience, and observation memories, preferring observations where 
+supported while retaining access to unconsolidated recent facts. Apply project/visibility tag filters based on 
+authorization. Request entity information and use temporal query context for “at the time” questions. 
+Reflect 
+Use reflect for questions requiring synthesis across multiple memories: recurring risks, why organizational behavior 
+changed, whether evidence suggests a prior assumption is stale, or what prior outcomes matter. Do not use reflect as 
+a substitute for the deterministic constraint comparator. The answer layer should receive the comparator output as 
+additional context and return a structured brief. 
+Observations 
+Observations are crucial to “living memory.” They consolidate repeated evidence into deduplicated beliefs and are 
+refined as supporting or contradictory evidence arrives. DecisionPrint uses them for patterns such as “small teams 
+repeatedly avoid operationally heavy infrastructure” or “streaming requirements are increasingly common.” The UI 
+labels these as OBSERVATION, not historical fact. 
+DecisionPrint · Product Requirements Document 
+Hackathon PRD · Hindsight-centric organizational decision memory 
+Mental models / knowledge pages 
+Create only a few high-value standing summaries for the demo, for example “Current architecture principles,” 
+“Recurring operational risks,” and “Technology adoption patterns.” Mental models are appropriate because they are 
+saved reflect responses that can be refreshed as memory changes. Knowledge pages are useful if the team wants a 
+wiki-like view, but they are optional to the killer loop. 
+Memory history and source association 
+Use memory/document IDs and observation history where available to show that an organizational belief has 
+accumulated or changed evidence. The UI does not need to expose Hindsight internals everywhere; it should expose 
+the evidence count, supporting sources, and a simple “memory evolved” timeline. 
+LLM Architecture 
+Stage 
+Model task 
+Guardrail 
+Decision extraction 
+Convert source into canonical decision JSON 
+Schema validation; every field requires evidence ref or 
+null 
+Constraint 
+normalization 
+Map comparable quantities/booleans/categories 
+Deterministic normalization first; LLM only for semantic 
+equivalence 
+Causal classification 
+Classify explicit / strong / possible / none 
+Must return evidence IDs and rationale 
+Decision brief 
+Synthesize recalled memory + current context + 
+delta 
+Structured labels: FACT / OBSERVATION / INFERENCE 
+/ RECOMMENDATION 
+Executive insight 
+Summarize repeated evidence 
+Minimum evidence threshold; never imply prediction or 
+autonomous action 
+ 
+DecisionBrief { 
+  answer_summary 
+  historical_decisions[] 
+  historical_constraints[] 
+  current_constraints[] 
+  constraint_differences[] 
+  observations[] 
+  inferences[] 
+  drift_signal: none|low|medium|high 
+  reconsideration_warranted: boolean 
+  recommendation_note 
+  confidence 
+  sources[] 
+} 
+UI/UX 
+Navigation 
+View 
+Purpose 
+Organizational Memory Overview 
+Memory counts, projects, decisions, observations, recent evolution 
+Current Projects 
+Current constraints, recent meetings, unresolved decisions 
+Decision Explorer 
+Filter decisions by project/technology/date/status; inspect rationale 
+Ask DecisionPrint 
+Primary question experience and decision brief 
+Decision Timeline 
+Original decision → exceptions → outcomes → supersession 
+Decision Drift 
+Cards for assumptions/constraints that no longer match 
+Evidence Panel 
+Source excerpts, dates, project, fact/observation labels 
+Project Impact Graph 
+Small graph of decision → outcome links for selected decision 
+Organizational Trends 
+Evidence-backed recurring patterns and capability signals 
+ 
+DecisionPrint · Product Requirements Document 
+Hackathon PRD · Hindsight-centric organizational decision memory 
+Primary Ask screen 
+┌─────────────────────────────────────────────────────────────────────┐ 
+│ Ask DecisionPrint: Should Project Nova use Kafka?                  │ 
+├─────────────────────────────────────────────────────────────────────┤ 
+│ CURRENT CONTEXT                                                    │ 
+│ 15 consumers · replay required · high volume · async workflows     │ 
+├───────────────────────┬─────────────────────────────────────────────┤ 
+│ HISTORICAL MEMORY     │ CONSTRAINT DELTA                            │ 
+│ Project Alpha, 2025   │ consumers     2 → 15        CHANGED         │ 
+│ “Do not use Kafka”    │ replay        no → yes       CHANGED         │ 
+│ Reason: complexity    │ traffic       moderate → high CHANGED        │ 
+├───────────────────────┴─────────────────────────────────────────────┤ 
+│ ⚠ DECISION DRIFT: HIGH                                            │ 
+│ Original premises materially differ. Reconsideration warranted.    │ 
+├─────────────────────────────────────────────────────────────────────┤ 
+│ FACTS · OBSERVATIONS · INFERENCE · CONFIDENCE · SOURCES            │ 
+└─────────────────────────────────────────────────────────────────────┘ 
+Security & Privacy 
+ 
+Confidential information: store only in authorized tenant/bank boundaries; encrypt storage/transport in production. 
+ 
+Project isolation: authorization scope is resolved before recall; tag filters are derived server-side, never trusted 
+from client input. 
+ 
+Sensitive transcripts: classify source sensitivity and allow source-level exclusion from broad executive views. 
+ 
+Employee privacy: retain organizational decisions and work context, not private life or performance scoring. Do not 
+create “employee quality” observations. 
+ 
+Client information: use project/client visibility tags and redact synthetic demo data from real client identifiers. 
+ 
+Accidental disclosure: answer generator receives only authorized recalled evidence. 
+ 
+Deletion/correction: delete or reprocess source documents where supported; mark canonical decisions 
+corrected/superseded; preserve audit records consistent with policy. 
+ 
+Stale memory: show dates, status, and drift; do not present old observations as timeless truth. 
+ 
+Prompt injection in documents: treat source content as evidence, not instructions; extraction prompts explicitly 
+ignore embedded commands. 
+ 
+Hallucination/attribution: no historical claim without evidence reference; low-confidence extraction is queued for 
+review. 
+Trust & Explainability 
+Every important answer uses a fixed epistemic structure so users can see what the system knows versus what it 
+inferred. 
+ANSWER 
+  ↓ 
+HISTORICAL DECISIONS  [FACT] 
+  ↓ 
+EVIDENCE + DATES + SOURCES 
+  ↓ 
+ORIGINAL CONSTRAINTS 
+  ↓ 
+CURRENT DIFFERENCES 
+  ↓ 
+ORGANIZATIONAL PATTERNS  [OBSERVATION] 
+  ↓ 
+SYSTEM REASONING  [INFERENCE] 
+  ↓ 
+POSSIBLE ACTION  [RECOMMENDATION — human decides] 
+  ↓ 
+CONFIDENCE + SOURCE LINKS 
+DecisionPrint · Product Requirements Document 
+Hackathon PRD · Hindsight-centric organizational decision memory 
+Confidence is multi-dimensional: extraction confidence (did we parse the decision correctly?), retrieval 
+confidence/relevance, drift confidence (how many reason-linked constraints are comparable?), and causal confidence. 
+Do not collapse these into one magical percentage unless the UI explains its meaning. 
+Evaluation Framework 
+Metric 
+Definition 
+Target for demo 
+Decision extraction accuracy 
+Correct decision statement + project + date 
+≥90% on curated test set 
+Reason retrieval accuracy 
+Correct historical reason in top evidence 
+≥90% 
+Constraint matching accuracy 
+Correctly aligns old/current comparable constraints 
+≥85% 
+Historical decision retrieval 
+Relevant prior decision in top 3 
+≥90% 
+Decision Drift F1 
+Correct drift/no-drift on labeled scenarios 
+≥0.85 
+Source attribution accuracy 
+Claims point to supporting source 
+≥95% 
+Causal-chain precision 
+Displayed causal labels supported by evidence 
+≥90% precision 
+Contradiction detection 
+Flags deliberate conflicting evidence 
+≥80% 
+Hallucination rate 
+Unsupported historical claims 
+<5%; goal 0% in killer demo 
+Latency 
+Question → rendered brief 
+<5 s recall path; <12 s reflect 
+path 
+ 
+Baseline Comparison 
+Run the same 15–25 labeled decision questions through two systems: (A) generic RAG over source chunks using 
+semantic retrieval and (B) DecisionPrint + Hindsight with longitudinal memory, observations, temporal/entity retrieval, 
+and drift comparison. Keep the answer model and source corpus constant where possible. 
+Test 
+Generic RAG expectation 
+DecisionPrint + Hindsight hypothesis 
+“Why was Kafka rejected?” 
+Often retrieves the rejection passage 
+Retrieves rejection plus reason, time, entities, 
+related evidence 
+“Do those reasons still 
+apply?” 
+Requires current context to coincidentally 
+retrieve matching chunks 
+Explicit old-vs-current constraint comparison 
+backed by temporal memory 
+“Has our position changed?” 
+Hard to synthesize reliably across scattered 
+dates 
+Observations + temporal recall + decision timeline 
+expose evolution 
+“What happened 
+afterward?” 
+May retrieve postmortem if semantically similar 
+Entity/temporal links and retained outcomes 
+support decision→consequence chain 
+“What pattern exists across 
+projects?” 
+One-shot synthesis over retrieved subset 
+Observations/mental models provide accumulated 
+organizational learning 
+ 
+Primary experiment: measure not only retrieval hit rate but “contextual decision correctness” — whether the answer 
+correctly identifies that a historical decision was conditional and whether current constraints materially differ. 
+Demo Scenario 
+Fictional company: Northstar Systems 
+Northstar builds B2B platforms. In 2025, Project Alpha rejected Kafka because it had two consumers, moderate traffic, 
+no replay requirement, and a small operations team. The decision was successful under those conditions. Later 
+projects gradually introduce more asynchronous workloads. In 2026, Project Nova requires 15 consumers, replay, high 
+event volume, and asynchronous processing. 
+A later synthetic postmortem adds a second learning chain: Project Cedar skipped automated database backups to 
+reduce infrastructure cost. A database failure caused prolonged recovery, and the postmortem explicitly identifies 
+missing backups as a contributing factor. This demonstrates that DecisionPrint remembers downstream 
+consequences, not merely decisions. 
+Demo Script 
+Time 
+Action 
+What judge sees / why Hindsight matters 
+0–15s 
+Open Organizational Memory. Search 
+Historical memory: Project Alpha — “Do not introduce Kafka.” Source/date 
+DecisionPrint · Product Requirements Document 
+Hackathon PRD · Hindsight-centric organizational decision memory 
+“Kafka.” 
+visible. 
+15–30s 
+Open decision. 
+Reason + old constraints: 2 consumers, no replay, moderate traffic. Not a 
+timeless rule. 
+30–45s 
+Ingest Nova meeting transcript or reveal 
+it as newly retained evidence. 
+Current evidence enters the same living memory; project context shows 15 
+consumers + replay + high volume. 
+45–65s 
+Ask “Should Nova use Kafka?” 
+Recall brings Alpha; comparator highlights changed premises; Decision Drift = 
+HIGH; brief says reconsideration warranted, not “Kafka is automatically 
+correct.” 
+65–78s 
+Open Memory Evolution / observation. 
+Organizational view now shows increasing streaming requirements / 
+exceptions as evolving evidence. 
+78–90s 
+Open Cedar incident chain. 
+Decision → implementation → incident → consequence, labeled EXPLICIT 
+CAUSAL LINK with postmortem source. 
+ 
+Judge takeaway in one glance: Hindsight changes the answer because the product remembers the 
+original context and later evidence across time. Remove Hindsight and the defining behavior 
+collapses into document retrieval. 
+Synthetic Dataset Design 
+The dataset must be a connected organizational history, not a pile of random files. Generate projects in families so 
+constraints and decisions evolve. 
+Project family 
+Historical arc 
+Technologies / themes 
+Eventing & integration 
+2 consumers/no replay → 5 consumers → 15 
+consumers/replay 
+Kafka, RabbitMQ, webhooks, queues 
+Caching & scale 
+single instance → 4 instances → 20 instances 
+Redis, in-process cache 
+API design 
+3 known clients → partner ecosystem → 
+mobile/web/public API 
+REST, GraphQL, versioning 
+Data reliability 
+cheap MVP → production SLA → incident-driven 
+hardening 
+PostgreSQL, backups, replicas 
+Observability 
+manual debugging → distributed services 
+logging, tracing, metrics 
+Deployment 
+single service → multi-service / regional needs 
+containers, CI/CD, orchestration 
+ 
+Dataset size 
+ 
+5 current projects. 
+ 
+30 historical projects (enough breadth without slowing the hackathon). 
+ 
+60–80 explicit decisions. 
+ 
+24 meeting transcripts. 
+ 
+8 architecture documents / ADR-like files. 
+ 
+6 retrospectives. 
+ 
+5 postmortems / incidents. 
+ 
+3–5 repeated decision themes with deliberate constraint evolution. 
+ 
+At least 4 superseded/reconsidered decisions. 
+ 
+At least 3 recurring exceptions. 
+ 
+At least 2 explicit downstream consequence chains. 
+Required connected chains 
+28. Kafka chain: reject under low complexity → increasing streaming demand → Nova drift. 
+29. Redis chain: reject for single instance → multi-instance scaling → shared cache becomes relevant. 
+30. GraphQL chain: reject for three clients → later partner ecosystem creates new client diversity; perhaps still 
+rejected for other reasons, demonstrating drift does not dictate outcome. 
+31. Backup chain: cost-saving decision → implementation → failure → postmortem explicit contributing factor. 
+32. Tracing chain: initially “logs are sufficient” → distributed services → repeated debugging delays → organizational 
+observation that tracing becomes increasingly necessary. 
+DecisionPrint · Product Requirements Document 
+Hackathon PRD · Hindsight-centric organizational decision memory 
+Metrics 
+The hackathon dashboard can show evaluation results on a held-out set of synthetic questions. The most persuasive 
+chart is paired accuracy: generic RAG versus DecisionPrint + Hindsight on reason retrieval, temporal/context match, 
+and drift detection. Avoid claiming benchmark significance from a tiny synthetic set; present it as an internal demo 
+evaluation. 
+Hackathon Judging Strategy 
+Criterion 
+Weight 
+How DecisionPrint earns it 
+Innovation 
+30% 
+Decision memory + constraint-aware drift + downstream consequence chains; not another chat-
+with-docs app. 
+Hindsight Memory 
+25% 
+Core retain→observations→recall/reflect loop; temporal/entity retrieval; living mental models; 
+demo visibly depends on evolving memory. 
+Technical Implementation 
+20% 
+Canonical decision projection, evidence mapping, deterministic constraint comparator, ACL-aware 
+retrieval, structured answer schema. 
+UX 
+15% 
+Old-vs-new constraint delta, drift card, timeline, evidence panel, epistemic labels make complex 
+memory understandable quickly. 
+Real-world Impact 
+10% 
+Reduces repeated mistakes, onboarding loss, stale architectural dogma, and fragmented 
+institutional knowledge. 
+ 
+How to make Hindsight impossible to overlook 
+33. Put “Memory learned from 30 historical projects” on the opening screen with live counts from the bank/application 
+projection. 
+34. During the demo, show the old Kafka decision before adding/revealing Nova evidence. 
+35. Retain the Nova transcript and visibly show “memory updated.” 
+36. Ask the same conceptual question after new evidence and show changed reasoning / drift, not merely a different 
+retrieved chunk. 
+37. Open the evidence/observation view to show accumulated support and temporal evolution. 
+38. Explicitly state which product behaviors come from Hindsight: long-term retained facts, entities/relationships, 
+temporal recall, observations, reflect, mental models. 
+Implementation Plan 
+Phase 
+Hours 
+Deliverable 
+1. Memory spike 
+0–3 
+Run Hindsight locally/cloud; configure bank; retain 3 sample docs; validate recall/reflect and source 
+IDs. 
+2. Dataset + 
+schemas 
+3–7 
+Generate connected synthetic corpus; Pydantic Decision schema; project/source metadata. 
+3. Ingestion 
+7–12 
+File/transcript ingestion → retain; canonical decision extraction; SQLite linkage. 
+4. Query loop 
+12–18 
+Recall + structured decision brief + evidence panel. 
+5. Drift 
+18–23 
+Constraint normalization/comparator + drift explanation. 
+6. Outcome chain 
+23–27 
+Postmortem ingestion + causal labels + impact graph. 
+7. UX polish 
+27–34 
+Streamlit screens, timeline, memory overview, demo transitions. 
+8. Evaluation 
+34–38 
+Labeled questions, generic-RAG baseline, metric table. 
+9. Demo hardening 
+38–44 
+Seed deterministic dataset, cache expensive calls, failure states, 90-second rehearsal. 
+10. Buffer 
+44–48 
+Bug fixes, screenshots, pitch, README. 
+ 
+Team Responsibilities 
+Role 
+Primary ownership 
+Memory / backend engineer 
+Hindsight setup, retain/recall/reflect, tags, observations/mental models, source traceability 
+AI / extraction engineer 
+Decision schema, extraction, normalization, causal classifier, structured brief 
+Product / frontend engineer 
+Streamlit UX, timeline, drift visualization, evidence panel, demo flow 
+Data / evaluation owner 
+Synthetic corpus, connected temporal chains, labels, baseline comparison, metrics 
+All team members 
+Demo rehearsal, edge cases, judge narrative, integration testing 
+DecisionPrint · Product Requirements Document 
+Hackathon PRD · Hindsight-centric organizational decision memory 
+ 
+For a 2–3 person team, merge roles: backend+AI, frontend+product, data+evaluation. Do not split into microservices 
+or over-engineer deployment. 
+Risks 
+Risk 
+Why it matters 
+Extraction misses a decision 
+Breaks the visible memory chain. 
+Observation consolidation timing 
+New evidence may not instantly appear as a consolidated observation. 
+Reflect is slow or variable 
+Demo latency / nondeterminism. 
+Synthetic data feels fake 
+Judges may discount real-world impact. 
+Too much UI 
+Core memory story gets diluted. 
+ACL filtering error 
+Could expose confidential cross-project content. 
+Causal overclaim 
+Damages trust. 
+Hindsight becomes hidden plumbing 
+Loses the 25% memory criterion even if technically used. 
+ 
+Mitigations 
+Risk 
+Mitigation 
+Extraction miss 
+Seed critical demo decisions; run ingestion QA and show low-confidence review state. 
+Observation timing 
+Use raw facts + prefer-observations recall; pre-consolidate demo corpus; do not depend on 
+immediate observation creation for the critical path. 
+Reflect variability 
+Cache demo-safe results after memory state is seeded; retain live interaction for at least one step; 
+use structured schema. 
+Synthetic credibility 
+Write realistic documents with consistent dates, stakeholders, constraints, and later references; 
+include messy but coherent meeting language. 
+UI scope 
+Polish Ask + Drift + Evidence + Timeline first; executive screens are secondary. 
+ACL 
+Server-side scope resolution; test unauthorized project query. 
+Causality 
+Require evidence IDs and calibrated labels; default to “possible” or no link. 
+Hindsight visibility 
+Add a Memory Trace drawer showing retained/recalled/observation evidence in human terms, not 
+raw API logs. 
+ 
+Future Roadmap 
+ 
+Direct meeting ingestion and meeting agents. 
+ 
+Slack / Teams integration. 
+ 
+GitHub, Jira, and Confluence connectors. 
+ 
+Continuous project monitoring and automatic decision detection. 
+ 
+Automated postmortem ingestion. 
+ 
+Organization-wide knowledge pages with review/approval workflows. 
+ 
+Richer executive intelligence and capability planning. 
+ 
+Human-reviewed hiring/capability recommendations based on repeated project evidence. 
+ 
+Service opportunity discovery from recurring customer requirements. 
+ 
+Interactive decision graph visualization. 
+ 
+Decision impact prediction only after sufficient validated outcome data. 
+ 
+Policy workflows where authorized humans approve organizational principles derived from observations. 
+One-Sentence Pitch 
+DecisionPrint is a Hindsight-powered organizational memory that remembers what your company decided, why it 
+decided it, the constraints that made the decision sensible, what happened afterward, and when those assumptions 
+stop being true. 
+DecisionPrint · Product Requirements Document 
+Hackathon PRD · Hindsight-centric organizational decision memory 
+30-Second Pitch 
+Companies remember decisions but forget the reasoning around them. DecisionPrint turns PRDs, meetings, 
+architecture docs, and postmortems into a living decision memory powered by Hindsight. When a team asks, “Should 
+we use Kafka?”, it does not just retrieve an old note saying Kafka was rejected. It remembers that Kafka was rejected 
+when there were only two consumers and no replay requirement, compares that with today’s 15 consumers and replay 
+needs, flags Decision Drift, and shows the evidence. It also remembers what happened after past decisions, so the 
+organization learns instead of repeatedly starting from zero. 
+2-Minute Pitch 
+Every organization accumulates hundreds of technical and product decisions. The final choice might be written down, 
+but the reasoning is fragmented across meetings, PRDs, architecture docs, and postmortems. Months later, “we 
+decided not to use Kafka” becomes folklore — the original constraints disappear. 
+DecisionPrint is an organizational decision-memory system built around Hindsight. We retain historical and current 
+project evidence into a long-term memory bank. Hindsight preserves facts, time, entities, relationships, and evolving 
+observations. When a new project lead asks a question, DecisionPrint recalls comparable historical decisions and 
+shows the conditions under which they were made. 
+Our killer example is Kafka. Project Alpha rejected Kafka because it had two consumers, moderate traffic, and no 
+replay. Six months later Project Nova has 15 consumers, high volume, replay, and asynchronous workflows. 
+DecisionPrint does not say the old decision was wrong and it does not automatically choose Kafka. It shows that the 
+assumptions behind the old decision have drifted and that reconsideration is warranted. 
+Then we go one step further. If a later postmortem says a past decision contributed to an incident, DecisionPrint 
+connects the decision to the downstream consequence with explicit causal confidence. Over time, Hindsight 
+observations and mental models turn individual project evidence into living organizational learning. This is not chat with 
+documents. It is memory for how an organization reasons. 
+Final Product Definition 
+DecisionPrint is a Hindsight-native organizational decision-memory agent that continuously converts 
+project evidence into temporal, evidence-backed memory of decisions, reasons, constraints, 
+alternatives, outcomes, and evolving organizational beliefs; retrieves that memory when new 
+decisions arise; detects when historical premises no longer match current reality; and presents the 
+result as a traceable decision brief while leaving final judgment to humans. 
+Implementation Notes — Verified Hindsight Capabilities 
+The architecture above is grounded in current official Hindsight documentation and repository documentation reviewed 
+in September 2026. The implementation should re-check exact client method signatures against the version installed 
+during the hackathon. 
+Capability used by DecisionPrint 
+Verified behavior / relevance 
+Memory banks 
+Isolated containers for memories, documents, entities, relationships, and related bank state; useful 
+for tenant/hard-boundary isolation. 
+Retain 
+Processes content into facts, temporal data, entities and relationships; supports context, 
+timestamps, tags/metadata, extraction missions/modes, and source/document association. 
+Recall 
+Runs semantic, keyword/BM25, graph, and temporal retrieval; can filter memory types/tags and 
+return entities/document/chunk associations. 
+Memory types 
+World and experience facts plus observations; observations are consolidated evidence-grounded 
+beliefs. 
+Observations 
+Created/refined in background from multiple facts; preserve supporting evidence and evolve rather 
+than simply overwrite. 
+Reflect 
+Deeper reasoning over memory for synthesis questions; can use mental models, observations, 
+and raw facts hierarchically. 
+Mental models 
+Saved/pre-computed reflect responses for standing questions; suitable for organizational 
+principles/trends that refresh over time. 
+DecisionPrint · Product Requirements Document 
+Hackathon PRD · Hindsight-centric organizational decision memory 
+Knowledge pages 
+Wiki-like living documents built on mental-model mechanics; optional for MVP. 
+Memory history 
+CLI/API capabilities expose observation history for a memory unit; useful for evolution/audit views. 
+ 
+Official references 
+ 
+Hindsight repository / overview: https://github.com/vectorize-io/hindsight 
+ 
+Quickstart — retain / recall / reflect: https://github.com/vectorize-io/hindsight/blob/main/skills/hindsight-
+docs/references/developer/api/quickstart.md 
+ 
+Retain documentation: https://github.com/vectorize-io/hindsight/blob/main/skills/hindsight-
+docs/references/developer/retain.md 
+ 
+Recall documentation: https://github.com/vectorize-io/hindsight/blob/main/skills/hindsight-
+docs/references/developer/api/recall.md 
+ 
+Memory banks: https://github.com/vectorize-io/hindsight/blob/main/skills/hindsight-
+docs/references/developer/api/memory-banks.md 
+ 
+Mental models: https://github.com/vectorize-io/hindsight/blob/main/skills/hindsight-
+docs/references/developer/api/mental-models.md 
+ 
+Best practices / taxonomy: https://github.com/vectorize-io/hindsight/blob/main/skills/hindsight-
+docs/references/best-practices.md 

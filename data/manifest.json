@@ -132,6 +132,17 @@
     "is_current": false
   },
   {
+    "source_id": "SRC-GAMMA-003",
+    "project_id": "gamma",
+    "source_type": "architecture_doc",
+    "title": "Partner API Expansion - GraphQL Reconsideration",
+    "file_path": "historical/gamma/SRC-GAMMA-003_graphql_partner_api.md",
+    "date": "2025-04-15T00:00:00Z",
+    "tags": ["api", "graphql", "rest", "partner"],
+    "sensitivity": "internal",
+    "is_current": false
+  },
+  {
     "source_id": "SRC-DELTA-001",
     "project_id": "delta",
     "source_type": "architecture_doc",
@@ -176,6 +187,17 @@
     "is_current": false
   },
   {
+    "source_id": "SRC-DELTA-005",
+    "project_id": "delta",
+    "source_type": "retro",
+    "title": "Distributed Tracing Gaps - Post-Incident Analysis",
+    "file_path": "historical/delta/SRC-DELTA-005_tracing_gaps.md",
+    "date": "2025-09-15T00:00:00Z",
+    "tags": ["observability", "tracing", "incident"],
+    "sensitivity": "internal",
+    "is_current": false
+  },
+  {
     "source_id": "SRC-NOVA-001",
     "project_id": "nova",
     "source_type": "meeting_transcript",
@@ -194,6 +216,39 @@
     "file_path": "current/nova/SRC-NOVA-002_event_platform_requirements.md",
     "date": "2026-02-15T00:00:00Z",
     "tags": ["design", "event-platform", "kafka"],
+    "sensitivity": "internal",
+    "is_current": true
+  },
+  {
+    "source_id": "SRC-HORIZON-001",
+    "project_id": "horizon",
+    "source_type": "design_doc",
+    "title": "Horizon Partner Portal API Requirements",
+    "file_path": "current/horizon/SRC-HORIZON-001_partner_portal.md",
+    "date": "2026-03-10T00:00:00Z",
+    "tags": ["api", "graphql", "rest", "partner", "portal"],
+    "sensitivity": "internal",
+    "is_current": true
+  },
+  {
+    "source_id": "SRC-SENTINEL-001",
+    "project_id": "sentinel",
+    "source_type": "design_doc",
+    "title": "Sentinel Full Observability Platform",
+    "file_path": "current/sentinel/SRC-SENTINEL-001_observability_platform.md",
+    "date": "2026-04-01T00:00:00Z",
+    "tags": ["observability", "tracing", "monitoring"],
+    "sensitivity": "internal",
+    "is_current": true
+  },
+  {
+    "source_id": "SRC-FORTRESS-001",
+    "project_id": "fortress",
+    "source_type": "design_doc",
+    "title": "Fortress Data Reliability Platform",
+    "file_path": "current/fortress/SRC-FORTRESS-001_data_reliability.md",
+    "date": "2026-05-01T00:00:00Z",
+    "tags": ["backup", "data-reliability", "disaster-recovery"],
     "sensitivity": "internal",
     "is_current": true
   }
